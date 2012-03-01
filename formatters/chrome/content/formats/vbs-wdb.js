@@ -143,20 +143,20 @@ function getSourceForCommand(commandObj) {
 
 		if(command.command.match(/^store/)){
 			if(editor.seleniumAPI.Selenium.prototype[ command.command.replace(/^store/, 'is')]){
-				template = options.commandTemplate.replace(/\$\{command.command\}/g, command.command.replace(/^store/, 'is') );
+				template = options.commandTemplate.replace(/\$\{command.command\}/g, command.command.replace(/^store/, 'is') + '(' );
 			}else if(editor.seleniumAPI.Selenium.prototype[ command.command.replace(/^store/, 'get')]){
-				template = options.commandTemplate.replace(/\$\{command.command\}/g, command.command.replace(/^store/, 'get') );
+				template = options.commandTemplate.replace(/\$\{command.command\}/g, command.command.replace(/^store/, 'get') + '(' );
 			}else{
-				template = options.commandTemplate.replace(/\$\{command.command\}/g, command.command );
+				template = options.commandTemplate.replace(/\$\{command.command\}/g, command.command + '(' );
 			}
 			if(command.value == ''){
 				template = template.replace(/\$\{instance\}/g, command.target + " = " + options["instance"]);
 				template = template.replace(/\$\{command.target\}/g, '' );
-				template = template.replace(/\$\{command.value\}/g, '' );				
+				template = template.replace(/\$\{command.value\}/g, ')' );				
 			}else{
 				template = template.replace(/\$\{instance\}/g, command.value + " = " + options["instance"]);
-				template = template.replace(/\$\{command.target\}/g, ' "' + command.target + '"' );
-				template = template.replace(/\$\{command.value\}/g, '' );	
+				template = template.replace(/\$\{command.target\}/g, '"' + command.target + '"' );
+				template = template.replace(/\$\{command.value\}/g, ')' );	
 			}
 		}else{
 			template = options.commandTemplate.replace(/\$\{instance\}/g, options["instance"]);
@@ -213,7 +213,6 @@ function format(testCase, name, saveHeaderAndFooter, useDefaultHeaderAndFooter) 
 	return testText;
 }
 
-
 /*
  * Optional: The customizable option that can be used in format/parse functions.
  */
@@ -224,7 +223,7 @@ this.options = {
 	browser: "Browser_Chrome",
 
 	commandLoadPattern:
-	'((\\w+)\\s=\\s)?instance\\.(\\w+)(\\s\"([^\"]*)\"(\\,\\s\"([^\"]*)\")?)?',
+	'((\\w+)\\s*=\\s*)?instance\\.(\\w+)([\\(\\s]\"([^\"]*)\"(\\,\\s*\"([^\"]*)\")?)?',
 	
 	commandLoadScript:
 	"command.variable = result[2];\n" +
