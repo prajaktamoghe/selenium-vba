@@ -22,7 +22,7 @@ namespace InterfaceGeneration
             for (int i = 0; i < lMethods.Length; i++) {
                 if (lMethods[i].DeclaringType.Name == "DefaultSelenium") {
                     string intMethodsName = lMethods[i].Name;
-                    if (lMethods[i].Name != "Start" && lMethods[i].Name != "Start" && lMethods[i].Name != "get_Processor")
+                    if (lMethods[i].Name != "Start" && lMethods[i].Name != "Start" && lMethods[i].Name != "get_Processor" && lMethods[i].Name != "SetTimeout")
                     {
                         string argsInt = string.Empty;
                         string argsMeth = string.Empty;
@@ -57,6 +57,12 @@ namespace InterfaceGeneration
                                 sb.AppendLine("\t\tpublic void " + lMethods[i].Name.Replace("Get", "assertNot") + "(" + argsInt + "){"
                                         + "InvokeAssert(()=>this.result=webDriver." + lMethods[i].Name + "(" + argsMeth + "),expected,false);}");
 
+                                sb.AppendLine("\t\tpublic String " + lMethods[i].Name.Replace("Get", "verify") + "(" + argsInt + "){"
+                                        + "return InvokeVerify(()=>this.result=webDriver." + lMethods[i].Name + "(" + argsMeth + "),expected,true);}");
+
+                                sb.AppendLine("\t\tpublic String " + lMethods[i].Name.Replace("Get", "verifyNot") + "(" + argsInt + "){"
+                                        + "return InvokeVerify(()=>this.result=webDriver." + lMethods[i].Name + "(" + argsMeth + "),expected,false);}");
+
                                 sb.AppendLine("\t\tpublic void " + lMethods[i].Name.Replace("Get", "waitFor") + "(" + argsInt + "){"
                                         + "InvokeWaitFor(()=>this.result=webDriver." + lMethods[i].Name + "(" + argsMeth + "),expected,true);}");
 
@@ -66,6 +72,9 @@ namespace InterfaceGeneration
                                 sb.AppendLine("\t\tpublic void " + lMethods[i].Name.Replace("Is", "assert") + "(" + argsInt + "){"
                                         + "InvokeAssert(()=>this.result=webDriver." + lMethods[i].Name + "(" + argsMeth + "),true,true);}");
 
+                                sb.AppendLine("\t\tpublic String " + lMethods[i].Name.Replace("Is", "verify") + "(" + argsInt + "){"
+                                        + "return InvokeVerify(()=>this.result=webDriver." + lMethods[i].Name + "(" + argsMeth + "),true,true);}");
+
                                 sb.AppendLine("\t\tpublic void " + lMethods[i].Name.Replace("Is", "waitFor") + "(" + argsInt + "){"
                                         + "InvokeWaitFor(()=>this.result=webDriver." + lMethods[i].Name + "(" + argsMeth + "),true,true);}");
 
@@ -73,16 +82,20 @@ namespace InterfaceGeneration
                                     sb.AppendLine("\t\tpublic void " + lMethods[i].Name.Replace("Is", "assert").Replace("Present", "NotPresent") + "(" + argsInt + "){"
                                             + "InvokeAssert(()=>this.result=webDriver." + lMethods[i].Name + "(" + argsMeth + "),false,true);}");
 
+                                    sb.AppendLine("\t\tpublic String " + lMethods[i].Name.Replace("Is", "verify").Replace("Present", "NotPresent") + "(" + argsInt + "){"
+                                            + "return InvokeVerify(()=>this.result=webDriver." + lMethods[i].Name + "(" + argsMeth + "),false,true);}");
+
                                     sb.AppendLine("\t\tpublic void " + lMethods[i].Name.Replace("Is", "waitFor").Replace("Present", "NotPresent") + "(" + argsInt + "){"
                                             + "InvokeWaitFor(()=>this.result=webDriver." + lMethods[i].Name + "(" + argsMeth + "),false,true);}");
-
                                 }else{
                                     sb.AppendLine("\t\tpublic void " + lMethods[i].Name.Replace("Is", "assertNot") + "(" + argsInt + "){"
                                             + "InvokeAssert(()=>this.result=webDriver." + lMethods[i].Name + "(" + argsMeth + "),false,true);}");
 
+                                    sb.AppendLine("\t\tpublic String " + lMethods[i].Name.Replace("Is", "verifyNot") + "(" + argsInt + "){"
+                                            + "return InvokeVerify(()=>this.result=webDriver." + lMethods[i].Name + "(" + argsMeth + "),false,true);}");
+
                                     sb.AppendLine("\t\tpublic void " + lMethods[i].Name.Replace("Is", "waitForNot") + "(" + argsInt + "){"
                                             + "InvokeWaitFor(()=>this.result=webDriver." + lMethods[i].Name + "(" + argsMeth + "),false,true);}");
-
                                 }
                             }
                         }

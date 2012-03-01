@@ -57,9 +57,9 @@ function parse(testCase, source) {
 	
 	var doc = source.substr(startIndex + cmdStart.length, stopIndex - startIndex - cmdStart.length).replace('""', '¤');	
 	
-	var commandRegexp = new RegExp(options["instance"] + options.commandLoadPattern);
+	var commandRegexp = new RegExp( options.commandLoadPattern.replace('instance', options["instance"] ));
 	var commentRegexp = new RegExp(options.commentLoadPattern);
-	var commandOrCommentRegexp = new RegExp("((" + options["instance"] + options.commandLoadPattern + ")|(" + options.commentLoadPattern + "))", 'g');
+	var commandOrCommentRegexp = new RegExp("((" + options.commandLoadPattern.replace('instance', options["instance"] ) + ")|(" + options.commentLoadPattern + "))", 'g');
 
 	var commands = [];
 	var commandFound = false;
@@ -79,6 +79,14 @@ function parse(testCase, source) {
 				command.command = command.command.substr(0, 1).toLowerCase() + command.command.substr(1);
 				command.target = command.target.replace('¤', '""');
 				command.value = command.value.replace('¤', '""');
+				if(command.variable) {
+					command.command = command.command.replace(/^get|is/, 'store');
+					if(command.target != ''){
+						command.value = command.variable;
+					}else{
+						command.target = command.variable;
+					}
+				}
 				commands.push(command);
 				if (!commandFound) {
 					// remove comments before the first command or comment
@@ -132,10 +140,30 @@ function getSourceForCommand(commandObj) {
 		command = commandObj;
 		command = command.createCopy();
 		convertText(command, this.encodeText);
-		template = options.commandTemplate.replace(/\$\{instance\}/g, options["instance"]);
-		template = template.replace(/\$\{command.command\}/g, command.command.replace(/^verify/, 'assert') );
-		template = template.replace(/\$\{command.target\}/g, (command.target == '' ? '' : ' "' + command.target + '"') );
-		template = template.replace(/\$\{command.value\}/g, (command.value == '' ? '' : ', "' + command.value + '"') );
+
+		if(command.command.match(/^store/)){
+			if(editor.seleniumAPI.Selenium.prototype[ command.command.replace(/^store/, 'is')]){
+				template = options.commandTemplate.replace(/\$\{command.command\}/g, command.command.replace(/^store/, 'is') );
+			}else if(editor.seleniumAPI.Selenium.prototype[ command.command.replace(/^store/, 'get')]){
+				template = options.commandTemplate.replace(/\$\{command.command\}/g, command.command.replace(/^store/, 'get') );
+			}else{
+				template = options.commandTemplate.replace(/\$\{command.command\}/g, command.command );
+			}
+			if(command.value == ''){
+				template = template.replace(/\$\{instance\}/g, command.target + " = " + options["instance"]);
+				template = template.replace(/\$\{command.target\}/g, '' );
+				template = template.replace(/\$\{command.value\}/g, '' );				
+			}else{
+				template = template.replace(/\$\{instance\}/g, command.value + " = " + options["instance"]);
+				template = template.replace(/\$\{command.target\}/g, ' "' + command.target + '"' );
+				template = template.replace(/\$\{command.value\}/g, '' );	
+			}
+		}else{
+			template = options.commandTemplate.replace(/\$\{instance\}/g, options["instance"]);
+			template = template.replace(/\$\{command.command\}/g, command.command.replace(/^verify/, 'assert') );
+			template = template.replace(/\$\{command.target\}/g, (command.target == '' ? '' : ' "' + command.target + '"') );
+			template = template.replace(/\$\{command.value\}/g, (command.value == '' ? '' : ', "' + command.value + '"') );
+		}
 	} else if (commandObj.type == 'comment') {
 		comment = commandObj;
 		template = options.commentTemplate.replace(/\$\{comment.comment\}/g, comment );
@@ -185,6 +213,7 @@ function format(testCase, name, saveHeaderAndFooter, useDefaultHeaderAndFooter) 
 	return testText;
 }
 
+
 /*
  * Optional: The customizable option that can be used in format/parse functions.
  */
@@ -195,12 +224,13 @@ this.options = {
 	browser: "Browser_Chrome",
 
 	commandLoadPattern:
-	'\\.(\\w+)(\\s\"([^\"]*)\"(\\,\\s\"([^\"]*)\")?)?',
+	'((\\w+)\\s=\\s)?instance\\.(\\w+)(\\s\"([^\"]*)\"(\\,\\s\"([^\"]*)\")?)?',
 	
 	commandLoadScript:
-	"command.command = result[1];\n" +
-	"command.target = result[3]||'';\n" +
-	"command.value = result[5]||'';\n",
+	"command.variable = result[2];\n" +
+	"command.command = result[3];\n" +
+	"command.target = result[5]||'';\n" +
+	"command.value = result[7]||'';\n",
 
 	commentLoadPattern:	"\\'(.+)\\n",
 	commentLoadScript: "comment.comment = result[1];\n",
