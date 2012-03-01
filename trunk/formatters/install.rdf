@@ -21,7 +21,7 @@
         
         <em:requires>   
           <Description>
-            <em:id>{8262aefa-d43d-4c17-8219-95501a2d2f7d}</em:id>
+            <em:id>{a6fd85ed-e919-4a43-a5af-8da18bda539f}</em:id>  <!-- selenium -->
             <em:minVersion>1.0.1</em:minVersion>
             <em:maxVersion>1.*</em:maxVersion>
           </Description>  
