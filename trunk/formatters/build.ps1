@@ -44,7 +44,7 @@ function getSha1($filepath){
 
 write-host ""
 write-host " --------------------------------- $Project_name -------------------------------------------"
-write-host " __________________________________________________________________________________________________"
+
 write-host ""
 write-host "        > Manual       ** Automatic"
 write-host ""
@@ -62,7 +62,9 @@ $VersionFile_txt = (([regex]::matches((get-content $VersionFile_path), "<em:vers
 $LastCompil_date = if ((test-path($VersionFile_path)) -eq 1){(get-item( $VersionFile_path )).LastWriteTime}
 
 #Write information on the screen
+write-host " __________________________________________________________________________________________________"
 write-host ""
+write-host "  Project name    : "  $Project_name
 write-host "  Directory       : "  $Project_dir
 write-host "  Current Version : "  $VersionFile_txt
 write-host "  Last creation   : "  $LastCompil_date
@@ -90,7 +92,8 @@ write-host " 1-Create package :"
     write-host "   ** Create the package $OutputZip ..."
     	if(test-path($OutputZip)){ Remove-Item $OutputZip; }
     	cmd-7zip a $OutputZip  -tzip -r ($ZipInclude_list|ForEach{$_}) ($ZipExclude_list|ForEach{"-x!"+$_}) |  out-Null
-
+        if($LASTEXITCODE -eq 1) { write-host("  Package creation failed ! ") -ForegroundColor red; break; }
+        
     write-host ""
 
 write-host " 2-Edit update.rdf :"
@@ -105,7 +108,7 @@ write-host " 2-Edit update.rdf :"
         $newchild.Description.version=$f_get_version
         $firstchild = $xmlDoc.RDF.Description.updates.Seq.InsertBefore($newchild,$firstchild)
     }else{
-		write-host "   ** Update and existing version description..."
+		write-host "   ** Update the version description..."
 	}
     $firstchild.Description.targetApplication.Description.updateLink = $updateLink
     $firstchild.Description.targetApplication.Description.updateHash = $updateHash
