@@ -220,7 +220,7 @@ function format(testCase, name, saveHeaderAndFooter, useDefaultHeaderAndFooter) 
 this.options = {
 
 	instance: "selenium",
-	browser: "Browser_Chrome",
+	browser: "firefox",
 
 	commandLoadPattern:
 	'((\\w+)\\s*=\\s*)?instance\\.(\\w+)([\\(\\s]\"([^\"]*)\"(\\,\\s*\"([^\"]*)\")?)?',
