@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading;
 using System.Timers;
 using System.Text.RegularExpressions;
+using OpenQA.Selenium.Remote;
 
 namespace SeleniumWrapper
 {
@@ -99,19 +100,72 @@ namespace SeleniumWrapper
             return this.result;
         }
 
-        public void start(Browser browser, string url){
+        public void start(String browser, String url){
             switch (browser) {
-                case Browser.Firefox:
+                case "firefox":
                     Invoke(() => this.browserDriver = new OpenQA.Selenium.Firefox.FirefoxDriver()); break;
-                case Browser.Chrome:
+                case "chrome":
                     Invoke(() => this.browserDriver = new OpenQA.Selenium.Chrome.ChromeDriver()); break;
-                case Browser.Ie:
+                case "internetexplorer":
+                case "ie":
                     Invoke(() => this.browserDriver = new OpenQA.Selenium.IE.InternetExplorerDriver()); break;
                 default:
                     Invoke(() => this.browserDriver = new OpenQA.Selenium.IE.InternetExplorerDriver()); break;
             }
+           // Invoke(() => this.browserDriver.Navigate().GoToUrl(url));
             Invoke(() => this.webDriver = new Selenium.WebDriverBackedSelenium(this.browserDriver, url));
             Invoke(() => webDriver.Start());
+        }
+
+        public void startRemotely(String browser, String RemoteAdress, String url){
+            DesiredCapabilities capability;
+            switch (browser) {
+                case "firefox": capability = DesiredCapabilities.Firefox(); break;
+                case "chrome": capability = DesiredCapabilities.Chrome(); break;
+                case "internetexplorer": case "ie": capability = DesiredCapabilities.InternetExplorer(); break;
+                case "htmlunit": capability = DesiredCapabilities.HtmlUnit(); break;
+                case "htmlunitwithjavascript": capability = DesiredCapabilities.HtmlUnitWithJavaScript(); break;
+                case "android": capability = DesiredCapabilities.Android(); break;
+                case "ipad": capability = DesiredCapabilities.IPad(); break;
+                case "opera": capability = DesiredCapabilities.Opera(); break;
+                default: capability = DesiredCapabilities.InternetExplorer(); break;
+            }
+            this.browserDriver = new RemoteWebDriver(new Uri(RemoteAdress), capability);
+            //Invoke(() => this.browserDriver.Navigate().GoToUrl(url));
+            Invoke(() => this.webDriver = new Selenium.WebDriverBackedSelenium(this.browserDriver, url));
+            Invoke(() => webDriver.Start());
+        }
+
+        public void wait (int timeoutms) {
+            Thread.Sleep(timeoutms);
+        }
+
+        public String verifyEqual(Object expected, Object current) {
+            if ( ! ObjectEquals(expected, current)) {
+                return "KO, assertEqual failed ! expected=<" + expected.ToString() + "> result=<" + current.ToString() + "> ";
+            }else{
+                return "OK";
+            }
+        }
+
+        public String verifyNotEqual(Object expected, Object current) {
+            if ( ObjectEquals(expected, current)) {
+                return "KO, verifyNotEqual failed ! expected=<" + expected.ToString() + "> result=<" + current.ToString() + "> ";
+            }else{
+                return "OK";
+            }
+        }
+
+        public void assertEqual(Object expected, Object current) {
+            if ( ! ObjectEquals(expected, current)) {
+                throw new ApplicationException( "KO, assertEqual failed ! expected=<" + expected.ToString() + "> result=<" + current.ToString() + "> " ); 
+            }
+        }
+
+        public void assertNotEqual(Object expected, Object current) {
+            if ( ObjectEquals(expected, current)) {
+                throw new ApplicationException( "KO, assertNotEqual failed ! expected=<" + expected.ToString() + "> result=<" + current.ToString() + "> ");
+            }
         }
 
         private static bool ObjectEquals(Object A, Object B) {

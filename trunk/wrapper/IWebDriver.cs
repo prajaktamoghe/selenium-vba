@@ -8,7 +8,13 @@ namespace SeleniumWrapper
     public interface IWebDriver
     {
         void setImplicitWait(int timeoutMs);
-        void start(Browser browser, string url);
+        void start(String browser, String url);
+        void startRemotely(String browser, String RemoteAdress, String url);
+        void wait(int timeoutms);
+        String verifyEqual(Object expected, Object current);
+        String verifyNotEqual(Object expected, Object current);
+        void assertEqual(Object expected, Object current);
+        void assertNotEqual(Object expected, Object current);
 
 		#region Auto-Generated Code
 		void waitForPageToLoad(String timeout);
