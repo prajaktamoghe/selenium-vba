@@ -19,21 +19,6 @@
             </em:targetApplication>
           </RDF:Description>
         </RDF:li>
-        <RDF:li>
-          <RDF:Description>
-            <em:version>1.0.1</em:version>
-            <em:targetApplication>
-              <RDF:Description>
-                <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
-                <!-- firefox -->
-                <em:minVersion>3.6.0</em:minVersion>
-                <em:maxVersion>10.*</em:maxVersion>
-                <em:updateLink>http://selenium-vba.googlecode.com/files/vb-formatters-1.0.1.xpi</em:updateLink>
-                <em:updateHash>sha1:8737e5384f68c0034c08426576860e575c944f9b</em:updateHash>
-              </RDF:Description>
-            </em:targetApplication>
-          </RDF:Description>
-        </RDF:li>
       </RDF:Seq>
     </em:updates>
   </RDF:Description>
