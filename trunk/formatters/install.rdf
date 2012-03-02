@@ -8,7 +8,7 @@
     <em:description>VBA/VBS code formatters for Selenium IDE</em:description>
     <em:type>2</em:type>
     <em:homepageURL>http://code.google.com/p/selenium-vba/</em:homepageURL>
-    <em:updateURL>https://selenium-vba.googlecode.com/svn/trunk/update.rdf</em:updateURL>
+    <em:updateURL>https://selenium-vba.googlecode.com/svn/trunk/formatters/update.rdf</em:updateURL>
     <em:targetApplication>
       <Description>
         <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
