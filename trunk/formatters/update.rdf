@@ -14,7 +14,7 @@
                 <em:minVersion>3.6.0</em:minVersion>
                 <em:maxVersion>10.*</em:maxVersion>
                 <em:updateLink>http://selenium-vba.googlecode.com/files/SeleniumVbFormatters-1.0.3.xpi</em:updateLink>
-                <em:updateHash>sha1:de88e6d0ff163b4824a9df3e53de3ac81b97f519</em:updateHash>
+                <em:updateHash>sha1:c63334d1ff06db23d6f3ccf156df79bb487ddedf</em:updateHash>
               </RDF:Description>
             </em:targetApplication>
           </RDF:Description>
