@@ -56,10 +56,11 @@ function parse(testCase, source) {
 	if(stopIndex==-1) throw cmdStop + " is missing !";
 	
 	var doc = source.substr(startIndex + cmdStart.length, stopIndex - startIndex - cmdStart.length).replace('""', '¤');	
-	
-	var commandRegexp = new RegExp( options.commandLoadPattern.replace('instance', options["instance"] ));
-	var commentRegexp = new RegExp(options.commentLoadPattern);
-	var commandOrCommentRegexp = new RegExp("((" + options.commandLoadPattern.replace('instance', options["instance"] ) + ")|(" + options.commentLoadPattern + "))", 'g');
+	var commandLoadPattern = '((\\w+)\\s*=\\s*)?' + options["instance"] + '\\.(\\w+)([\\(\\s]\"([^\"]*)\"(\\,\\s*\"([^\"]*)\")?)?';
+	var commentLoadPattern = "\\'(.+)\\n";
+	var commandRegexp = new RegExp( commandLoadPattern);
+	var commentRegexp = new RegExp(commentLoadPattern);
+	var commandOrCommentRegexp = new RegExp("((" + commandLoadPattern + ")|(" + commentLoadPattern + "))", 'g');
 
 	var commands = [];
 	var commandFound = false;
@@ -74,7 +75,10 @@ function parse(testCase, source) {
 				command.skip = docResult.index - lastIndex;
 				command.index = docResult.index;
 				var result = commandRegexp.exec(doc.substring(lastIndex));
-				eval(options.commandLoadScript);
+				command.variable = result[2];
+				command.command = result[3];
+				command.target = result[5] || '';
+				command.value = result[7] || '';
 				convertText(command, decodeText);
 				command.command = command.command.substr(0, 1).toLowerCase() + command.command.substr(1);
 				command.target = command.target.replace('¤', '""');
@@ -103,7 +107,7 @@ function parse(testCase, source) {
 				comment.skip = docResult.index - lastIndex;
 				comment.index = docResult.index;
 				var result = commentRegexp.exec(doc.substring(lastIndex));
-				eval(options.commentLoadScript);
+				comment.comment = result[1];
 				commands.push(comment);
 			}
 		} else {
@@ -216,37 +220,21 @@ function format(testCase, name, saveHeaderAndFooter, useDefaultHeaderAndFooter) 
 /*
  * Optional: The customizable option that can be used in format/parse functions.
  */
- 
-this.options = {
 
+this.options = {
 	instance: "selenium",
 	browser: "firefox",
-
-	commandLoadPattern:
-	'((\\w+)\\s*=\\s*)?instance\\.(\\w+)([\\(\\s]\"([^\"]*)\"(\\,\\s*\"([^\"]*)\")?)?',
-	
-	commandLoadScript:
-	"command.variable = result[2];\n" +
-	"command.command = result[3];\n" +
-	"command.target = result[5]||'';\n" +
-	"command.value = result[7]||'';\n",
-
-	commentLoadPattern:	"\\'(.+)\\n",
-	commentLoadScript: "comment.comment = result[1];\n",
-
 	testTemplate:
 	'Public Sub ${name}()\n' +
 	'  Dim ${instance} As New SeleniumWrapper.WebDriver\n' +
-	'  ${instance}.start ${browser}, "${baseURL}"\n\n' +
+	'  ${instance}.start "${browser}", "${baseURL}"\n\n' +
 	'${commands}\n'+
 	'  ${instance}.stop\n' +
 	"End Sub",
-
 	commandTemplate: '  ${instance}.${command.command}${command.target}${command.value}\n',
-	commentTemplate: "  '${comment.comment}\n",
-	escapeDollar: "false"
+	commentTemplate: "  '${comment.comment}\n"
 };
-	
+
 this.configForm = 
 	'<description>Instance</description>' +
 	'<textbox id="options_instance" />' +
