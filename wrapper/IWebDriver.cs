@@ -1,19 +1,35 @@
 ﻿using System;
 using System.Text;
 using System.Runtime.InteropServices;
+using System.ComponentModel;
 
 namespace SeleniumWrapper
 {
     [Guid("24cd39f2-f552-4a61-82fe-cc6284398aa5"), InterfaceType(ComInterfaceType.InterfaceIsDual)]
     public interface IWebDriver
     {
-        void setImplicitWait(int timeoutMs);
+        [Description("Specifies the amount of time the driver should wait when searching for an element if it is not immediately present.")]
+        void setImplicitWait(int timeout_ms);
+
+        [Description("Starts a new Selenium session")]
         void start(String browser, String url);
+
+        [Description("Starts remotely a new Selenium session")]
         void startRemotely(String browser, String RemoteAdress, String url);
-        void wait(int timeoutms);
+
+        [Description("Wait the specified time in millisecond before executing the next command")]
+        void wait(int time_ms);
+
+        [Description("Returns a string with the result of the verification ( <OK> or <KO, ...> )")]
         String verifyEqual(Object expected, Object current);
+
+        [Description("Returns a string with the result of the verification ( <OK> or <KO, ...> )")]
         String verifyNotEqual(Object expected, Object current);
+
+        [Description("Raise an error if the assertion fails")]
         void assertEqual(Object expected, Object current);
+
+        [Description("Raise an error if the assertion fails")]
         void assertNotEqual(Object expected, Object current);
 
 		#region Auto-Generated Code

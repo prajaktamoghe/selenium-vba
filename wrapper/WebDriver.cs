@@ -5,13 +5,43 @@ using System.Threading;
 using System.Timers;
 using System.Text.RegularExpressions;
 using OpenQA.Selenium.Remote;
+using System.ComponentModel;
 
 namespace SeleniumWrapper
 {
-    public enum Browser { Firefox , Ie, Chrome };
-
-    [Guid("432b62a5-6f09-45ce-b10e-e3ccffab4234")]
-    [ClassInterface(ClassInterfaceType.None)]
+    /// <summary>Wrap the WebDriverBackedSelenium class </summary>
+    /// <example>
+    /// 
+    /// This example asks the user to launch internet explorer and search for "Eiffel tower".
+    /// <code lang="vbs">	
+    /// Set selenium = CreateObject("SeleniumWrapper.WebDriver")
+    /// selenium.start "ie", "http://www.google.com"
+    /// selenium.open "/"
+    /// selenium.type "name=q", "Eiffel tower"
+    /// selenium.click "name=btnG"
+    /// </code>
+    /// 
+    /// The following example read and write datas in an Excel range named "MyValues".
+    /// Each link in first column is clicked and the page title is is compared with the second column.
+    /// The verification result is set in the third column.
+    /// <code lang="vbs">	
+    /// Public Sub TC002()
+    ///   Dim selenium As New SeleniumWrapper.WebDriver, r As Range
+    ///   selenium.Start "firefox", "http://www.mywebsite.com/"   'Launch Firefox
+    ///   selenium.Open "/"
+    ///   For Each r In Range("MyValues").Rows    'Loop for each row in the range named "MyValues"
+    ///           'Click on the link defined in the first column of "MyValues"
+    ///       selenium.Click r.Cells(1, 1)
+    ///          'Compare the page title with the one in the second column of "MyValues"
+    ///          '  And past the verification result in the third column of  "MyValues"
+    ///       r.Cells(1, 3) = selenium.verifyTitle(r.Cells(1, 2))
+    ///   Next
+    /// End Sub
+    /// </code>
+    /// 
+    /// </example>
+    [Description("")]
+    [Guid("432b62a5-6f09-45ce-b10e-e3ccffab4234"), ClassInterface(ClassInterfaceType.None)]
     public class WebDriver : IWebDriver
     {
 
@@ -26,6 +56,7 @@ namespace SeleniumWrapper
         int Timeout;
         System.Threading.Thread thread;
         System.Timers.Timer timerhotkey;
+        String baseUrl;
 
         public WebDriver(){
             this.Timeout = 30000;
@@ -42,7 +73,7 @@ namespace SeleniumWrapper
 
         private string GetErrorPrifix(Action action){
             string lMethodname = Regex.Match(action.Method.Name, "<([^>]+)>").Groups[0].Value;
-            return "Method " + lMethodname + " invocation failed !";
+            return "Method " + lMethodname + " failed !";
         }
 
         private void InvokeWaitFor(Action action, Object expected, bool match){
@@ -59,8 +90,9 @@ namespace SeleniumWrapper
             }));
             this.thread.Start();
             this.timerhotkey.Start();
-            if (!this.thread.Join(this.Timeout)) throw new ApplicationException(GetErrorPrifix(this.action) + " expected=<"+ expected +"> \r\nTimeout reached.");
+            bool succed = this.thread.Join(this.Timeout);
             this.timerhotkey.Stop();
+            if (!succed) throw new ApplicationException(GetErrorPrifix(this.action) + " expected=<" + expected + "> \r\nTimeout reached.");
             if (this.error != null) throw new System.Exception(this.error);
         }
 
@@ -69,7 +101,6 @@ namespace SeleniumWrapper
             if (match ^ ObjectEquals(result,expected)) throw new ApplicationException(GetErrorPrifix(this.action) + " expected=<" + expected.ToString() + "> result=<" + result.ToString() + "> ");
         }
 
-        
         private String InvokeVerify(Action action, Object expected, bool match){
             Object result = Invoke(action);
             if (match ^ ObjectEquals(result, expected)) {
@@ -94,12 +125,16 @@ namespace SeleniumWrapper
                 }));
             this.timerhotkey.Start();
             this.thread.Start();
+            bool succed = this.thread.Join(this.Timeout);
             this.timerhotkey.Stop();
-            if (!this.thread.Join(this.Timeout)) throw new ApplicationException(GetErrorPrifix(this.action) + " Timeout reached.");
+            if (!succed) throw new ApplicationException(GetErrorPrifix(this.action) + " Timeout reached.");
             if (this.error != null) throw new ApplicationException(this.error);
             return this.result;
         }
 
+        /// <summary>Starts a new Selenium testing session</summary>
+        /// <param name="browser">Name of the browser : firefox, ie, chrome</param>
+        /// <param name="url">The base URL</param>
         public void start(String browser, String url){
             switch (browser) {
                 case "firefox":
@@ -110,14 +145,26 @@ namespace SeleniumWrapper
                 case "ie":
                     Invoke(() => this.browserDriver = new OpenQA.Selenium.IE.InternetExplorerDriver()); break;
                 default:
-                    Invoke(() => this.browserDriver = new OpenQA.Selenium.IE.InternetExplorerDriver()); break;
+                    throw new ApplicationException("Browser <"+browser+"> is not available !  ");
             }
            // Invoke(() => this.browserDriver.Navigate().GoToUrl(url));
             Invoke(() => this.webDriver = new Selenium.WebDriverBackedSelenium(this.browserDriver, url));
             Invoke(() => webDriver.Start());
+            this.baseUrl = url.TrimEnd('/');
         }
 
-        public void startRemotely(String browser, String RemoteAdress, String url){
+        public void open(String url) { 
+            if(!url.Contains("://")){
+                 url = this.baseUrl + '/' + url.TrimStart('/');
+            }
+            Invoke(() => webDriver.Open(url));
+        }
+
+        /// <summary>Starts remotely a new Selenium testing session</summary>
+        /// <param name="browser">Name of the browser : firefox, ie, chrome, htmlunit, htmlunitwithjavascript, android, ipad, opera</param>
+        /// <param name="RemoteAddress">Remote url address (ex : "http://localhost:4444/")</param>
+        /// <param name="url">Base URL</param>
+        public void startRemotely(String browser, String RemoteAddress, String url){
             DesiredCapabilities capability;
             switch (browser) {
                 case "firefox": capability = DesiredCapabilities.Firefox(); break;
@@ -128,18 +175,24 @@ namespace SeleniumWrapper
                 case "android": capability = DesiredCapabilities.Android(); break;
                 case "ipad": capability = DesiredCapabilities.IPad(); break;
                 case "opera": capability = DesiredCapabilities.Opera(); break;
-                default: capability = DesiredCapabilities.InternetExplorer(); break;
+                default: throw new ApplicationException("Remote browser <" + browser + "> is not available !  ");
             }
-            this.browserDriver = new RemoteWebDriver(new Uri(RemoteAdress), capability);
+            this.browserDriver = new RemoteWebDriver(new Uri(RemoteAddress), capability);
             //Invoke(() => this.browserDriver.Navigate().GoToUrl(url));
             Invoke(() => this.webDriver = new Selenium.WebDriverBackedSelenium(this.browserDriver, url));
             Invoke(() => webDriver.Start());
         }
 
-        public void wait (int timeoutms) {
-            Thread.Sleep(timeoutms);
+        /// <summary>Wait the specified time in millisecond before executing the next command</summary>
+        /// <param name="time_ms">Time to wait in millisecond</param>
+        public void wait (int time_ms) {
+            Thread.Sleep(time_ms);
         }
 
+        /// <summary>Test that two objects are equal and return the result</summary>
+        /// <param name="expected">expected object. Can be a string, number, array...</param>
+        /// <param name="current">current object. Can be a string, number, array...</param>
+        /// <returns>Returns the result of the verification : "Ok" if the verification is true or "KO, message" if false</returns>
         public String verifyEqual(Object expected, Object current) {
             if ( ! ObjectEquals(expected, current)) {
                 return "KO, assertEqual failed ! expected=<" + expected.ToString() + "> result=<" + current.ToString() + "> ";
@@ -148,6 +201,10 @@ namespace SeleniumWrapper
             }
         }
 
+        /// <summary>Test that two objects are not equal and return the result</summary>
+        /// <param name="expected">expected object. Can be a string, number, array...</param>
+        /// <param name="current">current object. Can be a string, number, array...</param>
+        /// <returns>Returns the result of the verification : "Ok" if the verification is true or "KO, message" if false</returns>
         public String verifyNotEqual(Object expected, Object current) {
             if ( ObjectEquals(expected, current)) {
                 return "KO, verifyNotEqual failed ! expected=<" + expected.ToString() + "> result=<" + current.ToString() + "> ";
@@ -156,12 +213,18 @@ namespace SeleniumWrapper
             }
         }
 
+        /// <summary>Test that two objects are equal and raise an exception if the result is false</summary>
+        /// <param name="expected">expected object. Can be a string, number, array...</param>
+        /// <param name="current">current object. Can be a string, number, array...</param>
         public void assertEqual(Object expected, Object current) {
             if ( ! ObjectEquals(expected, current)) {
                 throw new ApplicationException( "KO, assertEqual failed ! expected=<" + expected.ToString() + "> result=<" + current.ToString() + "> " ); 
             }
         }
 
+        /// <summary>Test that two objects are not equal and raise an exception if the result is false</summary>
+        /// <param name="expected">expected object. Can be a string, number, array...</param>
+        /// <param name="current">current object. Can be a string, number, array...</param>
         public void assertNotEqual(Object expected, Object current) {
             if ( ObjectEquals(expected, current)) {
                 throw new ApplicationException( "KO, assertNotEqual failed ! expected=<" + expected.ToString() + "> result=<" + current.ToString() + "> ");
@@ -187,13 +250,16 @@ namespace SeleniumWrapper
             }
         }
 
-		public void setImplicitWait ( int timeoutMs) {
-            this.webDriver.UnderlyingWebDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromMilliseconds(timeoutMs));
+        /// <summary>Specifies the amount of time the driver should wait when searching for an element if it is not immediately present.</summary>
+        /// <param name="timeout_ms">timeout in millisecond</param>
+		public void setImplicitWait ( int timeout_ms) {
+            this.webDriver.UnderlyingWebDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromMilliseconds(timeout_ms));
         }
-
-        public void setTimeout(String timeout) {
-            this.Timeout = Int32.Parse(timeout);
-            Invoke(() => webDriver.SetTimeout(timeout)); 
+        /// <summary> Specifies the amount of time that Selenium will wait for actions to complete. The default timeout is 30 seconds.</summary>
+        /// <param name="timeout_ms">timeout in milliseconds, after which an error is raised</param>
+        public void setTimeout(String timeout_ms) {
+            this.Timeout = Int32.Parse(timeout_ms);
+            Invoke(() => webDriver.SetTimeout(timeout_ms)); 
         }
 
         // Following funtion are automatically generated by reflexion
@@ -346,7 +412,6 @@ namespace SeleniumWrapper
 		public void removeAllSelectionsAndWait(String locator){InvokeAndWait(()=>webDriver.RemoveAllSelections(locator));}
 		public void submit(String formLocator){Invoke(()=>webDriver.Submit(formLocator));}
 		public void submitAndWait(String formLocator){InvokeAndWait(()=>webDriver.Submit(formLocator));}
-		public void open(String url){Invoke(()=>webDriver.Open(url));}
 		public void openWindow(String url, String windowID){Invoke(()=>webDriver.OpenWindow(url, windowID));}
 		public void selectWindow(String windowID){Invoke(()=>webDriver.SelectWindow(windowID));}
 		public void selectPopUp(String windowID){Invoke(()=>webDriver.SelectPopUp(windowID));}

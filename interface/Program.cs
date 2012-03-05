@@ -15,14 +15,15 @@ namespace InterfaceGeneration
             StringBuilder sb = new StringBuilder();
 
             Assembly lAssembly = Assembly.LoadFrom("Selenium.WebDriverBackedSelenium.dll");
-
+            String[] exclusionList = new String[] {"Start", "get_Processor", "SetTimeout", "Open" };
             String[] noWaitActionsList = new String[] {"Open","SelectWindow","ChooseCancelOnNextConfirmation","AnswerOnNextPrompt","Close","SetContext","SetTimeout","SelectFrame","Stop","Wait","Set","Capture","Delete"};
+			
             System.Reflection.MethodInfo[] lMethods = lAssembly.GetType("Selenium.WebDriverBackedSelenium").GetMethods();
             string[] lRet = new string[lMethods.Length];
             for (int i = 0; i < lMethods.Length; i++) {
                 if (lMethods[i].DeclaringType.Name == "DefaultSelenium") {
                     string intMethodsName = lMethods[i].Name;
-                    if (lMethods[i].Name != "Start" && lMethods[i].Name != "Start" && lMethods[i].Name != "get_Processor" && lMethods[i].Name != "SetTimeout")
+                    if( !Array.Exists(noWaitActionsList, p => lMethods[i].Name.Equals(p)) )
                     {
                         string argsInt = string.Empty;
                         string argsMeth = string.Empty;
@@ -105,13 +106,13 @@ namespace InterfaceGeneration
 
             sb.Replace("CSSCount(String", "CssCount(String");
 
-            TextWriter fclasse = new StreamWriter("class.txt");
+            TextWriter fclasse = new StreamWriter("..\\..\\class.txt");
             fclasse.WriteLine("\t\t#region Auto-Generated Code");
             fclasse.Write(sb.ToString());
             fclasse.WriteLine("\t\t#endregion");
             fclasse.Close();
 
-            TextWriter finterface = new StreamWriter("interface.txt");
+            TextWriter finterface = new StreamWriter("..\\..\\interface.txt");
             finterface.WriteLine("\t\t#region Auto-Generated Code");
             MatchCollection mc = Regex.Matches(sb.ToString(), "public ([^\\)]+\\))");
             if (mc.Count > 0){
