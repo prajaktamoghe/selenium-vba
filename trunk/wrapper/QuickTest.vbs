@@ -1,6 +1,6 @@
-' Quick test with FireFox
+
 ' Author: Florent BREHERET
-' Description: Ask the user to launch firefox and search for "Selenium IDE"
+' Description: Ask the user to launch internet explorer and search for "Eiffel tower"
 
 Dim selenium
 
@@ -11,5 +11,5 @@ If MsgBox("Launch Internet Explorer and search <Eiffel tower> ?", vbYesNo) = vbY
 	selenium.open "/"
 	selenium.type "name=q", "Eiffel tower"
 	selenium.click "name=btnG"
-	
+	msgbox "verifyTitle == Google : " & selenium.verifyTitle("Google")
 End If

@@ -8,11 +8,11 @@ mode con cols=120 lines=60
 ###################### Save allPath ###################################
 
 $Project_name = "SeleniumWrapper"
-$Setup_dir = [System.IO.Directory]::GetCurrentDirectory() + "\"
-$Project_dir = (get-item $Setup_dir).parent.fullname + "\"
-$CurrentVersion_path = $Sources_dir + "Properties\AssemblyInfo.cs"
-$csproj_path = $Sources_dir + "SeleniumWrapper.csproj"
-$iss_path = $Sources_dir + "Package.iss"
+$Project_dir = [System.IO.Directory]::GetCurrentDirectory() + "\"
+$CurrentVersion_path = $Project_dir + "Properties\AssemblyInfo.cs"
+$csproj_path = $Project_dir + "SeleniumWrapper.csproj"
+$iss_path = $Project_dir + "Package.iss"
+$shfbproj_path = $Project_dir + "SeleniumWrapper.shfbproj"
 
 set-alias cmd-7zip "C:\Program Files\7-Zip\7z.exe"
 set-alias cmd-iscc "C:\Program Files\Inno Setup 5\ISCC.exe"
@@ -84,13 +84,18 @@ write-host "   ** Msbuild compile sources ..."
     if($LASTEXITCODE -eq 1) { write-host("  Source compilation failed ! ") -ForegroundColor red; break; }
 
 write-host ""
+write-host "   ** Api documentation creation ..."
+	cmd-msbuild /v:quiet /p:CleanIntermediates=True /p:Configuration=Release $shfbproj_path
+    if($LASTEXITCODE -eq 1) { write-host("  Api documentation creation failed ! ") -ForegroundColor red; break; }
+
+write-host ""
 write-host "   ** InnoSetup create the paclage ..."
 	cmd-iscc /q $iss_path
     if($LASTEXITCODE -eq 1) { write-host("  Package creation failed ! ") -ForegroundColor red; break; }
     
 write-host ""
 write-host "   ** Package installaton ..."
-    start-process -wait ($Setup_dir + "SeleniumWrapperSetup-" + [regex]::matches($NewVersion,"^\d+\.\d+\.\d+")[0].Value  + ".exe")
+    start-process -wait ($Project_dir + "SeleniumWrapperSetup-" + [regex]::matches($NewVersion,"^\d+\.\d+\.\d+")[0].Value  + ".exe")
 
 write-host ""
 write-host ""

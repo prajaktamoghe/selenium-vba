@@ -9,6 +9,7 @@
 
 [Setup]
 AppId={{f1a3918e-07dd-40e3-8389-da62b7ab0a4b}}
+PrivilegesRequired=admin
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppVerName={#MyAppName} {#MyAppVersion}
@@ -37,13 +38,18 @@ Source: ".\bin\Release\*.pdb"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\Reference\chromedriver.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\License.txt"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\Readme.txt"; DestDir: "{app}"; Flags: ignoreversion
-Source: ".\SeleniumWrapper.chm"; DestDir: "{app}"; Flags: ignoreversion
+Source: ".\bin\Release\SeleniumWrapperApi.chm"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\QuickTest.vbs"; DestDir: "{app}"; Flags: ignoreversion
+Source: ".\Examples\*.xls"; DestDir: "{app}\Examples"; Flags: ignoreversion skipifsourcedoesntexist
+Source: ".\Examples\*.vbs"; DestDir: "{app}\Examples"; Flags: ignoreversion skipifsourcedoesntexist 
 
 [Icons]
-Name: "{group}\Readme"; Filename: "{app}\Readme.txt"; WorkingDir: "{app}";
-Name: "{group}\API"; Filename: "{app}\SeleniumWrapper.chm"; WorkingDir: "{app}";
+;Name: "{group}\Readme"; Filename: "{app}\Readme.txt"; WorkingDir: "{app}";
+Name: "{group}\API documentation"; Filename: "{app}\SeleniumWrapperApi.chm"; WorkingDir: "{app}";
 Name: "{group}\QuickTest"; Filename: "{app}\QuickTest.vbs"; WorkingDir: "{app}";
+Name: "{group}\Examples"; Filename: "{app}\Examples"; WorkingDir: "{app}";
+Name: "{group}\Examples"; Filename: "{app}\Examples"; WorkingDir: "{app}";
+Name: "{group}\Project Home Page"; Filename: "http://code.google.com/p/selenium-vba/"; WorkingDir: "{app}";
 Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
 
 [Registry]
