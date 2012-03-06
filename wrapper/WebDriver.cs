@@ -60,8 +60,8 @@ namespace SeleniumWrapper
 
         public WebDriver(){
             this.Timeout = 30000;
-            timerhotkey = new System.Timers.Timer(100);
-            timerhotkey.Elapsed += new System.Timers.ElapsedEventHandler(TimerCheckHotKey);
+            this.timerhotkey = new System.Timers.Timer(100);
+            this.timerhotkey.Elapsed += new System.Timers.ElapsedEventHandler(TimerCheckHotKey);
         }
 
         private void TimerCheckHotKey(object source, ElapsedEventArgs e){
