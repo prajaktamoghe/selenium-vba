@@ -48,7 +48,6 @@ Source: ".\Examples\*.vbs"; DestDir: "{app}\Examples"; Flags: ignoreversion skip
 Name: "{group}\API documentation"; Filename: "{app}\SeleniumWrapperApi.chm"; WorkingDir: "{app}";
 Name: "{group}\QuickTest"; Filename: "{app}\QuickTest.vbs"; WorkingDir: "{app}";
 Name: "{group}\Examples"; Filename: "{app}\Examples"; WorkingDir: "{app}";
-Name: "{group}\Examples"; Filename: "{app}\Examples"; WorkingDir: "{app}";
 Name: "{group}\Project Home Page"; Filename: "http://code.google.com/p/selenium-vba/"; WorkingDir: "{app}";
 Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
 
