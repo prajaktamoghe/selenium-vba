@@ -72,8 +72,7 @@ write-host " ___________________________________________________________________
 write-host ""
 
 write-host " 0-Edit the version number :"
-	[String]$f_get_version = $VersionFile_txt
-	#[String]$f_get_version = getVersion($VersionFile_txt)
+	[String]$f_get_version = getVersion($VersionFile_txt)
 	write-host "   New version : " $f_get_version
 	write-host "   ** Update the version in update.rdf ..."
 		$file=$VersionFile_path
