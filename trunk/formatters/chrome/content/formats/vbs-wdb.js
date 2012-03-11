@@ -1,33 +1,8 @@
 
 this.name = "vbs-wdb";
 
-// Characters that should be escaped when saving.
-var EncodeToXhtmlEntity = ["amp", "gt", "lt", "quot", "nbsp"];
-
-var XhtmlEntityFromChars = {};
-for (var i = 0; i < EncodeToXhtmlEntity.length; i++) {
-    var entity = EncodeToXhtmlEntity[i];
-    XhtmlEntityFromChars[XhtmlEntities[entity]] = entity;
-}
-
-// A regular expression that matches characters that can be converted to entities.
-var XhtmlEntityChars = "[";
-for (var code in XhtmlEntityFromChars) {
-    var c = parseInt(code).toString(16);
-    while (c.length < 4) {
-        c = "0" + c;
-    }
-    XhtmlEntityChars += "\\u" + c;
-}
-XhtmlEntityChars += "]";
-
 function decodeText(text) {
-	text = text.replace(/""/g, '"');
-	return text;
-}
-
-function encodeText(text) {
-    if (text == null) return "";
+	text = text.replace('¤', '"');
 	return text;
 }
 
@@ -46,8 +21,6 @@ function convertText(command, converter) {
  * @param source The source to parse
  */
 function parse(testCase, source) {
-
-	//var doc = new RegExp('selenium\\.start(.*)selenium\\.stop','g').exec(source)[1];  //source.substr(testIndex);
 	var cmdStart = options["instance"] + ".start";
 	var cmdStop = options["instance"] + ".stop";
 	var startIndex = source.toLowerCase().indexOf( cmdStart.toLowerCase() );
@@ -55,34 +28,44 @@ function parse(testCase, source) {
 	if(startIndex==-1) throw cmdStart + " is missing !";
 	if(stopIndex==-1) throw cmdStop + " is missing !";
 	
-	var doc = source.substr(startIndex + cmdStart.length, stopIndex - startIndex - cmdStart.length).replace('""', '¤');	
-	var commandLoadPattern = '((\\w+)\\s*=\\s*)?' + options["instance"] + '\\.(\\w+)([\\(\\s]\"([^\"]*)\"(\\,\\s*\"([^\"]*)\")?)?';
-	var commentLoadPattern = "\\'(.+)\\n";
-	var commandRegexp = new RegExp( commandLoadPattern);
-	var commentRegexp = new RegExp(commentLoadPattern);
-	var commandOrCommentRegexp = new RegExp("((" + commandLoadPattern + ")|(" + commentLoadPattern + "))", 'g');
+	var doc = source.substr(startIndex + cmdStart.length, stopIndex - startIndex - cmdStart.length)
+			.replace('""', '¤')
+			.replace(/" & "/g, '')
+			.replace(/(\w+[^"]) & ([^"]\w+)/g, '"${$1}${$2}"')
+			.replace(/(\w+[^"]) & \"([^"]*)\"/g, '"${$1}$2"')
+			.replace(/\"([^"]*)\" & ([^"]\w+)/g, '"$1${$2}"')
+			.replace(/(\w+[^"]) & ([^"]\w+)/g, '"$1$2"')
+			.replace(/" & "/g, '');
+	
+	var commandRegexp = new RegExp('((\\w+) *=)? *' + options["instance"] + '\\.(\\w+)([\\( ](\"[^\"]*\"|[\\w]+)(\\, *(\"[^\"]*\"|[\\w]+))?)?');
+	var commentRegexp = new RegExp("\\' *([^\\n]+)");
+	var storevalueRegexp = new RegExp('(\\w+) *= *(\"[^\"]*\")');
+	var commandOrCommentOrStoreRegexp = new RegExp("(" + storevalueRegexp.source + ")|(" + commandRegexp.source + ")|(" + commentRegexp.source + ")", 'g');
 
 	var commands = [];
 	var commandFound = false;
 	var lastIndex;
 	while (true) {
-		lastIndex = commandOrCommentRegexp.lastIndex;
-		var docResult = commandOrCommentRegexp.exec(doc);
-		LOG.warn(docResult);
+		lastIndex = commandOrCommentOrStoreRegexp.lastIndex;
+		var docResult = commandOrCommentOrStoreRegexp.exec(doc);
 		if (docResult) {
-			if (docResult[2]) { // command
+			if (docResult[1]) { // storevalue
 				var command = new Command();
 				command.skip = docResult.index - lastIndex;
-				command.index = docResult.index;
-				var result = commandRegexp.exec(doc.substring(lastIndex));
-				command.variable = result[2];
-				command.command = result[3];
-				command.target = result[5] || '';
-				command.value = result[7] || '';
-				convertText(command, decodeText);
+				command.command = 'store';
+				command.target = docResult[3].replace(/(^[^"]*$)/,'${$1}').replace(/^"([^]*)"$/,'$1' );
+				command.value = docResult[2];
+				convertText(command, decodeText);					
+				commands.push(command);
+			}else if (docResult[4]) { // command
+				var command = new Command();
+				command.skip = docResult.index - lastIndex;
+				command.index = docResult.index;				
+				command.variable = docResult[6];
+				command.command = docResult[7];
+				command.target = docResult[9] ? docResult[9].replace(/(^[^"]*$)/,'${$1}').replace(/^"([^]*)"$/,'$1' ) : '';
+				command.value = docResult[11] ? docResult[11].replace(/(^[^"]*$)/,'${$1}').replace(/^"([^]*)"$/,'$1' ) : '';
 				command.command = command.command.substr(0, 1).toLowerCase() + command.command.substr(1);
-				command.target = command.target.replace('¤', '""');
-				command.value = command.value.replace('¤', '""');
 				if(command.variable) {
 					command.command = command.command.replace(/^get|is/, 'store');
 					if(command.target != ''){
@@ -91,23 +74,13 @@ function parse(testCase, source) {
 						command.target = command.variable;
 					}
 				}
+				convertText(command, decodeText);					
 				commands.push(command);
-				if (!commandFound) {
-					// remove comments before the first command or comment
-					for (var i = commands.length - 1; i >= 0; i--) {
-						if (commands[i].skip > 0) {
-							commands.splice(0, i);
-							break;
-						}
-					}
-					commandFound = true;
-				}
-			} else { // comment
+			} else if(docResult[12]){ // comment
 				var comment = new Comment();
 				comment.skip = docResult.index - lastIndex;
 				comment.index = docResult.index;
-				var result = commentRegexp.exec(doc.substring(lastIndex));
-				comment.comment = result[1];
+				comment.comment = docResult[13];
 				commands.push(comment);
 			}
 		} else {
@@ -136,6 +109,12 @@ function formatCommands(commands) {
 	return commandsText;
 }
 
+function encodeText(text) {
+    if (text == null) return "";
+	text = text.replace('"', '¤');
+	return text;
+}
+
 function getSourceForCommand(commandObj) {
 	var command = null;
 	var comment = null;
@@ -144,35 +123,55 @@ function getSourceForCommand(commandObj) {
 		command = commandObj;
 		command = command.createCopy();
 		convertText(command, this.encodeText);
-
-		if(command.command.match(/^store/)){
+		if(command.command == "store"){
+			template = options.commandTemplate.replace(/\$\{command\}/g, 
+				command.value + " = " + command.target.replace(/(^[^]+)/g, '"$1"')
+			);
+		}else if(command.command.match(/^store.+/)){
 			if(editor.seleniumAPI.Selenium.prototype[ command.command.replace(/^store/, 'is')]){
-				template = options.commandTemplate.replace(/\$\{command.command\}/g, command.command.replace(/^store/, 'is') + '(' );
+				command.command = command.command.replace(/^store/, 'is') ;
 			}else if(editor.seleniumAPI.Selenium.prototype[ command.command.replace(/^store/, 'get')]){
-				template = options.commandTemplate.replace(/\$\{command.command\}/g, command.command.replace(/^store/, 'get') + '(' );
-			}else{
-				template = options.commandTemplate.replace(/\$\{command.command\}/g, command.command + '(' );
+				command.command = command.command.replace(/^store/, 'get') ;
 			}
-			if(command.value == ''){
-				template = template.replace(/\$\{instance\}/g, command.target + " = " + options["instance"]);
-				template = template.replace(/\$\{command.target\}/g, '' );
-				template = template.replace(/\$\{command.value\}/g, ')' );				
-			}else{
-				template = template.replace(/\$\{instance\}/g, command.value + " = " + options["instance"]);
-				template = template.replace(/\$\{command.target\}/g, '"' + command.target + '"' );
-				template = template.replace(/\$\{command.value\}/g, ')' );	
-			}
+			template = options.commandTemplate.replace(/\$\{command\}/g,
+				(command.value != '' ? command.value : command.target) + " = "
+				+ options["instance"] + "." + command.command + '('
+				+ (command.value != '' ? command.target.replace(/(^[^]+)/g, '"$1"') : '' ) + ')'
+			);
 		}else{
-			template = options.commandTemplate.replace(/\$\{instance\}/g, options["instance"]);
-			template = template.replace(/\$\{command.command\}/g, command.command.replace(/^verify/, 'assert') );
-			template = template.replace(/\$\{command.target\}/g, (command.target == '' ? '' : ' "' + command.target + '"') );
-			template = template.replace(/\$\{command.value\}/g, (command.value == '' ? '' : ', "' + command.value + '"') );
+			template = options.commandTemplate.replace(/\$\{command\}/g, 
+				options["instance"] + "." + command.command
+				+ command.target.replace(/(^[^]+)/g, ' "$1"')
+				+ command.value.replace(/(^[^]+)/g, ', "$1"')
+			);
 		}
+		template = template.replace(/\$\{(\w+)\}/g, '" & $1 & "')
+				.replace(/"" & /g, '').replace(/ & ""/g, '')
+				.replace(/¤/g, '""');
+				
 	} else if (commandObj.type == 'comment') {
-		comment = commandObj;
-		template = options.commentTemplate.replace(/\$\{comment.comment\}/g, comment );
+		template = options.commentTemplate.replace(/\$\{comment\}/g, commandObj.comment );
 	}
 	return template;
+}
+
+/**
+ * Returns a string representing the suite for this formatter language.
+ *
+ * @param testSuite  the suite to format
+ * @param filename   the file the formatted suite will be saved as
+ */
+function formatSuite(testSuite, filename) {
+    var suiteClass = /^(\w+)/.exec(filename)[1];
+    suiteClass = suiteClass[0].toUpperCase() + suiteClass.substring(1);
+    var formattedSuite = options["suiteTemplate"].replace(/\$\{name\}/g, suiteClass);
+	var testTemplate = /.*\$\{tests\}.*\n/g.exec(formattedSuite)[0];
+	var formatedTests='';
+    for (var i = 0; i < testSuite.tests.length; ++i) {
+        var testClass = testSuite.tests[i].getTitle();
+        formatedTests += testTemplate.replace(/\$\{tests\}/g, testClass );
+    }
+    return formattedSuite.replace(/.*\$\{tests\}.*\n/g, formatedTests);
 }
 
 /**
@@ -230,9 +229,11 @@ this.options = {
 	'${instance}.start "${browser}", "${baseURL}"\n\n' +
 	'${commands}\n'+
 	'${instance}.stop\n',
-
-	commandTemplate: '${instance}.${command.command}${command.target}${command.value}\n',
-	commentTemplate: " ' ${comment.comment}\n"
+	suiteTemplate:
+	'Set oShell = CreateObject("WScript.Shell")\n' +
+	'oShell.Run "wscript ${tests}", , True\n',
+	commandTemplate: "${command}\n",
+	commentTemplate: "'${comment}\n"
 };
 
 this.configForm = 
@@ -242,4 +243,6 @@ this.configForm =
 	'<textbox id="options_browser" />' +
 	'<separator class="groove"/>' +
 	'<description>Template for new test</description>' +
-	'<textbox id="options_testTemplate" multiline="true" flex="1" rows="8"/>';
+	'<textbox id="options_testTemplate" multiline="true" flex="1" rows="8"/>' +
+	'<description>Template for new suite</description>' +
+	'<textbox id="options_suiteTemplate" multiline="true" flex="1" rows="8"/>';
