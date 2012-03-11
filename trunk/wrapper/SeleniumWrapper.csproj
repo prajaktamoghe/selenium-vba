@@ -12,7 +12,8 @@
     <AssemblyName>SeleniumWrapper</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -47,32 +48,27 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Castle.Core">
-      <HintPath>.\Reference\Castle.Core.dll</HintPath>
+      <HintPath>Reference\Castle.Core.dll</HintPath>
     </Reference>
     <Reference Include="Ionic.Zip">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>.\Reference\Ionic.Zip.dll</HintPath>
+      <HintPath>Reference\Ionic.Zip.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>.\Reference\Newtonsoft.Json.dll</HintPath>
+      <HintPath>Reference\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="Selenium.WebDriverBackedSelenium">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>.\Reference\Selenium.WebDriverBackedSelenium.dll</HintPath>
+      <HintPath>Reference\Selenium.WebDriverBackedSelenium.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="ThoughtWorks.Selenium.Core">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>.\Reference\ThoughtWorks.Selenium.Core.dll</HintPath>
+      <HintPath>Reference\ThoughtWorks.Selenium.Core.dll</HintPath>
     </Reference>
     <Reference Include="WebDriver">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>.\Reference\WebDriver.dll</HintPath>
+      <HintPath>Reference\WebDriver.dll</HintPath>
     </Reference>
     <Reference Include="WebDriver.Support">
-      <HintPath>.\Reference\WebDriver.Support.dll</HintPath>
+      <HintPath>Reference\WebDriver.Support.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
