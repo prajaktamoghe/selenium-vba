@@ -64,3 +64,13 @@ Type: filesandordirs; Name: "{app}"
 [UninstallRun]
 Filename:"{reg:HKLM\SOFTWARE\Microsoft\.NETFramework,InstallRoot}\{reg:HKCR\CLSID\{{61b3e12b-3586-3a58-a497-7ed7c4c794b9%7D\InprocServer32\2.0.0.0,RuntimeVersion}\RegAsm.exe"; Parameters: SeleniumWrapper.dll /unregister /tlb:SeleniumWrapper.tlb; WorkingDir: {app}; StatusMsg: "Unregistering SeleniumWrapper dll"; Flags: runhidden;
 
+[Code]
+Function InitializeSetup() : boolean;
+Begin
+  If RegKeyExists(HKLM,'SOFTWARE\Microsoft\.NETFramework\policy\v2.0') Then Begin
+    Result := True;
+  End Else Begin
+    MsgBox(ExpandConstant('This setup requires the .NET Framework v2.0.'+ CHR(13) + 'Please download and install the .NET Framework v.2'), mbError, MB_OK);
+    Result := False;
+  End;
+End;
