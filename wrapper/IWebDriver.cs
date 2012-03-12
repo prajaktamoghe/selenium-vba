@@ -32,6 +32,9 @@ namespace SeleniumWrapper
         [Description("Raise an error if the assertion fails")]
         void assertNotEqual(Object expected, Object current);
 
+        [Description("Capture a screenshot to the Clipboard")]
+        void captureScreenshotToClipboard();
+
 		#region Auto-Generated Code
 		void waitForPageToLoad(String timeout);
 		void waitForFrameToLoad(String frameAddress, String timeout);
