@@ -62,6 +62,14 @@ namespace SeleniumWrapper
             this.Timeout = 30000;
             this.timerhotkey = new System.Timers.Timer(100);
             this.timerhotkey.Elapsed += new System.Timers.ElapsedEventHandler(TimerCheckHotKey);
+            AppDomain.CurrentDomain.UnhandledException += AppDomain_UnhandledException;
+        }
+
+        private void AppDomain_UnhandledException(Object sender, UnhandledExceptionEventArgs e){
+            this.error = ((Exception)e.ExceptionObject).Message;
+            this.thread.Abort();
+            this.timerhotkey.Stop();
+            Thread.CurrentThread.Join();
         }
 
         private void TimerCheckHotKey(object source, ElapsedEventArgs e){
@@ -86,8 +94,8 @@ namespace SeleniumWrapper
                         Thread.Sleep(10);
                         action();
                     }
-                }catch (System.Exception e) { 
-                    this.error = GetErrorPrifix(this.action) + " expected=<"+ expected +"> \r\n" + e.Message; 
+                }catch (System.Exception e) {
+                    this.error = GetErrorPrifix(this.action) + " expected=<" + expected + "> \r\n" + (this.error != null ? this.error : e.Message); 
                 }
             }));
             this.thread.Start();
@@ -95,7 +103,7 @@ namespace SeleniumWrapper
             bool succed = this.thread.Join(this.Timeout);
             this.timerhotkey.Stop();
             if (!succed) throw new ApplicationException(GetErrorPrifix(this.action) + " expected=<" + expected + "> \r\nTimeout reached.");
-            if (this.error != null) throw new System.Exception(this.error);
+            if (this.error != null) throw new ApplicationException(this.error);
         }
 
         private void InvokeAssert(Action action, Object expected, bool match){
@@ -123,7 +131,9 @@ namespace SeleniumWrapper
             this.thread = new System.Threading.Thread(new System.Threading.ThreadStart(() => {
                     try{
                         this.action();
-                    }catch(System.Exception e){ this.error = GetErrorPrifix(this.action) + "\r\n" + e.Message; }
+                    }catch(System.Exception e){ 
+                        this.error = GetErrorPrifix(this.action) + "\r\n" + ( this.error != null ? this.error : e.Message); 
+                    }
                 }));
             this.timerhotkey.Start();
             this.thread.Start();
