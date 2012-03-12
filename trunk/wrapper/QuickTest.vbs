@@ -11,5 +11,6 @@ If MsgBox("Launch Internet Explorer and search <Eiffel tower> ?", vbYesNo) = vbY
 	selenium.open "/"
 	selenium.type "name=q", "Eiffel tower"
 	selenium.click "name=btnG"
+	selenium.captureScreenshotToClipboard
 	msgbox "verify the page title equals Pisa tower : " & chr(13) & selenium.verifyTitle("Pisa tower")
 End If
