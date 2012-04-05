@@ -9,7 +9,7 @@
 
 [Setup]
 AppId={{f1a3918e-07dd-40e3-8389-da62b7ab0a4b}}
-PrivilegesRequired=admin
+PrivilegesRequired=poweruser
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppVerName={#MyAppName} {#MyAppVersion}
@@ -41,6 +41,7 @@ Source: ".\Readme.txt"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\bin\Release\SeleniumWrapperApi.chm"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\QuickTest.vbs"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\Examples\*.xls"; DestDir: "{app}\Examples"; Flags: ignoreversion skipifsourcedoesntexist
+Source: ".\Examples\*.doc"; DestDir: "{app}\Examples"; Flags: ignoreversion skipifsourcedoesntexist
 Source: ".\Examples\*.vbs"; DestDir: "{app}\Examples"; Flags: ignoreversion skipifsourcedoesntexist 
 
 [Icons]
@@ -70,7 +71,7 @@ Begin
   If RegKeyExists(HKLM,'SOFTWARE\Microsoft\.NETFramework\policy\v2.0') Then Begin
     Result := True;
   End Else Begin
-    MsgBox(ExpandConstant('This setup requires the .NET Framework v2.0.'+ CHR(13) + 'Please download and install the .NET Framework v.2'), mbError, MB_OK);
+    MsgBox(ExpandConstant('This setup requires the .NET Framework v2.0.'+ CHR(13) + 'Please download and install the Microsoft .NET Framework v.3.5 or superior'), mbError, MB_OK);
     Result := False;
   End;
 End;
