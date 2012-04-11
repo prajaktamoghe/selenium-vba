@@ -1,8 +1,11 @@
 #########################################################################################################################################
 #    "C:\WINDOWS\system32\WindowsPowerShell\v1.0\powershell.exe" -noexit -File "%1" 
 #    "C:\WINDOWS\system32\WindowsPowerShell\v1.0\powershell.exe" -command "Set-ExecutionPolicy RemoteSigned"
+#    SandCastle Help File Builder : http://shfb.codeplex.com/releases
+#    SandCastle : http://sandcastle.codeplex.com/releases
+#    HTML Help Workshop : http://msdn.microsoft.com/en-us/library/ms669985(v=vs.85).aspx
 #########################################################################################################################################
-
+cls
 mode con cols=120 lines=60
 
 ###################### Save allPath ###################################
@@ -13,6 +16,8 @@ $CurrentVersion_path = $Project_dir + "Properties\AssemblyInfo.cs"
 $csproj_path = $Project_dir + "SeleniumWrapper.csproj"
 $iss_path = $Project_dir + "Package.iss"
 $shfbproj_path = $Project_dir + "SeleniumWrapper.shfbproj"
+$env:DXROOT = "c:\Progra~1\Sandcastle"
+$env:SHFBROOT = "c:\Progra~1\EWSoftware\Sandcastle Help File Builder"
 
 set-alias cmd-7zip "C:\Program Files\7-Zip\7z.exe"
 set-alias cmd-iscc "C:\Program Files\Inno Setup 5\ISCC.exe"
@@ -46,8 +51,6 @@ function getSha1($filepath){
     $file.Close()
     return $sha1
 }
-
-
 
 #Check folders and files
 (gi Env:PATH).value.split(";")| ForEach {if(!(test-path $_)){write-host("  Error ENV:PATH : Folder " + $_ + """ not found" ) -ForegroundColor Red;}}
