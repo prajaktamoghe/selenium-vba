@@ -35,6 +35,9 @@ namespace SeleniumWrapper
         [Description("Capture a screenshot to the Clipboard")]
         void captureScreenshotToClipboard();
 
+        [Description("Execute JavaScrip on the page")]
+		Object executeScript(String script, [Optional][DefaultParameterValue(null)]Object arguments);
+
 		#region Auto-Generated Code
 		void waitForPageToLoad(String timeout);
 		void waitForFrameToLoad(String frameAddress, String timeout);
