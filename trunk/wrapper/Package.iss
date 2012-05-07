@@ -5,7 +5,10 @@
 #define MyAppVersion GetFileVersion(".\bin\Release\SeleniumWrapper.dll")
 #define MyAppPublisher "Florent BREHERET"
 #define MyAppURL "http://code.google.com/p/selenium-vba/"
-#define MyVersion() ParseVersion(".\bin\Release\SeleniumWrapper.dll", Local[0], Local[1], Local[2], Local[3]), Str(Local[0]) + "." + Str(Local[1]) + "." + Str(Local[2]);
+#define MyVersion() ParseVersion(".\bin\Release\SeleniumWrapper.dll", Local[0], Local[1], Local[2], Local[3]), Str(Local[0]) + "." + Str(Local[1]) + "." + Str(Local[2]) + "." + Str(Local[3]);
+
+#define RegAsm32 "C:\WINDOWS\Microsoft.NET\Framework\v2.0.50727\RegAsm.exe"
+#define RegAsm64 "C:\WINDOWS\Microsoft.NET\Framework64\v2.0.50727\RegAsm.exe"
 
 [Setup]
 AppId={{f1a3918e-07dd-40e3-8389-da62b7ab0a4b}}
@@ -36,6 +39,8 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Source: ".\bin\Release\*.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\bin\Release\*.pdb"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\Reference\chromedriver.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: ".\Reference\IEDriverServer32.exe"; DestDir: "{app}";DestName: "IEDriverServer.exe" ; Flags: ignoreversion; Check: "Not IsWin64";
+Source: ".\Reference\IEDriverServer64.exe"; DestDir: "{app}";DestName: "IEDriverServer.exe" ; Flags: ignoreversion; Check: IsWin64;
 Source: ".\License.txt"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\Readme.txt"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\bin\Release\SeleniumWrapperApi.chm"; DestDir: "{app}"; Flags: ignoreversion
@@ -56,22 +61,32 @@ Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
 Root: HKLM; Subkey: "SOFTWARE\Microsoft\.NETFramework\Policy\AppPatch\v2.0.50727.00000\excel.exe\{{2CCAA9FE-6884-4AF2-99DD-5217B94115DF}}"; ValueType: string; ValueName: "Target Version"; ValueData: "v2.0.50727"
 
 [Run]
-Filename:"{reg:HKLM\SOFTWARE\Microsoft\.NETFramework,InstallRoot}\{reg:HKCR\CLSID\{{61b3e12b-3586-3a58-a497-7ed7c4c794b9%7D\InprocServer32\2.0.0.0,RuntimeVersion}\RegAsm.exe"; Parameters: SeleniumWrapper.dll /unregister /tlb:SeleniumWrapper.tlb; WorkingDir: {app}; StatusMsg: "Registering SeleniumWrapper dll"; Flags: runhidden;
-Filename:"{reg:HKLM\SOFTWARE\Microsoft\.NETFramework,InstallRoot}\{reg:HKCR\CLSID\{{61b3e12b-3586-3a58-a497-7ed7c4c794b9%7D\InprocServer32\2.0.0.0,RuntimeVersion}\RegAsm.exe"; Parameters: SeleniumWrapper.dll /tlb:SeleniumWrapper.tlb  /codebase;WorkingDir: {app}; StatusMsg: "Registering SeleniumWrapper dll"; Flags: runhidden;
-
+Filename: {#RegAsm32}; Parameters: {#MyAppName}.dll /unregister /tlb:{#MyAppName}.tlb; WorkingDir: {app}; StatusMsg: "Registering {#MyAppName} dll"; Flags: runhidden; Check: "Not IsWin64";
+Filename: {#RegAsm32}; Parameters: {#MyAppName}.dll /codebase /tlb:{#MyAppName}.tlb; WorkingDir: {app}; StatusMsg: "Registering {#MyAppName} dll"; Flags: runhidden; Check: "Not IsWin64";
+Filename: {#RegAsm64}; Parameters: {#MyAppName}.dll /unregister /tlb:{#MyAppName}.tlb; WorkingDir: {app}; StatusMsg: "Registering {#MyAppName} dll"; Flags: runhidden; Check: IsWin64;
+Filename: {#RegAsm64}; Parameters: {#MyAppName}.dll /codebase /tlb:{#MyAppName}.tlb; WorkingDir: {app}; StatusMsg: "Registering {#MyAppName} dll"; Flags: runhidden; Check: IsWin64;
+  
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}"
 
 [UninstallRun]
-Filename:"{reg:HKLM\SOFTWARE\Microsoft\.NETFramework,InstallRoot}\{reg:HKCR\CLSID\{{61b3e12b-3586-3a58-a497-7ed7c4c794b9%7D\InprocServer32\2.0.0.0,RuntimeVersion}\RegAsm.exe"; Parameters: SeleniumWrapper.dll /unregister /tlb:SeleniumWrapper.tlb; WorkingDir: {app}; StatusMsg: "Unregistering SeleniumWrapper dll"; Flags: runhidden;
+Filename:{#RegAsm32}; Parameters: {#MyAppName}.dll /unregister /tlb:{#MyAppName}.tlb; WorkingDir: {app}; StatusMsg: "Unregistering {#MyAppName} dll"; Flags: runhidden; Check: "Not IsWin64";
+Filename:{#RegAsm64}; Parameters: {#MyAppName}.dll /unregister /tlb:{#MyAppName}.tlb; WorkingDir: {app}; StatusMsg: "Unregistering {#MyAppName} dll"; Flags: runhidden; Check: IsWin64;
 
 [Code]
 Function InitializeSetup() : boolean;
+var
+  ErrorCode: Integer;
+  HasNetFramework: Boolean;
 Begin
-  If RegKeyExists(HKLM,'SOFTWARE\Microsoft\.NETFramework\policy\v2.0') Then Begin
-    Result := True;
+  If RegKeyExists(HKLM,'SOFTWARE\Wow6432Node\Microsoft\NET Framework Setup\NDP\v3.5') Then Begin
+    HasNetFramework := True;
+  End Else If RegKeyExists(HKLM,'SOFTWARE\Microsoft\NET Framework Setup\NDP\v3.5') Then Begin
+    HasNetFramework := True;
   End Else Begin
-    MsgBox(ExpandConstant('This setup requires the .NET Framework v2.0.'+ CHR(13) + 'Please download and install the Microsoft .NET Framework v.3.5 or superior'), mbError, MB_OK);
-    Result := False;
+    MsgBox(ExpandConstant('Microsoft .NET Framework 3.5 is required !  '+ CHR(13) + 'Please download and install it to continue the installaton.'), mbError, MB_OK);
+    ShellExec('open', 'http://www.microsoft.com/en-us/download/details.aspx?id=25150','', '', SW_SHOW, ewNoWait, ErrorCode);
+    HasNetFramework := False;
   End;
+	Result := HasNetFramework;  
 End;

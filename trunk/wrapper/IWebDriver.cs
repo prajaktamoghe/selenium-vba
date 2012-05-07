@@ -20,6 +20,9 @@ namespace SeleniumWrapper
         [Description("Wait the specified time in millisecond before executing the next command")]
         void wait(int time_ms);
 
+        [Description("Wait the specified time in millisecond before executing the next command")]
+        void pause(int time_ms);
+
         [Description("Returns a string with the result of the verification ( <OK> or <KO, ...> )")]
         String verifyEqual(Object expected, Object current);
 
