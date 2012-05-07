@@ -172,7 +172,11 @@ namespace SeleniumWrapper
                 switch (browser) {
                     case "firefox": Invoke(() => this.browserDriver = new OpenQA.Selenium.Firefox.FirefoxDriver()); break;
                     case "internetexplorer":
-                    case "ie": Invoke(() => this.browserDriver = new OpenQA.Selenium.IE.InternetExplorerDriver()); break;
+                    case "ie":
+                       string currentDirectory = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+                       Invoke(() => this.browserDriver = new OpenQA.Selenium.IE.InternetExplorerDriver(currentDirectory));
+                       // Invoke(() => this.browserDriver = new OpenQA.Selenium.IE.InternetExplorerDriver());
+                      break;
                     case "chrome": Invoke(() => this.browserDriver = new OpenQA.Selenium.Chrome.ChromeDriver()); break;
                     default: throw new ApplicationException("Browser <"+browser+"> is not available !  ");
                 }
@@ -228,6 +232,12 @@ namespace SeleniumWrapper
         /// <summary>Wait the specified time in millisecond before executing the next command</summary>
         /// <param name="time_ms">Time to wait in millisecond</param>
         public void wait (int time_ms) {
+            Thread.Sleep(time_ms);
+        }
+
+        /// <summary>Wait the specified time in millisecond before executing the next command</summary>
+        /// <param name="time_ms">Time to wait in millisecond</param>
+        public void pause (int time_ms) {
             Thread.Sleep(time_ms);
         }
 

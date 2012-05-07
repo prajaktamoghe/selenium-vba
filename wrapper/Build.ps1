@@ -98,7 +98,7 @@ write-host "   ** InnoSetup create the paclage ..."
     
 write-host ""
 write-host "   ** Package installaton ..."
-    start-process -wait ($Project_dir + "SeleniumWrapperSetup-" + [regex]::matches($NewVersion,"^\d+\.\d+\.\d+")[0].Value  + ".exe")
+    start-process -wait ($Project_dir + "SeleniumWrapperSetup-" + [regex]::matches($NewVersion,"^\d+\.\d+\.\d+.\d+")[0].Value  + ".exe")
 
 write-host ""
 write-host ""
