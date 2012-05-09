@@ -6,6 +6,7 @@ using System.Timers;
 using System.Text.RegularExpressions;
 using OpenQA.Selenium.Remote;
 using System.ComponentModel;
+using OpenQA.Selenium;
 
 namespace SeleniumWrapper
 {
@@ -40,6 +41,8 @@ namespace SeleniumWrapper
     /// </code>
     /// 
     /// </example>
+    ///
+
     [Description("")]
     [Guid("432b62a5-6f09-45ce-b10e-e3ccffab4234"), ClassInterface(ClassInterfaceType.None)]
     public class WebDriver : IWebDriver
@@ -67,9 +70,11 @@ namespace SeleniumWrapper
 
         private void AppDomain_UnhandledException(Object sender, UnhandledExceptionEventArgs e){
             this.error = ((Exception)e.ExceptionObject).Message;
-            this.thread.Abort();
-            this.timerhotkey.Stop();
-            Thread.CurrentThread.Join();
+            if(this.thread.IsAlive){
+                this.thread.Abort();
+                this.timerhotkey.Stop();
+                Thread.CurrentThread.Join();
+            }
         }
 
         private void TimerCheckHotKey(object source, ElapsedEventArgs e){
@@ -147,39 +152,27 @@ namespace SeleniumWrapper
         /// <summary>Starts a new Selenium testing session</summary>
         /// <param name="browser">Name of the browser : firefox, ie, chrome</param>
         /// <param name="url">The base URL</param>
-        /// <param name="serverPath">Optional - Path to the sever binary which launch the browser</param>
-        public void start(String browser, String url, [Optional][DefaultParameterValue("")]String serverPath){
-            if(!String.IsNullOrEmpty(serverPath)){
-                if(!System.IO.File.Exists(serverPath)) throw new ApplicationException("Binary not found : " + serverPath);
-                String lDirectory = System.IO.Directory.GetParent(serverPath).FullName;
-                switch (browser) {
-                    case "firefox":
-                        Invoke(() => this.browserDriver = new OpenQA.Selenium.Firefox.FirefoxDriver()); 
-                        break;
-                    case "internetexplorer": case "ie":
-                        OpenQA.Selenium.IE.InternetExplorerOptions ieOptions = new OpenQA.Selenium.IE.InternetExplorerOptions();
-                        ieOptions.IntroduceInstabilityByIgnoringProtectedModeSettings = true;
-                        Invoke(() => this.browserDriver = new OpenQA.Selenium.IE.InternetExplorerDriver(lDirectory, ieOptions));
-                        break;
-                    case "chrome":
-                        //OpenQA.Selenium.Chrome.ChromeOptions lChromeOptions = new OpenQA.Selenium.Chrome.ChromeOptions();
-                        //lChromeOptions.BinaryLocation = binaryPath; //System.IO.Directory.GetParent(binaryPath).FullName;
-                        Invoke(() => this.browserDriver = new OpenQA.Selenium.Chrome.ChromeDriver(lDirectory));
-                        break;
-                    default: throw new ApplicationException("Browser <"+browser+"> is not available !  ");
-                }
+        /// <param name="directory">Optional - Directory path for drivers or binaries</param>
+        public void start(string browser, String url, [Optional][DefaultParameterValue("")]String directory){
+            if(!String.IsNullOrEmpty(directory)){
+                if(!System.IO.Directory.Exists(directory)) throw new ApplicationException("Direcory not found : " + directory);
             }else{
-                switch (browser) {
-                    case "firefox": Invoke(() => this.browserDriver = new OpenQA.Selenium.Firefox.FirefoxDriver()); break;
-                    case "internetexplorer":
-                    case "ie":
-                       string currentDirectory = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-                       Invoke(() => this.browserDriver = new OpenQA.Selenium.IE.InternetExplorerDriver(currentDirectory));
-                       // Invoke(() => this.browserDriver = new OpenQA.Selenium.IE.InternetExplorerDriver());
-                      break;
-                    case "chrome": Invoke(() => this.browserDriver = new OpenQA.Selenium.Chrome.ChromeDriver()); break;
-                    default: throw new ApplicationException("Browser <"+browser+"> is not available !  ");
-                }
+                directory =  System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            }
+            switch (browser.ToLower()) {
+                case "firefox": 
+                    Invoke(() => this.browserDriver = new OpenQA.Selenium.Firefox.FirefoxDriver());
+                    break;
+                case "internetexplorer":
+                case "iexplore":
+                case "ie":
+                    Invoke(() => this.browserDriver = new OpenQA.Selenium.IE.InternetExplorerDriver(directory));
+                    break;
+                case "chrome":
+                    Invoke(() => this.browserDriver = new OpenQA.Selenium.Chrome.ChromeDriver(directory));
+                    break;
+                default:
+                    throw new ApplicationException("Browser <" + browser + "> is not available !  \r\nChoose between Firefox, IE and Chrome");
             }
             Invoke(() => this.webDriver = new Selenium.WebDriverBackedSelenium(this.browserDriver, url));
             Invoke(() => webDriver.Start());
@@ -199,18 +192,20 @@ namespace SeleniumWrapper
         /// <param name="url">Base URL</param>
         /// <param name="javascriptEnabled">Optional argument to enable or disable javascript. Default is true</param>
         /// <param name="capabilities">Optional capabilities. ex : "version=3.6,plateform=LINUX"</param>
-        public void startRemotely(String browser, String remoteAddress, String url, [Optional][DefaultParameterValue(true)]Boolean javascriptEnabled, [Optional][DefaultParameterValue("")]String capabilities){
+        public void startRemotely(string browser, String remoteAddress, String url, [Optional][DefaultParameterValue(true)]Boolean javascriptEnabled, [Optional][DefaultParameterValue("")]String capabilities){
             DesiredCapabilities lCapability;
-            switch (browser) {
+            switch (browser.ToLower()) {
                 case "firefox": lCapability = DesiredCapabilities.Firefox(); break;
                 case "chrome": lCapability = DesiredCapabilities.Chrome(); break;
-                case "internetexplorer": case "ie": lCapability = DesiredCapabilities.InternetExplorer(); break;
+                case "internetexplorer":
+                case "iexplore":
+                case "ie": lCapability = DesiredCapabilities.InternetExplorer(); break;
                 case "htmlunit": lCapability = DesiredCapabilities.HtmlUnit(); break;
                 case "htmlunitwithjavascript": lCapability = DesiredCapabilities.HtmlUnitWithJavaScript(); break;
                 case "android": lCapability = DesiredCapabilities.Android(); break;
                 case "ipad": lCapability = DesiredCapabilities.IPad(); break;
                 case "opera": lCapability = DesiredCapabilities.Opera(); break;
-                default: throw new ApplicationException("Remote browser <" + browser + "> is not available !  ");
+                default: throw new ApplicationException("Remote browser <" + browser + "> is not available !  \r\nChoose between Firefox, IE, Chrome, HtmlUnit, HtmlUnitWithJavaScript, \r\nAndroid, IPad, Opera");
             }
             if(!String.IsNullOrEmpty(capabilities)){
                 var strCapabilities = capabilities.Split(',');
@@ -224,7 +219,7 @@ namespace SeleniumWrapper
                 }
             }
             lCapability.IsJavaScriptEnabled = javascriptEnabled;
-            this.browserDriver = new RemoteWebDriver(new Uri(remoteAddress), lCapability);
+            this.browserDriver = new RemoteWebDriverCust(new Uri(remoteAddress), lCapability);
             Invoke(() => this.webDriver = new Selenium.WebDriverBackedSelenium(this.browserDriver, url));
             Invoke(() => webDriver.Start());
         }
@@ -317,13 +312,21 @@ namespace SeleniumWrapper
 
         /// <summary>Capture a screenshot to the Clipboard</summary>
         public void captureScreenshotToClipboard() {
-            System.Drawing.Image image;
-            System.Windows.Forms.Clipboard.Clear();
-            string base64String = (string)Invoke(() => this.result = webDriver.CaptureScreenshotToString());
-            using (System.IO.MemoryStream ms = new System.IO.MemoryStream(Convert.FromBase64String(base64String))){
-                image = System.Drawing.Image.FromStream(ms);
+            try{
+                System.Drawing.Image image;
+                System.Windows.Forms.Clipboard.Clear();
+                byte[] res = (byte[])Invoke(() => this.result = ((OpenQA.Selenium.ITakesScreenshot)browserDriver).GetScreenshot().AsByteArray);
+                //string base64String = (string)Invoke(() => this.result = webDriver.CaptureScreenshotToString());
+                //if (base64String == "") throw new ApplicationException("Method <captureScreenshotToClipboard> failed !\r\nReturned value is empty");
+                if (res ==null || res.Length == 0) throw new ApplicationException("Method <captureScreenshotToClipboard> failed !\r\nReturned value is empty");
+                //using (System.IO.MemoryStream ms = new System.IO.MemoryStream(Convert.FromBase64String(base64String))){
+                using (System.IO.MemoryStream ms = new System.IO.MemoryStream(res)){
+                    image = System.Drawing.Image.FromStream(ms);
+                }
+                System.Windows.Forms.Clipboard.SetImage(image);
+            }catch(Exception ex){
+                throw new ApplicationException(ex.Message);
             }
-            System.Windows.Forms.Clipboard.SetImage(image);
         }
 
         /// <summary>Execute JavaScrip on the page</summary>
