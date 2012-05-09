@@ -7,8 +7,8 @@
 #define MyAppURL "http://code.google.com/p/selenium-vba/"
 #define MyVersion() ParseVersion(".\bin\Release\SeleniumWrapper.dll", Local[0], Local[1], Local[2], Local[3]), Str(Local[0]) + "." + Str(Local[1]) + "." + Str(Local[2]) + "." + Str(Local[3]);
 
-#define RegAsm32 "C:\WINDOWS\Microsoft.NET\Framework\v2.0.50727\RegAsm.exe"
-#define RegAsm64 "C:\WINDOWS\Microsoft.NET\Framework64\v2.0.50727\RegAsm.exe"
+#define RegAsm32 "{win}\Microsoft.NET\Framework\v2.0.50727\RegAsm.exe"
+#define RegAsm64 "{win}\Microsoft.NET\Framework64\v2.0.50727\RegAsm.exe"
 
 [Setup]
 AppId={{f1a3918e-07dd-40e3-8389-da62b7ab0a4b}}
@@ -41,20 +41,22 @@ Source: ".\bin\Release\*.pdb"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\Reference\chromedriver.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\Reference\IEDriverServer32.exe"; DestDir: "{app}";DestName: "IEDriverServer.exe" ; Flags: ignoreversion; Check: "Not IsWin64";
 Source: ".\Reference\IEDriverServer64.exe"; DestDir: "{app}";DestName: "IEDriverServer.exe" ; Flags: ignoreversion; Check: IsWin64;
-Source: ".\License.txt"; DestDir: "{app}"; Flags: ignoreversion
-Source: ".\Readme.txt"; DestDir: "{app}"; Flags: ignoreversion
+Source: ".\License.txt"; DestDir: "{app}"; Flags: ignoreversion overwritereadonly ; Attribs:readonly
+Source: ".\Readme.txt"; DestDir: "{app}"; Flags: ignoreversion overwritereadonly ; Attribs:readonly
 Source: ".\bin\Release\SeleniumWrapperApi.chm"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\QuickTest.vbs"; DestDir: "{app}"; Flags: ignoreversion
-Source: ".\Examples\*.xls"; DestDir: "{app}\Examples"; Flags: ignoreversion skipifsourcedoesntexist
-Source: ".\Examples\*.doc"; DestDir: "{app}\Examples"; Flags: ignoreversion skipifsourcedoesntexist
-Source: ".\Examples\*.vbs"; DestDir: "{app}\Examples"; Flags: ignoreversion skipifsourcedoesntexist 
+Source: ".\Examples\*.*"; DestDir: "{app}\Examples"; Flags: ignoreversion skipifsourcedoesntexist overwritereadonly ; Attribs:readonly
+Source: ".\Templates\*.dot" ; DestDir: "{app}\Templates"; Flags: ignoreversion skipifsourcedoesntexist overwritereadonly ; Attribs:readonly
+Source: ".\Templates\*.xlt" ; DestDir: "{app}\Templates"; Flags: ignoreversion skipifsourcedoesntexist overwritereadonly ; Attribs:readonly
 
 [Icons]
 ;Name: "{group}\Readme"; Filename: "{app}\Readme.txt"; WorkingDir: "{app}";
-Name: "{group}\API documentation"; Filename: "{app}\SeleniumWrapperApi.chm"; WorkingDir: "{app}";
-Name: "{group}\QuickTest"; Filename: "{app}\QuickTest.vbs"; WorkingDir: "{app}";
-Name: "{group}\Examples"; Filename: "{app}\Examples"; WorkingDir: "{app}";
 Name: "{group}\Project Home Page"; Filename: "http://code.google.com/p/selenium-vba/"; WorkingDir: "{app}";
+Name: "{group}\Excel Template"; Filename: "{app}\Templates\SeleniumWrapper.xlt"; WorkingDir: "{app}";
+Name: "{group}\Word Template"; Filename: "{app}\Templates\SeleniumWrapper.dot"; WorkingDir: "{app}";
+Name: "{group}\Examples"; Filename: "{app}\Examples"; WorkingDir: "{app}";
+Name: "{group}\QuickTest"; Filename: "{app}\QuickTest.vbs"; WorkingDir: "{app}";
+Name: "{group}\API documentation"; Filename: "{app}\SeleniumWrapperApi.chm"; WorkingDir: "{app}";
 Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
 
 [Registry]
@@ -65,7 +67,7 @@ Filename: {#RegAsm32}; Parameters: {#MyAppName}.dll /unregister /tlb:{#MyAppName
 Filename: {#RegAsm32}; Parameters: {#MyAppName}.dll /codebase /tlb:{#MyAppName}.tlb; WorkingDir: {app}; StatusMsg: "Registering {#MyAppName} dll"; Flags: runhidden; Check: "Not IsWin64";
 Filename: {#RegAsm64}; Parameters: {#MyAppName}.dll /unregister /tlb:{#MyAppName}.tlb; WorkingDir: {app}; StatusMsg: "Registering {#MyAppName} dll"; Flags: runhidden; Check: IsWin64;
 Filename: {#RegAsm64}; Parameters: {#MyAppName}.dll /codebase /tlb:{#MyAppName}.tlb; WorkingDir: {app}; StatusMsg: "Registering {#MyAppName} dll"; Flags: runhidden; Check: IsWin64;
-  
+
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}"
 

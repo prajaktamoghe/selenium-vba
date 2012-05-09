@@ -12,7 +12,7 @@ namespace SeleniumWrapper
         void setImplicitWait(int timeout_ms);
 
         [Description("Starts a new Selenium session")]
-        void start(String browser, String url, [Optional][DefaultParameterValue("")]String serverPath);
+        void start(String browser, String url, [Optional][DefaultParameterValue("")]String directory);
 
         [Description("Starts remotely a new Selenium session")]
         void startRemotely(String browser, String remoteAddress, String url, [Optional][DefaultParameterValue(true)]Boolean javascriptEnabled, [Optional][DefaultParameterValue("")]String capabilities);
