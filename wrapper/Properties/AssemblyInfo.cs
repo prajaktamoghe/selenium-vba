@@ -1,5 +1,7 @@
 using System.Runtime.CompilerServices;
 using System.Reflection;
+using System.Runtime.InteropServices;
+using System.ComponentModel;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
@@ -30,5 +32,32 @@ using System.Reflection;
 //
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
-[assembly: AssemblyVersion("1.0.5.1")]
-[assembly: AssemblyFileVersion("1.0.5.1")]
+[assembly: AssemblyVersion("1.0.5.2")]
+[assembly: AssemblyFileVersion("1.0.5.2")]
+
+namespace SeleniumWrapper
+{
+    [Guid("94EE4CF6-6968-4B30-83D6-1C6CC915103B"), ComVisible(true)]
+    public interface IAssembly
+    {
+        [Description("Get the assembly version")]
+        string GetVersion();
+    }
+
+    [Description("Class to get informations about the regitered assembly"), ProgId("SeleniumWrapper.Assembly")]
+    [Guid("5BDDC122-7092-453F-8486-DBC455180DE3"), ComVisible(true), ClassInterface(ClassInterfaceType.None)]
+    public class Assembly : IAssembly
+    {
+        public string GetVersion()
+        {
+            try
+            {
+                return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            }
+            catch (System.Exception)
+            {
+                return null;
+            }
+        }
+    }
+}
