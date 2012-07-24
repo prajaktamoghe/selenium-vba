@@ -55,6 +55,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.XML" />
     <Reference Include="ThoughtWorks.Selenium.Core">
       <HintPath>..\wrapper\Reference\ThoughtWorks.Selenium.Core.dll</HintPath>
     </Reference>
