@@ -18,7 +18,7 @@ using System.ComponentModel;
 // Setting ComVisible to false makes the types in this assembly not visible 
 // to COM components.  If you need to access a type in this assembly from 
 // COM, set the ComVisible attribute to true on that type.
-[assembly: System.Runtime.InteropServices.ComVisible(true)]
+[assembly: System.Runtime.InteropServices.ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: System.Runtime.InteropServices.Guid("e57e03de-c7fe-4c12-85c8-ec8b32dffb86")]
@@ -32,8 +32,8 @@ using System.ComponentModel;
 //
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
-[assembly: AssemblyVersion("1.0.5.3")]
-[assembly: AssemblyFileVersion("1.0.5.3")]
+[assembly: AssemblyVersion("1.0.6.0")]
+[assembly: AssemblyFileVersion("1.0.6.0")]
 
 namespace SeleniumWrapper
 {

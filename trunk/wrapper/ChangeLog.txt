@@ -1,0 +1,27 @@
+
+v1.0.6.0
+===============================================================================
+ * Updated Selenium libraries to 2.25.1
+ * Updated IEDriverServer to 2.25.2
+ * Updated Chrome Driver to 22.0.1203.b
+ * Improved methods invocation
+ * Fixed silent unhandled errors
+ * Fixed formatter parsing with double quotes and numbers
+ * Added findElementBy methods and WebElement object
+ * Added methods to create a PDF document and insert captures
+ * Added regular expressions methods
+ * Added documentation for original methods
+
+v1.0.5.3
+===============================================================================
+ * Updated Selenium libraries to 2.23.0
+ * Updated IEDriverServer to 2.23.0
+ * Updated Chrome Driver to 20.0.1133.0
+
+v1.0.5.2
+===============================================================================
+ * Added uninstall at installation
+ * Added some tests at installation
+ * Added menus in excel/word templates
+ * Fixed Equals test with null objects
+ * Fixed installation compatibility with OS x64 and Office x64
