@@ -55,6 +55,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Reference\Ionic.Zip.dll</HintPath>
     </Reference>
+    <Reference Include="itextsharp">
+      <HintPath>Reference\itextsharp.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=4.0.6.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Reference\Newtonsoft.Json.dll</HintPath>
@@ -82,10 +85,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IWebDriver.cs" />
+    <Compile Include="IWebDriverGen.cs" />
     <Compile Include="RemoteWebDriverCust.cs" />
     <Compile Include="WebDriver.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WebDriverGen.cs" />
+    <Compile Include="WebElement.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SeleniumWrapper.snk" />

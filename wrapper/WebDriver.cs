@@ -7,6 +7,10 @@ using System.Text.RegularExpressions;
 using OpenQA.Selenium.Remote;
 using System.ComponentModel;
 using OpenQA.Selenium;
+using Action = System.Action;
+using iTextSharp.text;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace SeleniumWrapper
 {
@@ -44,42 +48,56 @@ namespace SeleniumWrapper
     ///
 
     [Description("")]
-    [Guid("432b62a5-6f09-45ce-b10e-e3ccffab4234"), ClassInterface(ClassInterfaceType.None)]
-    public partial class WebDriver : IWebDriver
+    [Guid("432b62a5-6f09-45ce-b10e-e3ccffab4234")]
+    [ComVisible(true), ComDefaultInterface(typeof(IWebDriver)), ClassInterface(ClassInterfaceType.None)]
+    public partial class WebDriver : IDisposable, IWebDriver
     {
         [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
         internal static extern short GetKeyState(int virtualKeyCode);
 
-        OpenQA.Selenium.IWebDriver browserDriver;
-        Selenium.WebDriverBackedSelenium webDriver;
+        OpenQA.Selenium.IWebDriver webDriver;
+        Selenium.WebDriverBackedSelenium webDriverBacked;
         Object result;
         Action action;
         String error;
         int Timeout;
-        System.Threading.Thread thread;
         System.Timers.Timer timerhotkey;
         String baseUrl;
+        bool canceled = false;
+        ManualResetEvent waiter;
+        iTextSharp.text.Document doc;
 
         public WebDriver(){
+            waiter = new ManualResetEvent(false);
             this.Timeout = 30000;
             this.timerhotkey = new System.Timers.Timer(200);
             this.timerhotkey.Elapsed += new System.Timers.ElapsedEventHandler(TimerCheckHotKey);
             AppDomain.CurrentDomain.UnhandledException += AppDomain_UnhandledException;
         }
 
+        [STAThread]
         private void AppDomain_UnhandledException(Object sender, UnhandledExceptionEventArgs e){
             this.error = ((Exception)e.ExceptionObject).Message;
-            if(this.thread.IsAlive){
-                this.thread.Abort();
-                this.timerhotkey.Stop();
-                Thread.CurrentThread.Join();
+            this.timerhotkey.Stop();
+            waiter.Set();
+            Thread.CurrentThread.Join();
+        }
+
+        ~WebDriver(){
+            Dispose();
+        }
+
+        public void Dispose(){
+            if( this.doc!=null && this.doc.IsOpen()){
+                this.doc.Close();
             }
         }
 
         private void TimerCheckHotKey(object source, ElapsedEventArgs e){
             if ((GetKeyState(0x1b) & 0x8000) != 0) {
                 this.timerhotkey.Stop();
-                this.thread.Abort();
+                waiter.Set();
+                this.canceled = true;
             }
         }
 
@@ -88,25 +106,28 @@ namespace SeleniumWrapper
             return "Method " + lMethodname + " failed !";
         }
 
+        [STAThread]
         private void InvokeWaitFor(Action action, Object expected, bool match){
             this.action = action;
             this.error = null;
-            this.thread = new System.Threading.Thread(new System.Threading.ThreadStart(() =>{
-                try {
-                    action();
+            waiter.Reset();
+            action.BeginInvoke((IAsyncResult iar) => {
+                try{
+                    action.EndInvoke(iar);
                     while(match ^ ObjectEquals(result,expected)){
                         Thread.Sleep(10);
                         action();
                     }
-                }catch (System.Exception e) {
-                    this.error = GetErrorPrifix(this.action) + " \r\n expected=<" + expected + "> \r\n" + (this.error != null ? this.error : e.Message); 
+                }catch(Exception ex){
+                    this.error = GetErrorPrifix(this.action) + " \r\n expected=<" + expected + "> \r\n" + (this.error != null ? this.error : ex.Message); 
                 }
-            }));
-            this.thread.Start();
+                waiter.Set();
+            }, null);
             this.timerhotkey.Start();
-            bool succed = this.thread.Join(this.Timeout);
+            bool succed = waiter.WaitOne(this.Timeout);
             this.timerhotkey.Stop();
-            if (!succed) throw new ApplicationException(GetErrorPrifix(this.action) + " \r\n expected=<" + expected + "> \r\nTimeout reached.");
+            if (this.canceled) throw new ApplicationException("Execution cancelled !");
+            if (!succed) throw new ApplicationException(GetErrorPrifix(this.action) + " \r\nTimeout reached.");
             if (this.error != null) throw new ApplicationException(this.error);
         }
 
@@ -129,20 +150,23 @@ namespace SeleniumWrapper
             waitForPageToLoad( this.Timeout.ToString());
         }
 
+        [STAThread]
         private Object Invoke(Action action){
             this.action = action;
             this.error = null;
-            this.thread = new System.Threading.Thread(new System.Threading.ThreadStart(() => {
-                    try{
-                        this.action();
-                    }catch(System.Exception e){ 
-                        this.error = GetErrorPrifix(this.action) + "\r\n" + ( this.error != null ? this.error : e.Message); 
-                    }
-                }));
+            waiter.Reset();
+            action.BeginInvoke((IAsyncResult iar) => {
+                try{
+                    action.EndInvoke(iar);
+                }catch(Exception ex){
+                    this.error = GetErrorPrifix(this.action) + "\r\n" + ex.Message;
+                }
+                waiter.Set();
+            }, null);
             this.timerhotkey.Start();
-            this.thread.Start();
-            bool succed = this.thread.Join(this.Timeout);
+            bool succed = waiter.WaitOne(this.Timeout);
             this.timerhotkey.Stop();
+            if (this.canceled) throw new ApplicationException("Execution cancelled !");
             if (!succed) throw new ApplicationException(GetErrorPrifix(this.action) + " Timeout reached.");
             if (this.error != null) throw new ApplicationException(this.error);
             return this.result;
@@ -158,25 +182,34 @@ namespace SeleniumWrapper
             }else{
                 directory =  System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             }
-            switch (browser.ToLower()) {
+            switch (browser.ToLower().Replace("*", "")) {
                 case "ff":
                 case "firefox": 
-                    Invoke(() => this.browserDriver = new OpenQA.Selenium.Firefox.FirefoxDriver());
+                    Invoke(() => this.webDriver = new OpenQA.Selenium.Firefox.FirefoxDriver());
                     break;
                 case "internetexplorer":
                 case "iexplore":
                 case "ie":
-                    Invoke(() => this.browserDriver = new OpenQA.Selenium.IE.InternetExplorerDriver(directory));
+                    Invoke(() => this.webDriver = new OpenQA.Selenium.IE.InternetExplorerDriver(directory));
+                    break;
+                case "internetexplorer64":
+                case "iexplore64":
+                case "ie64":
+                    Invoke(() => this.webDriver = new OpenQA.Selenium.IE.InternetExplorerDriver(directory + @"\ie64"));
                     break;
                 case "cr":
                 case "chrome":
-                    Invoke(() => this.browserDriver = new OpenQA.Selenium.Chrome.ChromeDriver(directory));
+                    Invoke(() => this.webDriver = new OpenQA.Selenium.Chrome.ChromeDriver(directory));
+                    break;
+                case "sa":
+                case "safari":
+                    Invoke(() => this.webDriver = new OpenQA.Selenium.Safari.SafariDriver());
                     break;
                 default:
                     throw new ApplicationException("Browser <" + browser + "> is not available !  \r\nChoose between Firefox, IE and Chrome");
             }
-            Invoke(() => this.webDriver = new Selenium.WebDriverBackedSelenium(this.browserDriver, url));
-            Invoke(() => webDriver.Start());
+            Invoke(() => this.webDriverBacked = new Selenium.WebDriverBackedSelenium(this.webDriver, url));
+            Invoke(() => webDriverBacked.Start());
             this.baseUrl = url.TrimEnd('/');
         }
 
@@ -184,18 +217,18 @@ namespace SeleniumWrapper
             if(!url.Contains("://")){
                  url = this.baseUrl + '/' + url.TrimStart('/');
             }
-            Invoke(() => webDriver.Open(url));
+            Invoke(() => webDriverBacked.Open(url));
         }
 
         /// <summary>Starts remotely a new Selenium testing session</summary>
         /// <param name="browser">Name of the browser : firefox, ie, chrome, htmlunit, htmlunitwithjavascript, android, ipad, opera</param>
-        /// <param name="remoteAddress">Remote url address (ex : "http://localhost:4444/")</param>
+        /// <param name="remoteAddress">Remote url address (ex : "http://localhost:4444/wd/hub")</param>
         /// <param name="url">Base URL</param>
         /// <param name="javascriptEnabled">Optional argument to enable or disable javascript. Default is true</param>
         /// <param name="capabilities">Optional capabilities. ex : "version=3.6,plateform=LINUX"</param>
         public void startRemotely(string browser, String remoteAddress, String url, [Optional][DefaultParameterValue(true)]Boolean javascriptEnabled, [Optional][DefaultParameterValue("")]String capabilities){
             DesiredCapabilities lCapability;
-            switch (browser.ToLower()) {
+            switch (browser.ToLower().Replace("*", "")) {
                 case "ff":
                 case "firefox": lCapability = DesiredCapabilities.Firefox(); break;
                 case "cr":
@@ -222,9 +255,9 @@ namespace SeleniumWrapper
                 }
             }
             lCapability.IsJavaScriptEnabled = javascriptEnabled;
-            this.browserDriver = new RemoteWebDriverCust(new Uri(remoteAddress), lCapability);
-            Invoke(() => this.webDriver = new Selenium.WebDriverBackedSelenium(this.browserDriver, url));
-            Invoke(() => webDriver.Start());
+            this.webDriver = new RemoteWebDriverCust(new Uri(remoteAddress), lCapability);
+            Invoke(() => this.webDriverBacked = new Selenium.WebDriverBackedSelenium(this.webDriver, url));
+            Invoke(() => webDriverBacked.Start());
         }
 
         /// <summary>Wait the specified time in millisecond before executing the next command</summary>
@@ -303,14 +336,14 @@ namespace SeleniumWrapper
         /// <summary>Specifies the amount of time the driver should wait when searching for an element if it is not immediately present.</summary>
         /// <param name="timeout_ms">timeout in millisecond</param>
 		public void setImplicitWait ( int timeout_ms) {
-            this.webDriver.UnderlyingWebDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromMilliseconds(timeout_ms));
+            this.webDriverBacked.UnderlyingWebDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromMilliseconds(timeout_ms));
         }
 
         /// <summary> Specifies the amount of time that Selenium will wait for actions to complete. The default timeout is 30 seconds.</summary>
         /// <param name="timeout_ms">timeout in milliseconds, after which an error is raised</param>
         public void setTimeout(String timeout_ms) {
             this.Timeout = Int32.Parse(timeout_ms);
-            Invoke(() => webDriver.SetTimeout(timeout_ms)); 
+            Invoke(() => webDriverBacked.SetTimeout(timeout_ms)); 
         }
 
         /// <summary>Capture a screenshot to the Clipboard</summary>
@@ -318,7 +351,7 @@ namespace SeleniumWrapper
             try{
                 System.Drawing.Image image;
                 System.Windows.Forms.Clipboard.Clear();
-                byte[] res = (byte[])Invoke(() => this.result = ((OpenQA.Selenium.ITakesScreenshot)browserDriver).GetScreenshot().AsByteArray);
+                byte[] res = (byte[])Invoke(() => this.result = ((OpenQA.Selenium.ITakesScreenshot)webDriver).GetScreenshot().AsByteArray);
                 //string base64String = (string)Invoke(() => this.result = webDriver.CaptureScreenshotToString());
                 if (res ==null || res.Length == 0) throw new ApplicationException("Method <captureScreenshotToClipboard> failed !\r\nReturned value is empty");
                 //using (System.IO.MemoryStream ms = new System.IO.MemoryStream(Convert.FromBase64String(base64String))){
@@ -343,10 +376,203 @@ namespace SeleniumWrapper
 	    /// </code>
 	    /// </example>
 		public Object executeScript(String script, [Optional][DefaultParameterValue(null)]Object arguments){
-            Object result = ((OpenQA.Selenium.IJavaScriptExecutor)this.browserDriver).ExecuteScript("try{" + script + "}catch(e){return 'error:'+e.message;}", arguments);
+            Object result = ((OpenQA.Selenium.IJavaScriptExecutor)this.webDriver).ExecuteScript("try{" + script + "}catch(e){return 'error:'+e.message;}", arguments);
             if (result != null && result.ToString().StartsWith("error:") ) throw new ApplicationException("JavaScript " + result.ToString());
             return result;
         }
+
+        // Following funtion are webdriver related
+        #region WebDriver Code
+
+        public String pageSource{
+            get{ return this.webDriver.PageSource; }
+        }
+
+        public WebElement findElementByName(String name, [Optional][DefaultParameterValue(0)]int timeoutms){
+			return this.findElement(OpenQA.Selenium.By.Name(name), timeoutms);
+        }
+
+        public WebElement findElementByXPath(String xpath, [Optional][DefaultParameterValue(0)]int timeoutms){
+			return this.findElement(OpenQA.Selenium.By.XPath(xpath), timeoutms);
+        }
+
+        public WebElement findElementById(String id, [Optional][DefaultParameterValue(0)]int timeoutms){
+			return this.findElement(OpenQA.Selenium.By.Id(id), timeoutms);
+        }
+
+        public WebElement findElementByClassName(String classname, [Optional][DefaultParameterValue(0)]int timeoutms){
+			return this.findElement(OpenQA.Selenium.By.ClassName(classname), timeoutms);
+        }
+
+        public WebElement findElementByCssSelector(String cssselector, [Optional][DefaultParameterValue(0)]int timeoutms){
+            return this.findElement(OpenQA.Selenium.By.CssSelector(cssselector), timeoutms);
+        }
+
+        public WebElement findElementByLinkText(String linktext, [Optional][DefaultParameterValue(0)]int timeoutms){
+            return this.findElement(OpenQA.Selenium.By.LinkText(linktext), timeoutms);
+        }
+
+        public WebElement findElementByPartialLinkText(String partiallinktext, [Optional][DefaultParameterValue(0)]int timeoutms){
+            return this.findElement(OpenQA.Selenium.By.PartialLinkText(partiallinktext), timeoutms);
+        }
+
+        public WebElement findElementByTagName(String tagname, [Optional][DefaultParameterValue(0)]int timeoutms){
+            return this.findElement(OpenQA.Selenium.By.TagName(tagname), timeoutms);
+        }
+		
+	    private WebElement findElement(By by, int timeoutms){
+			if(timeoutms>0){
+				var wait = new OpenQA.Selenium.Support.UI.WebDriverWait(this.webDriver, TimeSpan.FromMilliseconds(timeoutms));
+                return new WebElement(this.webDriver, wait.Until(drv => drv.FindElement(by)));
+			}
+            return new WebElement(this.webDriver, this.webDriver.FindElement(by));
+        }	
+
+        public void get(String url){
+            if(!url.Contains("://")){
+                 url = this.baseUrl + '/' + url.TrimStart('/');
+            }
+            Invoke(() => this.webDriver.Navigate().GoToUrl(url));
+        }
+
+        public void sendKeys(string keysToSend){
+            new OpenQA.Selenium.Interactions.Actions(this.webDriver).SendKeys(keysToSend).Perform();;
+        }
+
+        #endregion
+
+        // Following funtion are pdf related
+        #region Pdf code
+
+        public void newPdf(string pdfpath){
+            this.doc = new iTextSharp.text.Document();
+            try{
+                iTextSharp.text.pdf.PdfWriter.GetInstance(doc, new System.IO.FileStream(pdfpath, System.IO.FileMode.Create));
+                this.doc.Open();
+                this.doc.SetMargins(20, 20, 20, 30);
+            }catch (Exception ex){
+                throw new ApplicationException(ex.Message);
+            }
+        }
+
+        public void captureScreenshotToPdf(string title){
+            if(this.doc==null || this.doc.IsOpen()==false)
+                throw new Exception("Pdf document is null! Use method newPdf(string pdfpath) to create a document.");
+            try{
+                byte[] res = (byte[])Invoke(() => this.result = ((OpenQA.Selenium.ITakesScreenshot)webDriver).GetScreenshot().AsByteArray);
+                if (res == null || res.Length == 0) throw new ApplicationException("Method <captureScreenshotToPdf> failed !\r\nReturned value is empty");
+                using(System.IO.MemoryStream ms = new System.IO.MemoryStream(res)){
+                     using(System.Drawing.Image img = System.Drawing.Image.FromStream(ms)){
+                        using(System.Drawing.Bitmap bitmap = new System.Drawing.Bitmap(img) ){
+                            int imgHeight = bitmap.Height;
+                            int lBlockHeight = 2100;
+                            if( imgHeight < lBlockHeight ){
+                                addImageToPdf(img, title);
+                            }else{
+                                int yPos = 0;
+                                while(true){
+                                    int lLeftHeight = imgHeight - yPos;
+                                    if(lLeftHeight<1) break;
+                                    lBlockHeight = (lLeftHeight>lBlockHeight) ? lBlockHeight : lLeftHeight;
+                                    System.Drawing.Rectangle cropArea = new System.Drawing.Rectangle{
+                                        X = 0, Y = yPos, Height = lBlockHeight, Width = img.Width
+                                    };
+                                    using(System.Drawing.Bitmap bmpCrop = bitmap.Clone(cropArea, img.PixelFormat)){
+                                        using(System.IO.MemoryStream msOut = new System.IO.MemoryStream()){
+                                            bmpCrop.Save(msOut, img.RawFormat);
+                                            using(System.Drawing.Image imgOut = System.Drawing.Image.FromStream(msOut)){
+                                                addImageToPdf(imgOut, yPos==0 ? title : null);
+                                            }
+                                        }
+                                    }
+                                    yPos += lBlockHeight;
+                                }
+                            }
+                        }
+                     }
+                }
+            }catch (Exception ex){
+                throw new ApplicationException(ex.Message);
+            }
+        }
+        
+        private void addImageToPdf(System.Drawing.Image image, string title){
+            iTextSharp.text.Image itImg = iTextSharp.text.Image.GetInstance(image, image.RawFormat);
+            itImg.Border = iTextSharp.text.Rectangle.BOX;
+            itImg.BorderColor = iTextSharp.text.BaseColor.BLACK;
+            itImg.BorderWidth = 1f;
+            if (itImg.Width > doc.PageSize.Width) itImg.ScalePercent(90f);
+            this.doc.SetPageSize(new iTextSharp.text.Rectangle(itImg.Width * 0.9f + 40f, itImg.Height * 0.9f + (title!=null ? 81f : 60f) ));
+            this.doc.NewPage();
+            this.doc.PageCount = this.doc.PageNumber + 1;
+            if(title!=null) this.doc.Add(new iTextSharp.text.Chapter(new iTextSharp.text.Paragraph(title), this.doc.PageNumber));
+            this.doc.Add(itImg);  
+
+        }
+
+        public void addTextToPdf(string text){
+            if(this.doc==null || this.doc.IsOpen()==false)
+                throw new Exception("Pdf document is null! Use method newPdf(string pdfpath) to create a document.");
+            this.doc.Add(new iTextSharp.text.Paragraph(text));
+        }
+
+        public void closePdf(){
+            if(this.doc!=null && this.doc.IsOpen()) this.doc.Close();
+        }
+
+        #endregion
+
+        #region Regex
+
+        /// <summary>Indicates whether the regular expression finds a match in the input string using the regular expression specified in the pattern parameter.</summary>
+        /// <param name="input">The string to search for a match.</param>
+        /// <param name="pattern">The regular expression pattern to match.</param>
+        /// <returns>true if the regular expression finds a match; otherwise, false.</returns>
+        public bool isMatch(string input, string pattern){
+            return Regex.IsMatch(input, pattern);
+        }
+
+        /// <summary>Searches the specified input string for an occurrence of the regular expression supplied in the pattern parameter.</summary>
+        /// <param name="input">The string to search for a match.</param>
+        /// <param name="pattern">The regular expression pattern to match.</param>
+        /// <returns>Matching strings</returns>
+        public object match(string input, string pattern){
+            Match match = Regex.Match(input, pattern);
+            if(match.Groups != null){
+                string[] lst = new string[match.Groups.Count];
+                for(int i=0;i<match.Groups.Count;i++)
+                    lst[i] = match.Groups[i].Value;
+                return lst;
+            }else{
+                return match.Value;
+            }
+        }
+
+        /// <summary>Within a specified input string, replaces all strings that match a specified regular expression with a specified replacement string.</summary>
+        /// <param name="input">The string to search for a match.</param>
+        /// <param name="pattern">The regular expression pattern to match.</param>
+        /// <param name="replacement">The replacement string.</param>
+        /// <returns>A new string that is identical to the input string, except that a replacement string takes the place of each matched string.</returns>
+        public string replace(string input, string pattern, string replacement ){
+            return Regex.Replace(input, pattern, replacement);
+        }
+
+        #endregion
+
+
+        #region KeyPress
+                   
+        public void pressESC(){
+            new OpenQA.Selenium.Interactions.Actions(this.webDriver).SendKeys(OpenQA.Selenium.Keys.Escape).Perform(); ;
+        }
+                 
+        public void pressENTER(){
+            new OpenQA.Selenium.Interactions.Actions(this.webDriver).SendKeys(OpenQA.Selenium.Keys.Enter).Perform(); ;
+        }            
+
+
+        #endregion KeyPress
+
 
     }
 

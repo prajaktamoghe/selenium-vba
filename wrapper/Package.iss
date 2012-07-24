@@ -37,8 +37,8 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Source: ".\bin\Release\*.dll"; DestDir: "{app}"; Flags: ignoreversion
 ;Source: ".\bin\Release\*.pdb"; DestDir: "{app}"; Flags: ignoreversion 
 Source: ".\Reference\chromedriver.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: ".\Reference\IEDriverServer32.exe"; DestDir: "{app}";DestName: "IEDriverServer.exe" ; Flags: ignoreversion; Check: Not IsWin64;
-Source: ".\Reference\IEDriverServer64.exe"; DestDir: "{app}";DestName: "IEDriverServer.exe" ; Flags: ignoreversion; Check: IsWin64;
+Source: ".\Reference\IEDriverServer.exe"; DestDir: "{app}"; DestName: "IEDriverServer.exe" ; Flags: ignoreversion;
+Source: ".\Reference\IEDriverServer64.exe"; DestDir: "{app}\ie64" ;DestName: "IEDriverServer.exe" ; Flags: ignoreversion; Check: IsWin64;
 Source: ".\License.txt"; DestDir: "{app}"; Flags: ignoreversion overwritereadonly ; Attribs:readonly
 Source: ".\Readme.txt"; DestDir: "{app}"; Flags: ignoreversion overwritereadonly ; Attribs:readonly
 Source: ".\bin\Release\SeleniumWrapperApi.chm"; DestDir: "{app}"; Flags: ignoreversion
@@ -65,7 +65,7 @@ Root: HKLM; Subkey: "SOFTWARE\Microsoft\.NETFramework\Policy\AppPatch\v2.0.50727
 [Run] 
 Filename: "{dotnet2064}\RegAsm.exe"; Parameters: {#MyAppName}.dll /codebase /tlb:{#MyAppName}.tlb; WorkingDir: {app}; StatusMsg: "Registering {#MyAppName} dll"; Flags: runhidden; Check: IsWin64;
 Filename: "{dotnet2032}\RegAsm.exe"; Parameters: {#MyAppName}.dll /codebase /tlb:{#MyAppName}.tlb; WorkingDir: {app}; StatusMsg: "Registering {#MyAppName} dll"; Flags: runhidden;
-;Filename: "{pf}\Mozilla Firefox\firefox.exe"; Parameters: SeleniumVbFormatters-{#MyVersion()}.xpi; WorkingDir: {app}; StatusMsg: "Installing {#MyAppName} Firefox plugin";
+Filename: "{pf}\Mozilla Firefox\firefox.exe"; Parameters: SeleniumVbFormatters-{#MyVersion()}.xpi; WorkingDir: {app}; Flags: shellexec postinstall; Description: "Install Addon for Firefox-Selenium IDE";
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}"
