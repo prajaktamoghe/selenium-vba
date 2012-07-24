@@ -2,7 +2,7 @@
 this.name = "vbs-wdb";
 
 function decodeText(text) {
-	text = text.replace('¤', '"');
+	text = text.replace(/¤/g, '"');
 	return text;
 }
 
@@ -29,7 +29,8 @@ function parse(testCase, source) {
 	if(stopIndex==-1) throw cmdStop + " is missing !";
 	
 	var doc = source.substr(startIndex + cmdStart.length, stopIndex - startIndex - cmdStart.length)
-			.replace('""', '¤')
+			.replace(/([ ,])"""/g, '$1"¤') 
+			.replace(/""/g, '¤')
 			.replace(/" & "/g, '')
 			.replace(/(\w+[^"]) & ([^"]\w+)/g, '"${$1}${$2}"')
 			.replace(/(\w+[^"]) & \"([^"]*)\"/g, '"${$1}$2"')
@@ -37,7 +38,7 @@ function parse(testCase, source) {
 			.replace(/(\w+[^"]) & ([^"]\w+)/g, '"$1$2"')
 			.replace(/" & "/g, '');
 	
-	var commandRegexp = new RegExp('((\\w+) *=)? *' + options["instance"] + '\\.(\\w+)([\\( ](\"[^\"]*\"|[\\w]+)(\\, *(\"[^\"]*\"|[\\w]+))?)?');
+	var commandRegexp = new RegExp('((\\w+) *=)? *' + options["instance"] + '\\.(\\w+)([\\( ](\"[^\"]*\"|[\\w\\.]+)(\\, *(\"[^\"]*\"|[\\w\\.]+))?)?');
 	var commentRegexp = new RegExp("\\' *([^\\n]+)");
 	var storevalueRegexp = new RegExp('(\\w+) *= *(\"[^\"]*\")');
 	var commandOrCommentOrStoreRegexp = new RegExp("(" + storevalueRegexp.source + ")|(" + commandRegexp.source + ")|(" + commentRegexp.source + ")", 'g');
@@ -53,7 +54,7 @@ function parse(testCase, source) {
 				var command = new Command();
 				command.skip = docResult.index - lastIndex;
 				command.command = 'store';
-				command.target = docResult[3].replace(/(^[^"]*$)/,'${$1}').replace(/^"([^]*)"$/,'$1' );
+				command.target = docResult[3].match(/^[\d\.]+$/) ? docResult[3] : docResult[3].replace(/(^[^"]*$)/,'${$1}').replace(/^"([^]*)"$/,'$1' ).replace(/^[\d\.]+$/,'$1' );
 				command.value = docResult[2];
 				convertText(command, decodeText);					
 				commands.push(command);
@@ -63,8 +64,8 @@ function parse(testCase, source) {
 				command.index = docResult.index;				
 				command.variable = docResult[6];
 				command.command = docResult[7];
-				command.target = docResult[9] ? docResult[9].replace(/(^[^"]*$)/,'${$1}').replace(/^"([^]*)"$/,'$1' ) : '';
-				command.value = docResult[11] ? docResult[11].replace(/(^[^"]*$)/,'${$1}').replace(/^"([^]*)"$/,'$1' ) : '';
+				command.target = docResult[9] ? ( docResult[9].match(/^[\d\.]+$/) ? docResult[9] : docResult[9].replace(/(^[^"]*$)/,'${$1}').replace(/^"([^]*)"$/,'$1' ) ) : '';
+				command.value = docResult[11] ? ( docResult[11].match(/^[\d\.]+$/) ? docResult[11] : docResult[11].replace(/(^[^"]*$)/,'${$1}').replace(/^"([^]*)"$/,'$1' ) ) : '';
 				command.command = command.command.substr(0, 1).toLowerCase() + command.command.substr(1);
 				if(command.variable) {
 					command.command = command.command.replace(/^get|is/, 'store');
@@ -111,7 +112,7 @@ function formatCommands(commands) {
 
 function encodeText(text) {
     if (text == null) return "";
-	text = text.replace('"', '¤');
+	text = text.replace(/"/g, '¤');
 	return text;
 }
 
@@ -141,8 +142,8 @@ function getSourceForCommand(commandObj) {
 		}else{
 			template = options.commandTemplate.replace(/\$\{command\}/g, 
 				options["instance"] + "." + command.command
-				+ command.target.replace(/(^[^]+)/g, ' "$1"')
-				+ command.value.replace(/(^[^]+)/g, ', "$1"')
+				+ ( command.target.match(/^[\d\.]+$/g) ? ' ' + command.target : command.target.replace(/(^[^]+)/g, ' "$1"') )
+				+ ( command.value.match(/^[\d\.]+$/g) ? ', ' + command.value : command.value.replace(/(^[^]+)/g, ', "$1"') )
 			);
 		}
 		template = template.replace(/\$\{(\w+)\}/g, '" & $1 & "')
