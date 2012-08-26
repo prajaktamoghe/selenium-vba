@@ -52,6 +52,10 @@ function getSha1($filepath){
     return $sha1
 }
 
+function pause(){
+	$ret = $host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown") 
+}
+
 #Check folders and files
 (gi Env:PATH).value.split(";")| ForEach {if(!(test-path $_)){write-host("  Error ENV:PATH : Folder " + $_ + """ not found" ) -ForegroundColor Red;}}
 Get-Variable -name *_dir | ForEach {if(!(test-path $_.Value)){write-host("  Error : Folder " + $_.Name + "=""" + $_.Value + """ not found") -ForegroundColor Red;}}
@@ -84,17 +88,17 @@ write-host "   ** Update the version in AssemblyInfo.cs ..."
 write-host ""
 write-host "   ** Msbuild compile sources ..."
 	cmd-msbuild /v:quiet /p:Configuration=Release /p:TargetFrameworkVersion=v3.5 /p:SignAssembly=true $csproj_path
-    if($LASTEXITCODE -eq 1) { write-host("  Source compilation failed ! ") -ForegroundColor red; break; }
+    if($LASTEXITCODE -eq 1) { write-host("  Source compilation failed ! ") -ForegroundColor red; pause ; break; }
 
 write-host ""
 write-host "   ** Api documentation creation ..."
 	cmd-msbuild /v:quiet /p:CleanIntermediates=True /p:Configuration=Release $shfbproj_path
-    if($LASTEXITCODE -eq 1) { write-host("  Api documentation creation failed ! ") -ForegroundColor red; break; }
+    if($LASTEXITCODE -eq 1) { write-host("  Api documentation creation failed ! ") -ForegroundColor red; pause ; break; }
 
 write-host ""
 write-host "   ** InnoSetup create the paclage ..."
 	cmd-iscc /q $iss_path
-    if($LASTEXITCODE -eq 1) { write-host("  Package creation failed ! ") -ForegroundColor red; break; }
+    if($LASTEXITCODE -eq 1) { write-host("  Package creation failed ! ") -ForegroundColor red; pause ; break; }
     
 write-host ""
 write-host "   ** Package installaton ..."

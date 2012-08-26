@@ -251,7 +251,6 @@ namespace SeleniumWrapper
         /// <param name="remoteAddress">Remote url address (ex : "http://localhost:4444/wd/hub")</param>
         /// <param name="url">Base URL</param>
         /// <param name="javascriptEnabled">Optional argument to enable or disable javascript. Default is true</param>
-        /// <param name="capabilities">Optional capabilities. ex : "version=3.6,plateform=LINUX"</param>
         public void startRemotely(string browser, String remoteAddress, String url, [Optional][DefaultParameterValue(true)]Boolean javascriptEnabled){
             DesiredCapabilities lCapability;
             switch (browser.ToLower().Replace("*", "")) {
