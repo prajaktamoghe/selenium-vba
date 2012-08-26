@@ -19,7 +19,10 @@ namespace SeleniumWrapper
         void open(String url);
 
         [Description("Starts remotely a new Selenium session")]
-        void startRemotely(String browser, String remoteAddress, String url, [Optional][DefaultParameterValue(true)]Boolean javascriptEnabled, [Optional][DefaultParameterValue("")]String capabilities);
+        void startRemotely(String browser, String remoteAddress, String url, [Optional][DefaultParameterValue(true)]Boolean javascriptEnabled);
+
+        [Description("Set a specific preference for Firefox")]
+        void setPreference (string parameter, object value);
 
         [Description("Wait the specified time in millisecond before executing the next command")]
         void wait(int time_ms);
@@ -41,6 +44,10 @@ namespace SeleniumWrapper
 
         [Description("Capture a screenshot to the Clipboard")]
         void captureScreenshotToClipboard();
+
+        [Description("Capture a screenshot")]
+        [return: MarshalAs(UnmanagedType.IUnknown)]
+        object captureScreenshotToImage();
 
         [Description("Execute JavaScrip on the page")]
         Object executeScript(String script, [Optional][DefaultParameterValue(null)]Object arguments);
@@ -72,23 +79,35 @@ namespace SeleniumWrapper
         [Description("Finds the first element matching the specified tag name.")]
         WebElement findElementByTagName(String tagname, [Optional][DefaultParameterValue(0)]int timeoutms);
 
+        [Description("Finds elements matching the specified name.")]
+        WebElement[] findElementsByName(String name, [Optional][DefaultParameterValue(0)]int timeoutms);
+
+        [Description("Finds elements matching the specified XPath query.")]
+        WebElement[] findElementsByXPath(String xpath, [Optional][DefaultParameterValue(0)]int timeoutms);
+
+        [Description("Finds elements matching the specified id.")]
+        WebElement[] findElementsById(String id, [Optional][DefaultParameterValue(0)]int timeoutms);
+
+        [Description("Finds elements matching the specified CSS class.")]
+        WebElement[] findElementsByClassName(String classname, [Optional][DefaultParameterValue(0)]int timeoutms);
+
+        [Description("Finds elements matching the specified CSS selector.")]
+        WebElement[] findElementsByCssSelector(String cssselector, [Optional][DefaultParameterValue(0)]int timeoutms);
+
+        [Description("Finds elements matching the specified link text.")]
+        WebElement[] findElementsByLinkText(String linktext, [Optional][DefaultParameterValue(0)]int timeoutms);
+
+        [Description("Finds the first of elements that match the part of the link text supplied")]
+        WebElement[] findElementsByPartialLinkText(String partiallinktext, [Optional][DefaultParameterValue(0)]int timeoutms);
+
+        [Description("Finds elements matching the specified tag name.")]
+        WebElement[] findElementsByTagName(String tagname, [Optional][DefaultParameterValue(0)]int timeoutms);
+
         [Description("Load a new web page in the current browser window.")]
         void get(String url);
 
         [Description("Sends a sequence of keystrokes to the browser.")]
         void sendKeys(string keysToSend);
-
-        [Description("Create a new empty PDF file and open it")]
-        void newPdf(string pdfpath);
-
-        [Description("Capture a screenshot to the opened PDF file")]
-        void captureScreenshotToPdf(string comment);
-
-        [Description("Add text to the opened PDF file")]
-        void addTextToPdf(string text);
-
-        [Description("Close the opened PDF file")]
-        void closePdf();
 
         [Description("Indicates whether the regular expression finds a match in the input string")]
         bool isMatch(string input, string pattern);
@@ -99,7 +118,5 @@ namespace SeleniumWrapper
         [Description("Within a specified input string, replaces all strings that match a regular expression pattern with a specified replacement string.")]
         string replace(string value, string pattern, string replacement);
 
-        void pressESC();
-        void pressENTER();
     }
 }

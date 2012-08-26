@@ -120,6 +120,14 @@ namespace SeleniumWrapper
             this.wd = webDriver;
         }
 
+        internal static WebElement[] GetWebElements(OpenQA.Selenium.IWebDriver webDriver, ReadOnlyCollection<OpenQA.Selenium.IWebElement> webElements){
+            WebElement[] elements = new WebElement[webElements.Count];
+            for(int i=0;i<webElements.Count;i++){
+                elements[i] = new WebElement(webDriver, webElements[i]);
+            }
+            return elements;
+        }
+
         public bool displayed { get { return this.we.Displayed; } }
         public bool enabled { get { return this.we.Enabled; } }
         public int[] location { get { return new int[] { this.we.Location.X, this.we.Location.Y }; } }
