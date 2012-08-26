@@ -11,7 +11,7 @@ namespace SeleniumWrapper
     public interface IPdfFile
     {
         [Description("Add an image with border to the Pdf")]
-        void addImage(ref object image, [Optional][DefaultParameterValue(String.Empty)]string title);
+        void addImage(ref object image, [Optional][DefaultParameterValue(null)]string title);
 
         [Description("Add text to the Pdf")]
         void addText(string text);
@@ -68,7 +68,7 @@ namespace SeleniumWrapper
                 this.doc.Add(element);
         }
 
-        public void addImage(ref object image, [Optional][DefaultParameterValue(String.Empty)]string title){
+        public void addImage(ref object image, [Optional][DefaultParameterValue(null)]string title){
             if (!(image is byte[]))
                 throw new Exception("Image format is incorrect. It must to be a byte array !");
             try{
