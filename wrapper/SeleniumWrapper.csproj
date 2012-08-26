@@ -86,6 +86,7 @@
   <ItemGroup>
     <Compile Include="IWebDriver.cs" />
     <Compile Include="IWebDriverGen.cs" />
+    <Compile Include="PdfFile.cs" />
     <Compile Include="RemoteWebDriverCust.cs" />
     <Compile Include="WebDriver.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

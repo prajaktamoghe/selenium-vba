@@ -1,4 +1,10 @@
 
+v1.0.6.1
+===============================================================================
+ * updated IEDriverServer.exe to 2.25.3.0
+ * added setPreference command for firefox
+ * added PdfFile object and methods to create Pdf files
+
 v1.0.6.0
 ===============================================================================
  * Updated Selenium libraries to 2.25.1

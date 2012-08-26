@@ -15,7 +15,8 @@ If Err = 0 Then
 			selenium.open "/"
 			selenium.type "name=q", "Eiffel tower"
 			selenium.wait 500
-			selenium.click "name=btnG"
+			'selenium.click "name=btnG"
+			selenium.keyPress "name=q", "\13"
 			selenium.wait 100
 			selenium.captureScreenshotToClipboard
 			title = selenium.getTitle()

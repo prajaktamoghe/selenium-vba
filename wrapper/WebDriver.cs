@@ -11,6 +11,8 @@ using Action = System.Action;
 using iTextSharp.text;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using OpenQA.Selenium.Firefox;
+using OpenQA.Selenium.Chrome;
 
 namespace SeleniumWrapper
 {
@@ -65,7 +67,7 @@ namespace SeleniumWrapper
         String baseUrl;
         bool canceled = false;
         ManualResetEvent waiter;
-        iTextSharp.text.Document doc;
+        Dictionary<string, object> preferences=null;
 
         public WebDriver(){
             waiter = new ManualResetEvent(false);
@@ -88,9 +90,7 @@ namespace SeleniumWrapper
         }
 
         public void Dispose(){
-            if( this.doc!=null && this.doc.IsOpen()){
-                this.doc.Close();
-            }
+
         }
 
         private void TimerCheckHotKey(object source, ElapsedEventArgs e){
@@ -110,6 +110,7 @@ namespace SeleniumWrapper
         private void InvokeWaitFor(Action action, Object expected, bool match){
             this.action = action;
             this.error = null;
+            this.canceled = false;
             waiter.Reset();
             action.BeginInvoke((IAsyncResult iar) => {
                 try{
@@ -154,6 +155,7 @@ namespace SeleniumWrapper
         private Object Invoke(Action action){
             this.action = action;
             this.error = null;
+            this.canceled = false;
             waiter.Reset();
             action.BeginInvoke((IAsyncResult iar) => {
                 try{
@@ -185,7 +187,21 @@ namespace SeleniumWrapper
             switch (browser.ToLower().Replace("*", "")) {
                 case "ff":
                 case "firefox": 
-                    Invoke(() => this.webDriver = new OpenQA.Selenium.Firefox.FirefoxDriver());
+                    if(this.preferences!=null){
+                        FirefoxProfile firefoxProfile = new FirefoxProfile();
+                        foreach (var pair in this.preferences){
+                            if(pair.Value is string){
+                                firefoxProfile.SetPreference(pair.Key, (string)pair.Value);
+                            }else if(pair.Value is short){
+                                firefoxProfile.SetPreference(pair.Key, Convert.ToInt32(pair.Value));
+                            }else if(pair.Value is bool){
+                                firefoxProfile.SetPreference(pair.Key, (bool)pair.Value);
+                            }
+                        }
+                        Invoke(() => this.webDriver = new OpenQA.Selenium.Firefox.FirefoxDriver(firefoxProfile));
+                    }else{
+                        Invoke(() => this.webDriver = new OpenQA.Selenium.Firefox.FirefoxDriver());
+                    }
                     break;
                 case "internetexplorer":
                 case "iexplore":
@@ -199,7 +215,17 @@ namespace SeleniumWrapper
                     break;
                 case "cr":
                 case "chrome":
-                    Invoke(() => this.webDriver = new OpenQA.Selenium.Chrome.ChromeDriver(directory));
+                    if(this.preferences!=null){
+                        ChromeOptions chromeOptions= new ChromeOptions();
+                        foreach (var pair in this.preferences){
+                            if(pair.Key == "chrome.switches"){
+                                chromeOptions.AddArgument((string)pair.Value);
+                            }
+                        }
+                        Invoke(() => this.webDriver = new OpenQA.Selenium.Chrome.ChromeDriver(directory, chromeOptions));
+                    }else{
+                        Invoke(() => this.webDriver = new OpenQA.Selenium.Chrome.ChromeDriver(directory));
+                    }
                     break;
                 case "sa":
                 case "safari":
@@ -226,7 +252,7 @@ namespace SeleniumWrapper
         /// <param name="url">Base URL</param>
         /// <param name="javascriptEnabled">Optional argument to enable or disable javascript. Default is true</param>
         /// <param name="capabilities">Optional capabilities. ex : "version=3.6,plateform=LINUX"</param>
-        public void startRemotely(string browser, String remoteAddress, String url, [Optional][DefaultParameterValue(true)]Boolean javascriptEnabled, [Optional][DefaultParameterValue("")]String capabilities){
+        public void startRemotely(string browser, String remoteAddress, String url, [Optional][DefaultParameterValue(true)]Boolean javascriptEnabled){
             DesiredCapabilities lCapability;
             switch (browser.ToLower().Replace("*", "")) {
                 case "ff":
@@ -243,14 +269,12 @@ namespace SeleniumWrapper
                 case "opera": lCapability = DesiredCapabilities.Opera(); break;
                 default: throw new ApplicationException("Remote browser <" + browser + "> is not available !  \r\nChoose between Firefox, IE, Chrome, HtmlUnit, HtmlUnitWithJavaScript, \r\nAndroid, IPad, Opera");
             }
-            if(!String.IsNullOrEmpty(capabilities)){
-                var strCapabilities = capabilities.Split(',');
-                foreach( string strCapability in strCapabilities){
-                    var res = strCapability.Split('=');
-                    if(lCapability.HasCapability(res[0])){
-                        lCapability.SetCapability(res[0],res[1]);
+            if(this.preferences!=null){
+                foreach (var pair in this.preferences){
+                    if(lCapability.HasCapability(pair.Key)){
+                        lCapability.SetCapability(pair.Key, pair.Value);
                     }else{
-                        throw new ApplicationException("Capability <" + res[0] + "> doesn't exit !  ");
+                        throw new ApplicationException("Preference <" + pair.Key + "> doesn't exit !  ");
                     }
                 }
             }
@@ -258,6 +282,14 @@ namespace SeleniumWrapper
             this.webDriver = new RemoteWebDriverCust(new Uri(remoteAddress), lCapability);
             Invoke(() => this.webDriverBacked = new Selenium.WebDriverBackedSelenium(this.webDriver, url));
             Invoke(() => webDriverBacked.Start());
+        }
+
+        /// <summary>Set a specific preference for FireFox</summary>
+        /// <param name="parameter">parameter</param>
+        /// <param name="value">value</param>
+        public void setPreference (string parameter, object value) {
+            if (this.preferences == null) this.preferences = new Dictionary<string, object>();
+            this.preferences.Add(parameter, value);
         }
 
         /// <summary>Wait the specified time in millisecond before executing the next command</summary>
@@ -364,6 +396,12 @@ namespace SeleniumWrapper
             }
         }
 
+        public object  captureScreenshotToImage(){
+            object ret = Invoke(() => this.result = ((OpenQA.Selenium.ITakesScreenshot)webDriver).GetScreenshot().AsByteArray);
+            if (ret == null) throw new ApplicationException("Method <captureScreenshotToPdf> failed !\r\nReturned value is empty");
+            return ret;
+        }
+
         /// <summary>Execute JavaScrip on the page</summary>
         /// <param name="script">Javascript code</param>
         /// <param name="arguments">Arguments to pass to the script</param>
@@ -426,7 +464,47 @@ namespace SeleniumWrapper
                 return new WebElement(this.webDriver, wait.Until(drv => drv.FindElement(by)));
 			}
             return new WebElement(this.webDriver, this.webDriver.FindElement(by));
-        }	
+        }
+
+        public WebElement[] findElementsByName(String name, [Optional][DefaultParameterValue(0)]int timeoutms){
+			return this.findElements(OpenQA.Selenium.By.Name(name), timeoutms);
+        }
+
+        public WebElement[] findElementsByXPath(String xpath, [Optional][DefaultParameterValue(0)]int timeoutms){
+			return this.findElements(OpenQA.Selenium.By.XPath(xpath), timeoutms);
+        }
+
+        public WebElement[] findElementsById(String id, [Optional][DefaultParameterValue(0)]int timeoutms){
+			return this.findElements(OpenQA.Selenium.By.Id(id), timeoutms);
+        }
+
+        public WebElement[] findElementsByClassName(String classname, [Optional][DefaultParameterValue(0)]int timeoutms){
+			return this.findElements(OpenQA.Selenium.By.ClassName(classname), timeoutms);
+        }
+
+        public WebElement[] findElementsByCssSelector(String cssselector, [Optional][DefaultParameterValue(0)]int timeoutms){
+            return this.findElements(OpenQA.Selenium.By.CssSelector(cssselector), timeoutms);
+        }
+
+        public WebElement[] findElementsByLinkText(String linktext, [Optional][DefaultParameterValue(0)]int timeoutms){
+            return this.findElements(OpenQA.Selenium.By.LinkText(linktext), timeoutms);
+        }
+
+        public WebElement[] findElementsByPartialLinkText(String partiallinktext, [Optional][DefaultParameterValue(0)]int timeoutms){
+            return this.findElements(OpenQA.Selenium.By.PartialLinkText(partiallinktext), timeoutms);
+        }
+
+        public WebElement[] findElementsByTagName(String tagname, [Optional][DefaultParameterValue(0)]int timeoutms){
+            return this.findElements(OpenQA.Selenium.By.TagName(tagname), timeoutms);
+        }
+
+	    private WebElement[] findElements(By by, int timeoutms){
+			if(timeoutms>0){
+				var wait = new OpenQA.Selenium.Support.UI.WebDriverWait(this.webDriver, TimeSpan.FromMilliseconds(timeoutms));
+                return WebElement.GetWebElements(this.webDriver, wait.Until(drv => drv.FindElements(by)));
+			}
+            return WebElement.GetWebElements(this.webDriver, this.webDriver.FindElements(by));
+        }
 
         public void get(String url){
             if(!url.Contains("://")){
@@ -437,87 +515,6 @@ namespace SeleniumWrapper
 
         public void sendKeys(string keysToSend){
             new OpenQA.Selenium.Interactions.Actions(this.webDriver).SendKeys(keysToSend).Perform();;
-        }
-
-        #endregion
-
-        // Following funtion are pdf related
-        #region Pdf code
-
-        public void newPdf(string pdfpath){
-            this.doc = new iTextSharp.text.Document();
-            try{
-                iTextSharp.text.pdf.PdfWriter.GetInstance(doc, new System.IO.FileStream(pdfpath, System.IO.FileMode.Create));
-                this.doc.Open();
-                this.doc.SetMargins(20, 20, 20, 30);
-            }catch (Exception ex){
-                throw new ApplicationException(ex.Message);
-            }
-        }
-
-        public void captureScreenshotToPdf(string title){
-            if(this.doc==null || this.doc.IsOpen()==false)
-                throw new Exception("Pdf document is null! Use method newPdf(string pdfpath) to create a document.");
-            try{
-                byte[] res = (byte[])Invoke(() => this.result = ((OpenQA.Selenium.ITakesScreenshot)webDriver).GetScreenshot().AsByteArray);
-                if (res == null || res.Length == 0) throw new ApplicationException("Method <captureScreenshotToPdf> failed !\r\nReturned value is empty");
-                using(System.IO.MemoryStream ms = new System.IO.MemoryStream(res)){
-                     using(System.Drawing.Image img = System.Drawing.Image.FromStream(ms)){
-                        using(System.Drawing.Bitmap bitmap = new System.Drawing.Bitmap(img) ){
-                            int imgHeight = bitmap.Height;
-                            int lBlockHeight = 2100;
-                            if( imgHeight < lBlockHeight ){
-                                addImageToPdf(img, title);
-                            }else{
-                                int yPos = 0;
-                                while(true){
-                                    int lLeftHeight = imgHeight - yPos;
-                                    if(lLeftHeight<1) break;
-                                    lBlockHeight = (lLeftHeight>lBlockHeight) ? lBlockHeight : lLeftHeight;
-                                    System.Drawing.Rectangle cropArea = new System.Drawing.Rectangle{
-                                        X = 0, Y = yPos, Height = lBlockHeight, Width = img.Width
-                                    };
-                                    using(System.Drawing.Bitmap bmpCrop = bitmap.Clone(cropArea, img.PixelFormat)){
-                                        using(System.IO.MemoryStream msOut = new System.IO.MemoryStream()){
-                                            bmpCrop.Save(msOut, img.RawFormat);
-                                            using(System.Drawing.Image imgOut = System.Drawing.Image.FromStream(msOut)){
-                                                addImageToPdf(imgOut, yPos==0 ? title : null);
-                                            }
-                                        }
-                                    }
-                                    yPos += lBlockHeight;
-                                }
-                            }
-                        }
-                     }
-                }
-            }catch (Exception ex){
-                throw new ApplicationException(ex.Message);
-            }
-        }
-        
-        private void addImageToPdf(System.Drawing.Image image, string title){
-            iTextSharp.text.Image itImg = iTextSharp.text.Image.GetInstance(image, image.RawFormat);
-            itImg.Border = iTextSharp.text.Rectangle.BOX;
-            itImg.BorderColor = iTextSharp.text.BaseColor.BLACK;
-            itImg.BorderWidth = 1f;
-            if (itImg.Width > doc.PageSize.Width) itImg.ScalePercent(90f);
-            this.doc.SetPageSize(new iTextSharp.text.Rectangle(itImg.Width * 0.9f + 40f, itImg.Height * 0.9f + (title!=null ? 81f : 60f) ));
-            this.doc.NewPage();
-            this.doc.PageCount = this.doc.PageNumber + 1;
-            if(title!=null) this.doc.Add(new iTextSharp.text.Chapter(new iTextSharp.text.Paragraph(title), this.doc.PageNumber));
-            this.doc.Add(itImg);  
-
-        }
-
-        public void addTextToPdf(string text){
-            if(this.doc==null || this.doc.IsOpen()==false)
-                throw new Exception("Pdf document is null! Use method newPdf(string pdfpath) to create a document.");
-            this.doc.Add(new iTextSharp.text.Paragraph(text));
-        }
-
-        public void closePdf(){
-            if(this.doc!=null && this.doc.IsOpen()) this.doc.Close();
         }
 
         #endregion
@@ -558,20 +555,6 @@ namespace SeleniumWrapper
         }
 
         #endregion
-
-
-        #region KeyPress
-                   
-        public void pressESC(){
-            new OpenQA.Selenium.Interactions.Actions(this.webDriver).SendKeys(OpenQA.Selenium.Keys.Escape).Perform(); ;
-        }
-                 
-        public void pressENTER(){
-            new OpenQA.Selenium.Interactions.Actions(this.webDriver).SendKeys(OpenQA.Selenium.Keys.Enter).Perform(); ;
-        }            
-
-
-        #endregion KeyPress
 
 
     }
