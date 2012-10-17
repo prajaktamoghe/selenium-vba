@@ -239,13 +239,6 @@ namespace SeleniumWrapper
             this.baseUrl = url.TrimEnd('/');
         }
 
-        public void open(String url){
-            if(!url.Contains("://")){
-                 url = this.baseUrl + '/' + url.TrimStart('/');
-            }
-            Invoke(() => webDriverBacked.Open(url));
-        }
-
         /// <summary>Starts remotely a new Selenium testing session</summary>
         /// <param name="browser">Name of the browser : firefox, ie, chrome, htmlunit, htmlunitwithjavascript, android, ipad, opera</param>
         /// <param name="remoteAddress">Remote url address (ex : "http://localhost:4444/wd/hub")</param>
@@ -289,6 +282,14 @@ namespace SeleniumWrapper
         public void setPreference (string parameter, object value) {
             if (this.preferences == null) this.preferences = new Dictionary<string, object>();
             this.preferences.Add(parameter, value);
+        }
+
+        /// <summary>"Opens an URL in the test frame. This accepts both relative and absolute URLs."</summary>
+        public void open(String url){
+            if(!url.Contains("://")){
+                 url = this.baseUrl + '/' + url.TrimStart('/');
+            }
+            Invoke(() => webDriverBacked.Open(url));
         }
 
         /// <summary>Wait the specified time in millisecond before executing the next command</summary>
@@ -366,15 +367,17 @@ namespace SeleniumWrapper
 
         /// <summary>Specifies the amount of time the driver should wait when searching for an element if it is not immediately present.</summary>
         /// <param name="timeout_ms">timeout in millisecond</param>
-		public void setImplicitWait ( int timeout_ms) {
-            this.webDriverBacked.UnderlyingWebDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromMilliseconds(timeout_ms));
+		public void setImplicitWait(int timeout_ms) {
+            this.webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromMilliseconds(timeout_ms));
         }
 
         /// <summary> Specifies the amount of time that Selenium will wait for actions to complete. The default timeout is 30 seconds.</summary>
         /// <param name="timeout_ms">timeout in milliseconds, after which an error is raised</param>
-        public void setTimeout(String timeout_ms) {
-            this.Timeout = Int32.Parse(timeout_ms);
-            Invoke(() => webDriverBacked.SetTimeout(timeout_ms)); 
+        public void setTimeout(int timeout_ms) {
+            this.Timeout = timeout_ms;
+            this.webDriverBacked.SetTimeout(timeout_ms.ToString());
+            this.webDriver.Manage().Timeouts().SetPageLoadTimeout(TimeSpan.FromMilliseconds(this.Timeout));
+            this.webDriver.Manage().Timeouts().SetScriptTimeout(TimeSpan.FromMilliseconds(this.Timeout));
         }
 
         /// <summary>Capture a screenshot to the Clipboard</summary>

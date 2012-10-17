@@ -33,6 +33,7 @@
     <ApiFilter>
       <Filter entryType="Namespace" fullName="SeleniumWrapper" isExposed="False" xmlns="">
         <Filter entryType="Class" fullName="SeleniumWrapper.WebDriver" filterName="WebDriver" isExposed="True" />
+        <Filter entryType="Class" fullName="SeleniumWrapper.PdfFile" filterName="PdfFile" isExposed="True" />
       </Filter>
     </ApiFilter>
     <SelfBranded>False</SelfBranded>
