@@ -12,17 +12,20 @@ namespace SeleniumWrapper
         [Description("Specifies the amount of time the driver should wait when searching for an element if it is not immediately present.")]
         void setImplicitWait(int timeout_ms);
 
+        [Description("Specifies the amount of time that Selenium will wait for actions to complete. The default timeout is 30 seconds.")]
+        void setTimeout(int timeout_ms);
+
+        [Description("Set a specific preference for Firefox")]
+        void setPreference (string parameter, object value);
+
         [Description("Starts a new Selenium session")]
         void start(String browser, String url, [Optional][DefaultParameterValue("")]String directory);
-
-        [Description("Opens an URL in the test frame. This accepts both relative and absolute URLs.")]
-        void open(String url);
 
         [Description("Starts remotely a new Selenium session")]
         void startRemotely(String browser, String remoteAddress, String url, [Optional][DefaultParameterValue(true)]Boolean javascriptEnabled);
 
-        [Description("Set a specific preference for Firefox")]
-        void setPreference (string parameter, object value);
+        [Description("Opens an URL in the test frame. This accepts both relative and absolute URLs.")]
+        void open(String url);
 
         [Description("Wait the specified time in millisecond before executing the next command")]
         void wait(int time_ms);

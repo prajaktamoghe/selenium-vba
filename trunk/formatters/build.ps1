@@ -17,17 +17,18 @@ set-alias cmd-7zip "C:\Program Files\7-Zip\7z.exe"
 function getVersion($version){
     $new_version =""
     while ($new_version -eq ""){
-        $input = read-host "   Digit to increment [x.y.z] or version [0.0.0] or skip [s] ? "
-        if ($input -match "s|z|y|x") {
+        $input = read-host "   Digit to increment [w.x.y.z] or version [0.0.0.0] or skip [s] ? "
+        if ($input -match "s|z|y|x|w") {
             $version_digit = $version -split "\."
             switch ($input){
                 "s" { $new_version = $version }
-                "z" { $new_version = $version_digit[0] + "." + $version_digit[1] + "." + [string]([int]$version_digit[2]+1) }
-                "y" { $new_version = $version_digit[0] + "." + [string]([int]$version_digit[1]+1) + ".0" }
-                "x" { $new_version = [string]([int]$version_digit[0]+1) + ".0.0" }
+                "z" { $new_version = $version_digit[0] + "." + $version_digit[1] + "." + $version_digit[2] + "." + [string]([int]$version_digit[3]+1) }
+                "y" { $new_version = $version_digit[0] + "." + $version_digit[1] + "." + [string]([int]$version_digit[2]+1) + ".0" }
+                "x" { $new_version = $version_digit[0] + "." + [string]([int]$version_digit[1]+1) + ".0.0" }
+                "w" { $new_version = [string]([int]$version_digit[0]+1) + ".0.0.0" }
             }
         }else{
-            if ($input -match "\d+\.\d+\.\d+") { $new_version = $input }
+            if ($input -match "\d+\.\d+\.\d+\.\d+") { $new_version = $input }
         }
     }
     return $new_version
@@ -56,7 +57,7 @@ Get-Variable -name *_path | ForEach {if(!(test-path $_.Value)){write-host("  Err
 Get-Alias -name cmd-* | ForEach {if(!(test-path $_.Definition)){write-host("  Error : Program " + $_.Name + "=""" + $_.Definition + """ not found") -ForegroundColor Red;}}
 
 #Get the version from update.rdf and subversion URL
-$VersionFile_txt = (([regex]::matches((get-content $VersionFile_path), "<em:version>(\d+\.\d+\.\d+)<"))[0]).Groups[1].Value;
+$VersionFile_txt = (([regex]::matches((get-content $VersionFile_path), "<em:version>([\d\.]+)<"))[0]).Groups[1].Value;
 
 #Get last compilation date
 $LastCompil_date = if ((test-path($VersionFile_path)) -eq 1){(get-item( $VersionFile_path )).LastWriteTime}

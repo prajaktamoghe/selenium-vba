@@ -4,8 +4,10 @@
 #define MyAppName "SeleniumWrapper"
 #define MyAppVersion GetFileVersion(".\bin\Release\SeleniumWrapper.dll")
 #define MyAppPublisher "Florent BREHERET"
+#define MyAppXpi "SeleniumVbFormatters-1.0.6.2.xpi"
 #define MyAppURL "http://code.google.com/p/selenium-vba/"
 #define MyVersion() ParseVersion(".\bin\Release\SeleniumWrapper.dll", Local[0], Local[1], Local[2], Local[3]), Str(Local[0]) + "." + Str(Local[1]) + "." + Str(Local[2]);
+
     
 [Setup]
 AppId={#MyAppName}
@@ -41,12 +43,13 @@ Source: ".\Reference\IEDriverServer.exe"; DestDir: "{app}"; DestName: "IEDriverS
 Source: ".\Reference\IEDriverServer64.exe"; DestDir: "{app}\ie64" ;DestName: "IEDriverServer.exe" ; Flags: ignoreversion; Check: IsWin64;
 Source: ".\License.txt"; DestDir: "{app}"; Flags: ignoreversion overwritereadonly ; Attribs:readonly
 Source: ".\Readme.txt"; DestDir: "{app}"; Flags: ignoreversion overwritereadonly ; Attribs:readonly
+Source: ".\ChangeLog.txt"; DestDir: "{app}"; Flags: ignoreversion overwritereadonly ; Attribs:readonly
 Source: ".\bin\Release\SeleniumWrapperApi.chm"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\QuickTest.vbs"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\Examples\*.*"; DestDir: "{app}\Examples"; Flags: ignoreversion skipifsourcedoesntexist overwritereadonly ; Attribs:readonly
 Source: ".\Templates\*.dot" ; DestDir: "{app}\Templates"; Flags: ignoreversion skipifsourcedoesntexist overwritereadonly ; Attribs:readonly
 Source: ".\Templates\*.xlt" ; DestDir: "{app}\Templates"; Flags: ignoreversion skipifsourcedoesntexist overwritereadonly ; Attribs:readonly
-Source: "..\formatters\SeleniumVbFormatters-{#MyVersion()}.xpi" ; DestDir: "{app}";
+Source: "..\formatters\{#MyAppXpi}" ; DestDir: "{app}";
 
 [Icons]
 ;Name: "{group}\Readme"; Filename: "{app}\Readme.txt"; WorkingDir: "{app}";
@@ -59,13 +62,21 @@ Name: "{group}\API documentation"; Filename: "{app}\SeleniumWrapperApi.chm"; Wor
 Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
 
 [Registry]
+;clean com objects in the registry
+Root: HKCR; Subkey: "SeleniumWrapper.Assembly"; Flags: deletekey 
+Root: HKCR; Subkey: "{{5BDDC122-7092-453F-8486-DBC455180DE3}"; Flags: deletekey 
+Root: HKCR; Subkey: "SeleniumWrapper.PdfFile"; Flags: deletekey 
+Root: HKCR; Subkey: "{{980551C8-0DEB-4774-8A07-CDCD9EB97FD6}"; Flags: deletekey 
+Root: HKCR; Subkey: "SeleniumWrapper.WebDriver"; Flags: deletekey 
+Root: HKCR; Subkey: "{{432B62A5-6F09-45CE-B10E-E3CCFFAB4234}"; Flags: deletekey 
+;create file extention association with flamerobin
 Root: HKLM; Subkey: "SOFTWARE\Microsoft\.NETFramework\Policy\AppPatch\v2.0.50727.00000\excel.exe"; Flags: deletekey
 Root: HKLM; Subkey: "SOFTWARE\Microsoft\.NETFramework\Policy\AppPatch\v2.0.50727.00000\winword.exe"; Flags: deletekey
 
 [Run] 
 Filename: "{dotnet2064}\RegAsm.exe"; Parameters: {#MyAppName}.dll /codebase /tlb:{#MyAppName}.tlb; WorkingDir: {app}; StatusMsg: "Registering {#MyAppName} dll"; Flags: runhidden; Check: IsWin64;
 Filename: "{dotnet2032}\RegAsm.exe"; Parameters: {#MyAppName}.dll /codebase /tlb:{#MyAppName}.tlb; WorkingDir: {app}; StatusMsg: "Registering {#MyAppName} dll"; Flags: runhidden;
-Filename: "{pf}\Mozilla Firefox\firefox.exe"; Parameters: SeleniumVbFormatters-{#MyVersion()}.xpi; WorkingDir: {app}; Flags: shellexec postinstall; Description: "Install Addon for Firefox-Selenium IDE";
+Filename: "{pf}\Mozilla Firefox\firefox.exe"; Parameters: {#MyAppXpi}; WorkingDir: {app}; Flags: shellexec postinstall; Description: "Install Addon for Firefox-Selenium IDE";
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}"
