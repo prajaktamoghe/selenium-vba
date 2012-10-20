@@ -60,28 +60,32 @@ namespace SeleniumWrapper
         OpenQA.Selenium.IWebDriver webDriver;
         Selenium.WebDriverBackedSelenium webDriverBacked;
         Object result;
-        Action action;
         String error;
         int Timeout;
         System.Timers.Timer timerhotkey;
         String baseUrl;
         bool canceled = false;
-        ManualResetEvent waiter;
         Dictionary<string, object> preferences=null;
 
         public WebDriver(){
-            waiter = new ManualResetEvent(false);
             this.Timeout = 30000;
             this.timerhotkey = new System.Timers.Timer(200);
             this.timerhotkey.Elapsed += new System.Timers.ElapsedEventHandler(TimerCheckHotKey);
             AppDomain.CurrentDomain.UnhandledException += AppDomain_UnhandledException;
+            //Clean temp files
+            new System.Diagnostics.Process{
+                StartInfo = new System.Diagnostics.ProcessStartInfo{
+                    WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden,
+                    FileName = "cmd.exe",
+                    Arguments = @"CMD /C FOR /D %A IN (%TEMP%\anonymous*) DO RD /S /Q ""%A"" & FOR /D %A IN (%TEMP%\scoped_dir*) DO RD /S /Q ""%A"" & DEL /q /f %TEMP%\IE*.tmp"
+                }
+            }.Start();
         }
 
-        [STAThread]
+        //[STAThread]
         private void AppDomain_UnhandledException(Object sender, UnhandledExceptionEventArgs e){
-            this.error = ((Exception)e.ExceptionObject).Message;
+            this.error = "UnhandledException: " + ((Exception)e.ExceptionObject).Message;
             this.timerhotkey.Stop();
-            waiter.Set();
             Thread.CurrentThread.Join();
         }
 
@@ -96,7 +100,6 @@ namespace SeleniumWrapper
         private void TimerCheckHotKey(object source, ElapsedEventArgs e){
             if ((GetKeyState(0x1b) & 0x8000) != 0) {
                 this.timerhotkey.Stop();
-                waiter.Set();
                 this.canceled = true;
             }
         }
@@ -106,70 +109,63 @@ namespace SeleniumWrapper
             return "Method " + lMethodname + " failed !";
         }
 
-        [STAThread]
-        private void InvokeWaitFor(Action action, Object expected, bool match){
-            this.action = action;
+        //[STAThread]
+        private void InvokeWdWaitFor(Action action, Object expected, bool match){
             this.error = null;
             this.canceled = false;
-            waiter.Reset();
-            action.BeginInvoke((IAsyncResult iar) => {
-                try{
-                    action.EndInvoke(iar);
-                    while(match ^ ObjectEquals(result,expected)){
-                        Thread.Sleep(10);
-                        action();
-                    }
-                }catch(Exception ex){
-                    this.error = GetErrorPrifix(this.action) + " \r\n expected=<" + expected + "> \r\n" + (this.error != null ? this.error : ex.Message); 
-                }
-                waiter.Set();
-            }, null);
+            this.result = null;
             this.timerhotkey.Start();
-            bool succed = waiter.WaitOne(this.Timeout);
-            this.timerhotkey.Stop();
-            if (this.canceled) throw new ApplicationException("Execution cancelled !");
-            if (!succed) throw new ApplicationException(GetErrorPrifix(this.action) + " \r\nTimeout reached.");
+            DateTime startTime = DateTime.Now;
+            try{
+                while(match ^ ObjectEquals(this.result,expected)){
+                    Thread.Sleep(10);
+                    action.EndInvoke(action.BeginInvoke(null, null));
+                    if ((DateTime.Now - startTime).TotalMilliseconds > this.Timeout) {
+                        throw new ApplicationException("Timeout reached!");
+                    }
+                }
+            }catch(Exception ex){
+                throw new ApplicationException(GetErrorPrifix(action) + " expected=<" + expected.ToString() + "> \n" + ex.Message);
+            }finally{
+                this.timerhotkey.Stop();
+            }
+            if (this.canceled) throw new ApplicationException("Execution cancelled!");
             if (this.error != null) throw new ApplicationException(this.error);
         }
 
-        private void InvokeAssert(Action action, Object expected, bool match){
-            Object result = Invoke(action);
-            if (match ^ ObjectEquals(result,expected)) throw new ApplicationException(GetErrorPrifix(this.action) + " expected=<" + expected.ToString() + "> result=<" + result.ToString() + "> ");
+        private void InvokeWdAssert(Action action, Object expected, bool match){
+            Object result = InvokeWd(action);
+            if (match ^ ObjectEquals(result,expected)) throw new ApplicationException(GetErrorPrifix(action) + " expected=<" + expected.ToString() + "> result=<" + result.ToString() + "> ");
         }
 
-        private String InvokeVerify(Action action, Object expected, bool match){
-            Object result = Invoke(action);
+        private String InvokeWdVerify(Action action, Object expected, bool match){
+            Object result = InvokeWd(action);
             if (match ^ ObjectEquals(result, expected)) {
-                return "KO, " + GetErrorPrifix(this.action) + " expected=<" + expected.ToString() + "> result=<" + result.ToString() + "> ";
+                return "KO, " + GetErrorPrifix(action) + " expected=<" + expected.ToString() + "> result=<" + result.ToString() + "> ";
             }else{
                 return "OK";
             }
         }
 
-        private void InvokeAndWait(Action action){
-            Invoke(action);
+        private void InvokeWdAndWait(Action action){
+            InvokeWd(action);
             waitForPageToLoad( this.Timeout.ToString());
         }
 
-        [STAThread]
-        private Object Invoke(Action action){
-            this.action = action;
+        //[STAThread]
+        private Object InvokeWd(Action action){
             this.error = null;
             this.canceled = false;
-            waiter.Reset();
-            action.BeginInvoke((IAsyncResult iar) => {
-                try{
-                    action.EndInvoke(iar);
-                }catch(Exception ex){
-                    this.error = GetErrorPrifix(this.action) + "\r\n" + ex.Message;
-                }
-                waiter.Set();
-            }, null);
+            this.result = null;
             this.timerhotkey.Start();
-            bool succed = waiter.WaitOne(this.Timeout);
-            this.timerhotkey.Stop();
-            if (this.canceled) throw new ApplicationException("Execution cancelled !");
-            if (!succed) throw new ApplicationException(GetErrorPrifix(this.action) + " Timeout reached.");
+            try{
+                action.EndInvoke(action.BeginInvoke(null, null));
+            }catch(Exception ex){
+                throw new ApplicationException(GetErrorPrifix(action) + "\n" + ex.Message);
+            }finally{
+                this.timerhotkey.Stop();
+            }
+            if (this.canceled) throw new ApplicationException("Execution cancelled!");
             if (this.error != null) throw new ApplicationException(this.error);
             return this.result;
         }
@@ -198,20 +194,20 @@ namespace SeleniumWrapper
                                 firefoxProfile.SetPreference(pair.Key, (bool)pair.Value);
                             }
                         }
-                        Invoke(() => this.webDriver = new OpenQA.Selenium.Firefox.FirefoxDriver(firefoxProfile));
+                        this.webDriver = new OpenQA.Selenium.Firefox.FirefoxDriver(firefoxProfile);
                     }else{
-                        Invoke(() => this.webDriver = new OpenQA.Selenium.Firefox.FirefoxDriver());
+                        this.webDriver = new OpenQA.Selenium.Firefox.FirefoxDriver();
                     }
                     break;
                 case "internetexplorer":
                 case "iexplore":
                 case "ie":
-                    Invoke(() => this.webDriver = new OpenQA.Selenium.IE.InternetExplorerDriver(directory));
+                    this.webDriver = new OpenQA.Selenium.IE.InternetExplorerDriver(directory);
                     break;
                 case "internetexplorer64":
                 case "iexplore64":
                 case "ie64":
-                    Invoke(() => this.webDriver = new OpenQA.Selenium.IE.InternetExplorerDriver(directory + @"\ie64"));
+                    this.webDriver = new OpenQA.Selenium.IE.InternetExplorerDriver(directory + @"\ie64");
                     break;
                 case "cr":
                 case "chrome":
@@ -222,20 +218,20 @@ namespace SeleniumWrapper
                                 chromeOptions.AddArgument((string)pair.Value);
                             }
                         }
-                        Invoke(() => this.webDriver = new OpenQA.Selenium.Chrome.ChromeDriver(directory, chromeOptions));
+                        this.webDriver = new OpenQA.Selenium.Chrome.ChromeDriver(directory, chromeOptions);
                     }else{
-                        Invoke(() => this.webDriver = new OpenQA.Selenium.Chrome.ChromeDriver(directory));
+                        this.webDriver = new OpenQA.Selenium.Chrome.ChromeDriver(directory);
                     }
                     break;
                 case "sa":
                 case "safari":
-                    Invoke(() => this.webDriver = new OpenQA.Selenium.Safari.SafariDriver());
+                    this.webDriver = new OpenQA.Selenium.Safari.SafariDriver();
                     break;
                 default:
-                    throw new ApplicationException("Browser <" + browser + "> is not available !  \r\nChoose between Firefox, IE and Chrome");
+                    throw new ApplicationException("Browser <" + browser + "> is not available !  \nChoose between Firefox, IE and Chrome");
             }
-            Invoke(() => this.webDriverBacked = new Selenium.WebDriverBackedSelenium(this.webDriver, url));
-            Invoke(() => webDriverBacked.Start());
+            this.webDriverBacked = new Selenium.WebDriverBackedSelenium(this.webDriver, url);
+            InvokeWd(() => webDriverBacked.Start());
             this.baseUrl = url.TrimEnd('/');
         }
 
@@ -259,7 +255,7 @@ namespace SeleniumWrapper
                 case "android": lCapability = DesiredCapabilities.Android(); break;
                 case "ipad": lCapability = DesiredCapabilities.IPad(); break;
                 case "opera": lCapability = DesiredCapabilities.Opera(); break;
-                default: throw new ApplicationException("Remote browser <" + browser + "> is not available !  \r\nChoose between Firefox, IE, Chrome, HtmlUnit, HtmlUnitWithJavaScript, \r\nAndroid, IPad, Opera");
+                default: throw new ApplicationException("Remote browser <" + browser + "> is not available !  \nChoose between Firefox, IE, Chrome, HtmlUnit, HtmlUnitWithJavaScript, \nAndroid, IPad, Opera");
             }
             if(this.preferences!=null){
                 foreach (var pair in this.preferences){
@@ -272,8 +268,8 @@ namespace SeleniumWrapper
             }
             lCapability.IsJavaScriptEnabled = javascriptEnabled;
             this.webDriver = new RemoteWebDriverCust(new Uri(remoteAddress), lCapability);
-            Invoke(() => this.webDriverBacked = new Selenium.WebDriverBackedSelenium(this.webDriver, url));
-            Invoke(() => webDriverBacked.Start());
+            this.webDriverBacked = new Selenium.WebDriverBackedSelenium(this.webDriver, url);
+            InvokeWd(() => webDriverBacked.Start());
         }
 
         /// <summary>Set a specific preference for FireFox</summary>
@@ -289,7 +285,7 @@ namespace SeleniumWrapper
             if(!url.Contains("://")){
                  url = this.baseUrl + '/' + url.TrimStart('/');
             }
-            Invoke(() => webDriverBacked.Open(url));
+            InvokeWd(() => webDriverBacked.Open(url));
         }
 
         /// <summary>Wait the specified time in millisecond before executing the next command</summary>
@@ -347,7 +343,7 @@ namespace SeleniumWrapper
         }
 
         private static bool ObjectEquals(Object A, Object B) {
-            if(A.GetType().IsArray){
+            if(A!=null && A.GetType().IsArray){
                 if (!B.GetType().IsArray) return false;
                 String[] a1 = (String[])A;
                 String[] a2 = (String[])B;
@@ -376,8 +372,8 @@ namespace SeleniumWrapper
         public void setTimeout(int timeout_ms) {
             this.Timeout = timeout_ms;
             this.webDriverBacked.SetTimeout(timeout_ms.ToString());
-            this.webDriver.Manage().Timeouts().SetPageLoadTimeout(TimeSpan.FromMilliseconds(this.Timeout));
-            this.webDriver.Manage().Timeouts().SetScriptTimeout(TimeSpan.FromMilliseconds(this.Timeout));
+            this.webDriver.Manage().Timeouts().SetPageLoadTimeout(TimeSpan.FromMilliseconds(timeout_ms));
+            this.webDriver.Manage().Timeouts().SetScriptTimeout(TimeSpan.FromMilliseconds(timeout_ms));
         }
 
         /// <summary>Capture a screenshot to the Clipboard</summary>
@@ -385,9 +381,9 @@ namespace SeleniumWrapper
             try{
                 System.Drawing.Image image;
                 System.Windows.Forms.Clipboard.Clear();
-                byte[] res = (byte[])Invoke(() => this.result = ((OpenQA.Selenium.ITakesScreenshot)webDriver).GetScreenshot().AsByteArray);
+                byte[] res = (byte[])InvokeWd(() => this.result = ((OpenQA.Selenium.ITakesScreenshot)webDriver).GetScreenshot().AsByteArray);
                 //string base64String = (string)Invoke(() => this.result = webDriver.CaptureScreenshotToString());
-                if (res ==null || res.Length == 0) throw new ApplicationException("Method <captureScreenshotToClipboard> failed !\r\nReturned value is empty");
+                if (res ==null || res.Length == 0) throw new ApplicationException("Method <captureScreenshotToClipboard> failed !\nReturned value is empty");
                 //using (System.IO.MemoryStream ms = new System.IO.MemoryStream(Convert.FromBase64String(base64String))){
                 using (System.IO.MemoryStream ms = new System.IO.MemoryStream(res)){
                     image = System.Drawing.Image.FromStream(ms);
@@ -399,8 +395,8 @@ namespace SeleniumWrapper
         }
 
         public object  captureScreenshotToImage(){
-            object ret = Invoke(() => this.result = ((OpenQA.Selenium.ITakesScreenshot)webDriver).GetScreenshot().AsByteArray);
-            if (ret == null) throw new ApplicationException("Method <captureScreenshotToPdf> failed !\r\nReturned value is empty");
+            object ret = InvokeWd(() => this.result = ((OpenQA.Selenium.ITakesScreenshot)webDriver).GetScreenshot().AsByteArray);
+            if (ret == null) throw new ApplicationException("Method <captureScreenshotToPdf> failed !\nReturned value is empty");
             return ret;
         }
 
@@ -512,7 +508,7 @@ namespace SeleniumWrapper
             if(!url.Contains("://")){
                  url = this.baseUrl + '/' + url.TrimStart('/');
             }
-            Invoke(() => this.webDriver.Navigate().GoToUrl(url));
+            InvokeWd(() => this.webDriver.Navigate().GoToUrl(url));
         }
 
         public void sendKeys(string keysToSend){
