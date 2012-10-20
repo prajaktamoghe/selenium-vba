@@ -1,12 +1,24 @@
 
-v1.0.6.1
+Author : Florent BREHERET
+Contact : florentbr@gmail.com
+Website : http://code.google.com/p/selenium-vba
+
+
+v1.0.6.2 (2012/10/20)
+===============================================================================
+ * updated chrome driver to version 23.0.1240
+ * added setTimeout command
+ * fixed Excel crashes
+ * added temporary file cleaning
+ 
+v1.0.6.1 (2012/08/26)
 ===============================================================================
  * updated IEDriverServer.exe to 2.25.3.0
  * added setPreference command for firefox
  * added PdfFile object and methods to create Pdf files
  * Fixed error on escape key press
 
-v1.0.6.0
+v1.0.6.0 (2012/07/24)
 ===============================================================================
  * Updated Selenium libraries to 2.25.1
  * Updated IEDriverServer to 2.25.2
@@ -19,13 +31,13 @@ v1.0.6.0
  * Added regular expressions methods
  * Added documentation for original methods
 
-v1.0.5.3
+v1.0.5.3 (2012/06/11)
 ===============================================================================
  * Updated Selenium libraries to 2.23.0
  * Updated IEDriverServer to 2.23.0
  * Updated Chrome Driver to 20.0.1133.0
 
-v1.0.5.2
+v1.0.5.2 (2012/05/22)
 ===============================================================================
  * Added uninstall at installation
  * Added some tests at installation
