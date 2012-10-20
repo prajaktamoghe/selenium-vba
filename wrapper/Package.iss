@@ -110,7 +110,7 @@ begin
     if Not ret Then  ret:= RegQueryStringValue(HKLM, ExpandConstant('SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\{#MyAppName}_is1'), 'UnInstallString', sUnInstallString);
     If ret Then Begin
         Exec( RemoveQuotes(sUnInstallString), '/SILENT', '', SW_SHOW, ewWaitUntilTerminated, iResultCode) ;
-        if iResultCode <> 0 then Abort();
+        //if iResultCode <> 0 then Abort();
         Sleep(1000);
     End;
   end Else If CurStep = ssPostInstall then begin

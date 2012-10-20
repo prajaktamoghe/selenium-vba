@@ -92,9 +92,11 @@ write-host "   ** Msbuild compile sources ..."
 
 write-host ""
 write-host "   ** Api documentation creation ..."
-	cmd-msbuild /v:quiet /p:CleanIntermediates=True /p:Configuration=Release $shfbproj_path
-    if($LASTEXITCODE -eq 1) { write-host("  Api documentation creation failed ! ") -ForegroundColor red; pause ; break; }
-
+	$ask_compil=(read-host "   Create the .chm help file ? [y/n] ")
+	if ($ask_compil -eq "y"){
+		cmd-msbuild /v:quiet /p:CleanIntermediates=True /p:Configuration=Release $shfbproj_path
+		if($LASTEXITCODE -eq 1) { write-host("  Api documentation creation failed ! ") -ForegroundColor red; pause ; break; }
+	}
 write-host ""
 write-host "   ** InnoSetup create the paclage ..."
 	cmd-iscc /q $iss_path
