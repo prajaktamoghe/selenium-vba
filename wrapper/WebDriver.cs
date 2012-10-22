@@ -54,39 +54,36 @@ namespace SeleniumWrapper
     [ComVisible(true), ComDefaultInterface(typeof(IWebDriver)), ClassInterface(ClassInterfaceType.None)]
     public partial class WebDriver : IDisposable, IWebDriver
     {
-        [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
-        internal static extern short GetKeyState(int virtualKeyCode);
-
         OpenQA.Selenium.IWebDriver webDriver;
         Selenium.WebDriverBackedSelenium webDriverBacked;
+        List<Preference> preferences;
+        bool isStartedRemotely;
+        Thread thread;
+        Action action;
         Object result;
         String error;
         int Timeout;
         System.Timers.Timer timerhotkey;
         String baseUrl;
         bool canceled = false;
-        Dictionary<string, object> preferences=null;
+
+        private struct Preference{
+            public string Name;
+            public object Value;
+        }
 
         public WebDriver(){
             this.Timeout = 30000;
             this.timerhotkey = new System.Timers.Timer(200);
             this.timerhotkey.Elapsed += new System.Timers.ElapsedEventHandler(TimerCheckHotKey);
-            AppDomain.CurrentDomain.UnhandledException += AppDomain_UnhandledException;
-            //Clean temp files
-            new System.Diagnostics.Process{
-                StartInfo = new System.Diagnostics.ProcessStartInfo{
-                    WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden,
-                    FileName = "cmd.exe",
-                    Arguments = @"CMD /C FOR /D %A IN (%TEMP%\anonymous*) DO RD /S /Q ""%A"" & FOR /D %A IN (%TEMP%\scoped_dir*) DO RD /S /Q ""%A"" & DEL /q /f %TEMP%\IE*.tmp"
-                }
-            }.Start();
+            AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(AppDomain_UnhandledException);
+            Utils.runShellCommand(@"FOR /D %A IN (%TEMP%\anonymous*) DO RD /S /Q ""%A"" & FOR /D %A IN (%TEMP%\scoped_dir*) DO RD /S /Q ""%A"" & DEL /q /f %TEMP%\IE*.tmp");
         }
 
-        //[STAThread]
         private void AppDomain_UnhandledException(Object sender, UnhandledExceptionEventArgs e){
             this.error = "UnhandledException: " + ((Exception)e.ExceptionObject).Message;
             this.timerhotkey.Stop();
-            Thread.CurrentThread.Join();
+            this.thread.Abort();
         }
 
         ~WebDriver(){
@@ -98,9 +95,10 @@ namespace SeleniumWrapper
         }
 
         private void TimerCheckHotKey(object source, ElapsedEventArgs e){
-            if ((GetKeyState(0x1b) & 0x8000) != 0) {
+            if (Utils.isEscapeKeyPressed()) {
                 this.timerhotkey.Stop();
                 this.canceled = true;
+                this.thread.Abort();
             }
         }
 
@@ -109,39 +107,58 @@ namespace SeleniumWrapper
             return "Method " + lMethodname + " failed !";
         }
 
-        //[STAThread]
-        private void InvokeWdWaitFor(Action action, Object expected, bool match){
+        private Object InvokeWd(Action action){
+            this.action = action;
+            this.result = null;
             this.error = null;
             this.canceled = false;
-            this.result = null;
             this.timerhotkey.Start();
-            DateTime startTime = DateTime.Now;
-            try{
-                while(match ^ ObjectEquals(this.result,expected)){
-                    Thread.Sleep(10);
-                    action.EndInvoke(action.BeginInvoke(null, null));
-                    if ((DateTime.Now - startTime).TotalMilliseconds > this.Timeout) {
-                        throw new ApplicationException("Timeout reached!");
+            this.thread = new System.Threading.Thread(new System.Threading.ThreadStart(() => {
+                    try{
+                        this.action();
+                    }catch(System.Exception ex){ this.error = ex.Message; }
+                }));
+            this.thread.Start();
+            bool succed = this.thread.Join(this.Timeout + 1000);
+            this.timerhotkey.Stop();
+            if (this.canceled) throw new ApplicationException("Code execution has been interrupted");
+            if (!succed) throw new ApplicationException(GetErrorPrifix(this.action) + "\nTimed out running command after " + this.Timeout + " milliseconds");
+            if (this.error != null) throw new ApplicationException(GetErrorPrifix(this.action) + "\n" + this.error);
+            return this.result;
+        }
+
+        private void InvokeWdWaitFor(Action action, Object expected, bool match){
+            this.action = action;
+            this.result = null;
+            this.error = null;
+            this.canceled = false;
+            this.timerhotkey.Start();
+            this.thread = new System.Threading.Thread(new System.Threading.ThreadStart(() =>{
+                try {
+                    action();
+                    while(match ^ ObjectEquals(this.result,expected)){
+                        Thread.Sleep(10);
+                        action();
                     }
-                }
-            }catch(Exception ex){
-                throw new ApplicationException(GetErrorPrifix(action) + " expected=<" + expected.ToString() + "> \n" + ex.Message);
-            }finally{
-                this.timerhotkey.Stop();
-            }
-            if (this.canceled) throw new ApplicationException("Execution cancelled!");
-            if (this.error != null) throw new ApplicationException(this.error);
+                }catch (System.Exception ex) { this.error = ex.Message; }
+            }));
+            this.thread.Start();
+            bool succed = this.thread.Join(this.Timeout + 1000);
+            this.timerhotkey.Stop();
+            if (this.canceled) throw new ApplicationException("Code execution has been interrupted");
+            if (!succed) throw new ApplicationException(GetErrorPrifix(this.action) + "\nexpected" + (match ? "=" : "!=") + "<" + expected.ToString() + ">\nresult=<" + this.result.ToString() + ">\nTimed out running command after " + this.Timeout + " milliseconds");
+            if (this.error != null) throw new ApplicationException(GetErrorPrifix(this.action) + " expected" + (match ? "=" : "!=") + "<" + expected.ToString() + "> result=<" + this.result.ToString() + ">\n" + this.error);
         }
 
         private void InvokeWdAssert(Action action, Object expected, bool match){
             Object result = InvokeWd(action);
-            if (match ^ ObjectEquals(result,expected)) throw new ApplicationException(GetErrorPrifix(action) + " expected=<" + expected.ToString() + "> result=<" + result.ToString() + "> ");
+            if (match ^ ObjectEquals(result, expected)) throw new ApplicationException(GetErrorPrifix(action) + "\nexpected" + (match ? "=" : "!=") + "<" + expected.ToString() + ">\nresult=<" + result.ToString() + "> ");
         }
 
         private String InvokeWdVerify(Action action, Object expected, bool match){
             Object result = InvokeWd(action);
             if (match ^ ObjectEquals(result, expected)) {
-                return "KO, " + GetErrorPrifix(action) + " expected=<" + expected.ToString() + "> result=<" + result.ToString() + "> ";
+                return "KO, " + GetErrorPrifix(action) + " expected" + (match ? "=" : "!=") + "<" + expected.ToString() + "> result=<" + result.ToString() + "> ";
             }else{
                 return "OK";
             }
@@ -152,29 +169,12 @@ namespace SeleniumWrapper
             waitForPageToLoad( this.Timeout.ToString());
         }
 
-        //[STAThread]
-        private Object InvokeWd(Action action){
-            this.error = null;
-            this.canceled = false;
-            this.result = null;
-            this.timerhotkey.Start();
-            try{
-                action.EndInvoke(action.BeginInvoke(null, null));
-            }catch(Exception ex){
-                throw new ApplicationException(GetErrorPrifix(action) + "\n" + ex.Message);
-            }finally{
-                this.timerhotkey.Stop();
-            }
-            if (this.canceled) throw new ApplicationException("Execution cancelled!");
-            if (this.error != null) throw new ApplicationException(this.error);
-            return this.result;
-        }
-
         /// <summary>Starts a new Selenium testing session</summary>
         /// <param name="browser">Name of the browser : firefox, ie, chrome</param>
         /// <param name="url">The base URL</param>
         /// <param name="directory">Optional - Directory path for drivers or binaries</param>
         public void start(string browser, String url, [Optional][DefaultParameterValue("")]String directory){
+            this.isStartedRemotely = false;
             if(!String.IsNullOrEmpty(directory)){
                 if(!System.IO.Directory.Exists(directory)) throw new ApplicationException("Direcory not found : " + directory);
             }else{
@@ -185,13 +185,13 @@ namespace SeleniumWrapper
                 case "firefox": 
                     if(this.preferences!=null){
                         FirefoxProfile firefoxProfile = new FirefoxProfile();
-                        foreach (var pair in this.preferences){
-                            if(pair.Value is string){
-                                firefoxProfile.SetPreference(pair.Key, (string)pair.Value);
-                            }else if(pair.Value is short){
-                                firefoxProfile.SetPreference(pair.Key, Convert.ToInt32(pair.Value));
-                            }else if(pair.Value is bool){
-                                firefoxProfile.SetPreference(pair.Key, (bool)pair.Value);
+                        foreach (Preference pref in this.preferences){
+                            if(pref.Value is string){
+                                firefoxProfile.SetPreference(pref.Name, (string)pref.Value);
+                            }else if(pref.Value is short){
+                                firefoxProfile.SetPreference(pref.Name, Convert.ToInt32(pref.Value));
+                            }else if(pref.Value is bool){
+                                firefoxProfile.SetPreference(pref.Name, (bool)pref.Value);
                             }
                         }
                         this.webDriver = new OpenQA.Selenium.Firefox.FirefoxDriver(firefoxProfile);
@@ -213,9 +213,9 @@ namespace SeleniumWrapper
                 case "chrome":
                     if(this.preferences!=null){
                         ChromeOptions chromeOptions= new ChromeOptions();
-                        foreach (var pair in this.preferences){
-                            if(pair.Key == "chrome.switches"){
-                                chromeOptions.AddArgument((string)pair.Value);
+                        foreach (Preference pref in this.preferences){
+                            if(pref.Name == "chrome.switches"){
+                                chromeOptions.AddArgument((string)pref.Value);
                             }
                         }
                         this.webDriver = new OpenQA.Selenium.Chrome.ChromeDriver(directory, chromeOptions);
@@ -241,6 +241,7 @@ namespace SeleniumWrapper
         /// <param name="url">Base URL</param>
         /// <param name="javascriptEnabled">Optional argument to enable or disable javascript. Default is true</param>
         public void startRemotely(string browser, String remoteAddress, String url, [Optional][DefaultParameterValue(true)]Boolean javascriptEnabled){
+            this.isStartedRemotely = true;
             DesiredCapabilities lCapability;
             switch (browser.ToLower().Replace("*", "")) {
                 case "ff":
@@ -258,11 +259,11 @@ namespace SeleniumWrapper
                 default: throw new ApplicationException("Remote browser <" + browser + "> is not available !  \nChoose between Firefox, IE, Chrome, HtmlUnit, HtmlUnitWithJavaScript, \nAndroid, IPad, Opera");
             }
             if(this.preferences!=null){
-                foreach (var pair in this.preferences){
-                    if(lCapability.HasCapability(pair.Key)){
-                        lCapability.SetCapability(pair.Key, pair.Value);
+                foreach (Preference pref in this.preferences){
+                    if(lCapability.HasCapability(pref.Name)){
+                        lCapability.SetCapability(pref.Name, pref.Value);
                     }else{
-                        throw new ApplicationException("Preference <" + pair.Key + "> doesn't exit !  ");
+                        throw new ApplicationException("Preference <" + pref.Name + "> doesn't exit !  ");
                     }
                 }
             }
@@ -276,8 +277,8 @@ namespace SeleniumWrapper
         /// <param name="parameter">parameter</param>
         /// <param name="value">value</param>
         public void setPreference (string parameter, object value) {
-            if (this.preferences == null) this.preferences = new Dictionary<string, object>();
-            this.preferences.Add(parameter, value);
+            if (this.preferences == null) this.preferences = new List<Preference>();
+            this.preferences.Add(new Preference{ Name=parameter, Value=value });
         }
 
         /// <summary>"Opens an URL in the test frame. This accepts both relative and absolute URLs."</summary>
@@ -415,6 +416,30 @@ namespace SeleniumWrapper
             Object result = ((OpenQA.Selenium.IJavaScriptExecutor)this.webDriver).ExecuteScript("try{" + script + "}catch(e){return 'error:'+e.message;}", arguments);
             if (result != null && result.ToString().StartsWith("error:") ) throw new ApplicationException("JavaScript " + result.ToString());
             return result;
+        }
+
+        /// <summary>Undo the effect of calling chooseCancelOnNextConfirmation. Note that Selenium's overridden window.confirm() function will normally automatically return true, as if the user had manually clicked OK, so you shouldn't need to use this command unless for some reason you need to change your mind prior to the next confirmation. After any confirmation, Selenium will resume using the default behavior for future confirmations, automatically returning true (OK) unless/until you explicitly call chooseCancelOnNextConfirmation for each confirmation. Take note - every time a confirmation comes up, you must consume it with a corresponding getConfirmation, or else the next selenium operation will fail. </summary>
+        public void chooseOkOnNextConfirmation() {
+            InvokeWd(() => this.webDriver.SwitchTo().Alert().Dismiss()); 
+        }
+
+        /// <summary>By default, Selenium's overridden window.confirm() function will return true, as if the user had manually clicked OK; after running this command, the next call to confirm() will return false, as if the user had clicked Cancel. Selenium will then resume using the default behavior for future confirmations, automatically returning true (OK) unless/until you explicitly call this command for each confirmation.  Take note - every time a confirmation comes up, you must consume it with a corresponding getConfirmation, or else the next selenium operation will fail.</summary>
+        public void chooseCancelOnNextConfirmation() { 
+            InvokeWd(() => this.webDriver.SwitchTo().Alert().Accept()); 
+        }
+
+        /// <summary>Resize currently selected window to take up the entire screen </summary>
+        public void windowMaximize() {
+            // With chrome: use maximize switch
+            // With IE: use windowMaximize javascript function
+            // With Firefox: use Manage().Window.Maximize() method
+            if(this.isStartedRemotely){
+                InvokeWd(() => this.webDriver.Manage().Window.Maximize());
+                //InvokeWd(() => this.webDriverBacked.WindowMaximize());
+            }else{
+                Utils.maximizeForegroundWindow();
+            }
+            
         }
 
         // Following funtion are webdriver related

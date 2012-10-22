@@ -1,9 +1,15 @@
-
 Author : Florent BREHERET
 Contact : florentbr@gmail.com
 Website : http://code.google.com/p/selenium-vba
 
-
+v1.0.6.2 (2012/10/22)
+===============================================================================
+ * fixed Issue 11: VBA runs successfully only once in FireFox 16.0.1
+ * fixed Excel crashes on unhandle exception
+ * refactored windowMaximize method
+ * refactored chooseOkOnNextConfirmation method
+ * refactored chooseCancelOnNextConfirmation method
+ 
 v1.0.6.2 (2012/10/20)
 ===============================================================================
  * updated chrome driver to version 23.0.1240

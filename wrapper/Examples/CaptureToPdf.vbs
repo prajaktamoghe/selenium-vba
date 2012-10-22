@@ -8,6 +8,7 @@ Set pdf = CreateObject("SeleniumWrapper.PdfFile")
 currentFolder = Replace(WScript.ScriptFullName,WScript.ScriptName,"")
 
 selenium.start "ff", "http://www.google.com"
+selenium.windowMaximize
 selenium.open "/"
 selenium.type "q", "Eiffel tower"
 selenium.keyPressAndWait "q", "\10"

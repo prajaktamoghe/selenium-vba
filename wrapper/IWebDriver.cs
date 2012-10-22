@@ -55,6 +55,15 @@ namespace SeleniumWrapper
         [Description("Execute JavaScrip on the page")]
         Object executeScript(String script, [Optional][DefaultParameterValue(null)]Object arguments);
 
+        [Description("Undo the effect of calling chooseCancelOnNextConfirmation. Note that Selenium's overridden window.confirm() function will normally automatically return true, as if the user had manually clicked OK, so you shouldn't need to use this command unless for some reason you need to change your mind prior to the next confirmation. After any confirmation, Selenium will resume using the default behavior for future confirmations, automatically returning true (OK) unless/until you explicitly call chooseCancelOnNextConfirmation for each confirmation.  Take note - every time a confirmation comes up, you must consume it with a corresponding getConfirmation, or else the next selenium operation will fail.")]
+        void chooseOkOnNextConfirmation();
+
+        [Description("By default, Selenium's overridden window.confirm() function will return true, as if the user had manually clicked OK; after running this command, the next call to confirm() will return false, as if the user had clicked Cancel. Selenium will then resume using the default behavior for future confirmations, automatically returning true (OK) unless/until you explicitly call this command for each confirmation.  Take note - every time a confirmation comes up, you must consume it with a corresponding getConfirmation, or else the next selenium operation will fail.")]
+        void chooseCancelOnNextConfirmation();
+
+        [Description("Resize currently selected window to take up the entire screen ")]
+        void windowMaximize();
+
         [Description("Returns the page source")]
         String pageSource { get; }
 

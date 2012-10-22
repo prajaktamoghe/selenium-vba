@@ -258,11 +258,6 @@ namespace SeleniumWrapper
 		void waitForNotWhetherThisWindowMatchWindowExpression(String currentWindowString, String target, Boolean expected);
 		[Description("Waits for a popup window to appear and load up. the JavaScript window \"name\" of the window that will appear (not the text of the title bar) If unspecified, or specified as \"null\", this command will wait for the first non-top window to appear (don't rely on this if you are working with multiple popups simultaneously).a timeout in milliseconds, after which the action will return with an error. If this value is not specified, the default Selenium timeout will be used. See the setTimeout() command.")]
 		void waitForPopUp(String windowID, String timeout);
-		[Description(" By default, Selenium's overridden window.confirm() function will return true, as if the user had manually clicked OK; after running this command, the next call to confirm() will return false, as if the user had clicked Cancel. Selenium will then resume using the default behavior for future confirmations, automatically returning true (OK) unless/until you explicitly call this command for each confirmation. Take note - every time a confirmation comes up, you must consume it with a corresponding getConfirmation, or else the next selenium operation will fail. ")]
-		void chooseCancelOnNextConfirmation();
-		[Description(" Undo the effect of calling chooseCancelOnNextConfirmation. Note that Selenium's overridden window.confirm() function will normally automatically return true, as if the user had manually clicked OK, so you shouldn't need to use this command unless for some reason you need to change your mind prior to the next confirmation. After any confirmation, Selenium will resume using the default behavior for future confirmations, automatically returning true (OK) unless/until you explicitly call chooseCancelOnNextConfirmation for each confirmation. Take note - every time a confirmation comes up, you must consume it with a corresponding getConfirmation, or else the next selenium operation will fail. ")]
-		void chooseOkOnNextConfirmation();
-		void chooseOkOnNextConfirmationAndWait();
 		[Description("Instructs Selenium to return the specified answer string in response to the next JavaScript prompt [window.prompt()]. the answer to give in response to the prompt pop-up")]
 		void answerOnNextPrompt(String answer);
 		[Description("Simulates the user clicking the \"back\" button on their browser. ")]
@@ -561,10 +556,6 @@ namespace SeleniumWrapper
 		void dragAndDropToObjectAndWait(String locatorOfObjectToBeDragged, String locatorOfDragDestinationObject);
 		[Description("Gives focus to the currently selected window ")]
 		void windowFocus();
-		void windowFocusAndWait();
-		[Description("Resize currently selected window to take up the entire screen ")]
-		void windowMaximize();
-		void windowMaximizeAndWait();
 		[Description("Returns the IDs of all windows that the browser knows about in an array. Array of identifiers of all windows that the browser knows about.")]
 		String[] getAllWindowIds();
 		void assertAllWindowIds(String[] expected);
