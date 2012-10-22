@@ -2,7 +2,7 @@ Author : Florent BREHERET
 Contact : florentbr@gmail.com
 Website : http://code.google.com/p/selenium-vba
 
-v1.0.6.2 (2012/10/22)
+v1.0.6.3 (2012/10/22)
 ===============================================================================
  * fixed Issue 11: VBA runs successfully only once in FireFox 16.0.1
  * fixed Excel crashes on unhandle exception
