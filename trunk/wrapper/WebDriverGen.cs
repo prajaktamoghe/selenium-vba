@@ -257,11 +257,6 @@ namespace SeleniumWrapper
 		public void waitForNotWhetherThisWindowMatchWindowExpression(String currentWindowString, String target, Boolean expected){InvokeWdWaitFor(()=>this.result=webDriverBacked.GetWhetherThisWindowMatchWindowExpression(currentWindowString, target),expected,false);}
 		/// <summary>Waits for a popup window to appear and load up. the JavaScript window \"name\" of the window that will appear (not the text of the title bar) If unspecified, or specified as \"null\", this command will wait for the first non-top window to appear (don't rely on this if you are working with multiple popups simultaneously).a timeout in milliseconds, after which the action will return with an error. If this value is not specified, the default Selenium timeout will be used. See the setTimeout() command.</summary>
 		public void waitForPopUp(String windowID, String timeout){InvokeWd(()=>webDriverBacked.WaitForPopUp(windowID, timeout));}
-		/// <summary> By default, Selenium's overridden window.confirm() function will return true, as if the user had manually clicked OK; after running this command, the next call to confirm() will return false, as if the user had clicked Cancel. Selenium will then resume using the default behavior for future confirmations, automatically returning true (OK) unless/until you explicitly call this command for each confirmation. Take note - every time a confirmation comes up, you must consume it with a corresponding getConfirmation, or else the next selenium operation will fail. </summary>
-		public void chooseCancelOnNextConfirmation(){InvokeWd(()=>webDriverBacked.ChooseCancelOnNextConfirmation());}
-		/// <summary> Undo the effect of calling chooseCancelOnNextConfirmation. Note that Selenium's overridden window.confirm() function will normally automatically return true, as if the user had manually clicked OK, so you shouldn't need to use this command unless for some reason you need to change your mind prior to the next confirmation. After any confirmation, Selenium will resume using the default behavior for future confirmations, automatically returning true (OK) unless/until you explicitly call chooseCancelOnNextConfirmation for each confirmation. Take note - every time a confirmation comes up, you must consume it with a corresponding getConfirmation, or else the next selenium operation will fail. </summary>
-		public void chooseOkOnNextConfirmation(){InvokeWd(()=>webDriverBacked.ChooseOkOnNextConfirmation());}
-		public void chooseOkOnNextConfirmationAndWait(){InvokeWdAndWait(()=>webDriverBacked.ChooseOkOnNextConfirmation());}
 		/// <summary>Instructs Selenium to return the specified answer string in response to the next JavaScript prompt [window.prompt()]. the answer to give in response to the prompt pop-up</summary>
 		public void answerOnNextPrompt(String answer){InvokeWd(()=>webDriverBacked.AnswerOnNextPrompt(answer));}
 		/// <summary>Simulates the user clicking the \"back\" button on their browser. </summary>
@@ -560,10 +555,6 @@ namespace SeleniumWrapper
 		public void dragAndDropToObjectAndWait(String locatorOfObjectToBeDragged, String locatorOfDragDestinationObject){InvokeWdAndWait(()=>webDriverBacked.DragAndDropToObject(locatorOfObjectToBeDragged, locatorOfDragDestinationObject));}
 		/// <summary>Gives focus to the currently selected window </summary>
 		public void windowFocus(){InvokeWd(()=>webDriverBacked.WindowFocus());}
-		public void windowFocusAndWait(){InvokeWdAndWait(()=>webDriverBacked.WindowFocus());}
-		/// <summary>Resize currently selected window to take up the entire screen </summary>
-		public void windowMaximize(){InvokeWd(()=>webDriverBacked.WindowMaximize());}
-		public void windowMaximizeAndWait(){InvokeWdAndWait(()=>webDriverBacked.WindowMaximize());}
 		/// <summary>Returns the IDs of all windows that the browser knows about in an array. Array of identifiers of all windows that the browser knows about.</summary>
 		public String[] getAllWindowIds(){ return (String[])InvokeWd(()=>this.result=webDriverBacked.GetAllWindowIds());}
 		public void assertAllWindowIds(String[] expected){InvokeWdAssert(()=>this.result=webDriverBacked.GetAllWindowIds(),expected,true);}

@@ -12,6 +12,7 @@ If Err = 0 Then
 			on error goto 0
 			Set selenium = CreateObject("SeleniumWrapper.WebDriver")
 			selenium.start "ie", "http://www.google.com"
+			selenium.windowMaximize
 			selenium.open "/"
 			selenium.type "name=q", "Eiffel tower"
 			selenium.wait 500
