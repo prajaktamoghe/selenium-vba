@@ -1,4 +1,9 @@
 
+SeleniumIDE.Preferences.setString("enableExperimentalFeatures", "true");
+SeleniumIDE.Preferences.setString("disableFormatChangeMsg", "true");
+editor.app.options['enableExperimentalFeatures']='true';
+editor.app.options['disableFormatChangeMsg']='true';
+
 this.name = "vba-wdb";
 
 function decodeText(text) {
