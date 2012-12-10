@@ -21,7 +21,7 @@ If Err = 0 Then
 			selenium.wait 100
 			selenium.captureScreenshotToClipboard
 			title = selenium.getTitle()
-			wscript.echo "Page title was : " & title & vbCr & "A screenshoot of the page has been sent to the clipboard" 
+			wscript.echo "Page title was : " & title & vbCr & "A website screenshoot has been sent to the clipboard" 
 			selenium.stop
 		End If
 	Else

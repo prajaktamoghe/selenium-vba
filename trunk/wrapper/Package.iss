@@ -49,12 +49,12 @@ Source: ".\Examples\*.*"; DestDir: "{app}\Examples"; Flags: ignoreversion skipif
 Source: ".\Templates\*.dot" ; DestDir: "{app}\Templates"; Flags: ignoreversion skipifsourcedoesntexist overwritereadonly ; Attribs:readonly
 Source: ".\Templates\*.xlt" ; DestDir: "{app}\Templates"; Flags: ignoreversion skipifsourcedoesntexist overwritereadonly ; Attribs:readonly
 Source: "..\formatters\SeleniumVbFormatters-{#MyAppVersion}.xpi" ; DestDir: "{app}";
-Source: ".\exe.config" ; DestDir: "{win}\SYSTEM32"; DestName: "wscript.exe.config"; Flags: ignoreversion
-Source: ".\exe.config" ; DestDir: "{code:GetAppFolder|Excel.Application}"; DestName: "excel.exe.config"; Flags: ignoreversion
-Source: ".\exe.config" ; DestDir: "{code:GetAppFolder|Word.Application}"; DestName: "winword.exe.config"; Flags: ignoreversion
-Source: ".\exe.config" ; DestDir: "{code:GetAppFolder|PowerPoint.Application}"; DestName: "powerpnt.exe.config"; Flags: ignoreversion
-Source: ".\exe.config" ; DestDir: "{code:GetAppFolder|Access.Application}"; DestName: "msaccess.exe.config"; Flags: ignoreversion
-Source: ".\exe.config" ; DestDir: "{code:GetAppFolder|Outlook.Application}"; DestName: "outlook.exe.config"; Flags: ignoreversion
+Source: ".\exe.config" ; DestDir: "{win}\SYSTEM32"; DestName: "wscript.exe.config"; Flags: ignoreversion uninsneveruninstall
+Source: ".\exe.config" ; DestDir: "{code:GetAppFolder|Excel.Application}"; DestName: "excel.exe.config"; Flags: ignoreversion uninsneveruninstall
+Source: ".\exe.config" ; DestDir: "{code:GetAppFolder|Word.Application}"; DestName: "winword.exe.config"; Flags: ignoreversion uninsneveruninstall
+Source: ".\exe.config" ; DestDir: "{code:GetAppFolder|PowerPoint.Application}"; DestName: "powerpnt.exe.config"; Flags: ignoreversion uninsneveruninstall
+Source: ".\exe.config" ; DestDir: "{code:GetAppFolder|Access.Application}"; DestName: "msaccess.exe.config"; Flags: ignoreversion uninsneveruninstall
+Source: ".\exe.config" ; DestDir: "{code:GetAppFolder|Outlook.Application}"; DestName: "outlook.exe.config"; Flags: ignoreversion uninsneveruninstall
 
 [Icons]
 ;Name: "{group}\Readme"; Filename: "{app}\Readme.txt"; WorkingDir: "{app}";
@@ -68,6 +68,7 @@ Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
 
 [Registry]
 ;clean com objects in the registry
+Root: HKCR; Subkey: "{{E57E03DE-C7FE-4C12-85C8-EC8B32DFFB86}"; Flags: deletekey 
 Root: HKCR; Subkey: "SeleniumWrapper.Assembly"; Flags: deletekey 
 Root: HKCR; Subkey: "{{5BDDC122-7092-453F-8486-DBC455180DE3}"; Flags: deletekey 
 Root: HKCR; Subkey: "SeleniumWrapper.PdfFile"; Flags: deletekey 
