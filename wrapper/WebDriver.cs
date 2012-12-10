@@ -49,11 +49,15 @@ namespace SeleniumWrapper
     /// </example>
     ///
 
+
     [Description("")]
     [Guid("432b62a5-6f09-45ce-b10e-e3ccffab4234")]
-    [ComVisible(true), ComDefaultInterface(typeof(IWebDriver)), ClassInterface(ClassInterfaceType.None)]
+    [ComVisible(true), ComDefaultInterface(typeof(IWebDriver)), ComSourceInterfaces(typeof(WebDriverEvents)), ClassInterface(ClassInterfaceType.None)]
     public partial class WebDriver : IDisposable, IWebDriver
     {
+        //public delegate void EndOfCommandDelegate();
+        //public event EndOfCommandDelegate EndOfCommand;
+
         OpenQA.Selenium.IWebDriver webDriver;
         Selenium.WebDriverBackedSelenium webDriverBacked;
         List<Preference> preferences;
@@ -87,11 +91,18 @@ namespace SeleniumWrapper
         }
 
         ~WebDriver(){
-            Dispose();
+            Dispose(true);
         }
 
-        public void Dispose(){
+        public void Dispose()
+        {
+            Dispose(true);
+        }
 
+        protected virtual void Dispose(bool disposing)
+        {
+            this.timerhotkey.Stop();
+            this.thread.Abort();
         }
 
         private void TimerCheckHotKey(object source, ElapsedEventArgs e){
@@ -124,6 +135,7 @@ namespace SeleniumWrapper
             if (this.canceled) throw new ApplicationException("Code execution has been interrupted");
             if (!succed) throw new ApplicationException(GetErrorPrifix(this.action) + "\nTimed out running command after " + this.Timeout + " milliseconds");
             if (this.error != null) throw new ApplicationException(GetErrorPrifix(this.action) + "\n" + this.error);
+            //if (EndOfCommand != null) EndOfCommand();
             return this.result;
         }
 
@@ -135,10 +147,10 @@ namespace SeleniumWrapper
             this.timerhotkey.Start();
             this.thread = new System.Threading.Thread(new System.Threading.ThreadStart(() =>{
                 try {
-                    action();
+                    this.action();
                     while(match ^ ObjectEquals(this.result,expected)){
                         Thread.Sleep(10);
-                        action();
+                        this.action();
                     }
                 }catch (System.Exception ex) { this.error = ex.Message; }
             }));
@@ -148,6 +160,7 @@ namespace SeleniumWrapper
             if (this.canceled) throw new ApplicationException("Code execution has been interrupted");
             if (!succed) throw new ApplicationException(GetErrorPrifix(this.action) + "\nexpected" + (match ? "=" : "!=") + "<" + expected.ToString() + ">\nresult=<" + this.result.ToString() + ">\nTimed out running command after " + this.Timeout + " milliseconds");
             if (this.error != null) throw new ApplicationException(GetErrorPrifix(this.action) + " expected" + (match ? "=" : "!=") + "<" + expected.ToString() + "> result=<" + this.result.ToString() + ">\n" + this.error);
+            //if (EndOfCommand != null) EndOfCommand();
         }
 
         private void InvokeWdAssert(Action action, Object expected, bool match){

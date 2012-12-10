@@ -5,8 +5,16 @@ using System.ComponentModel;
 
 namespace SeleniumWrapper
 {
+
+    [Guid("0CBCED71-4792-46BD-A527-8663BF7D9592")]
+    [ComVisible(true), InterfaceType(ComInterfaceType.InterfaceIsIDispatch)]
+    public interface WebDriverEvents
+    {
+        //void EndOfCommand();
+    }
+
     [Guid("24cd39f2-f552-4a61-82fe-cc6284398aa5")]
-    [ComVisible(true)]
+    [ComVisible(true), InterfaceType(ComInterfaceType.InterfaceIsDual)]
     public partial interface IWebDriver
     {
         [Description("Specifies the amount of time the driver should wait when searching for an element if it is not immediately present.")]
