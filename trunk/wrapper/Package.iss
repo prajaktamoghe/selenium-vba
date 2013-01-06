@@ -6,7 +6,7 @@
 #define MyAppPublisher "Florent BREHERET"
 #define MyAppURL "http://code.google.com/p/selenium-vba/"
 #define MyVersion() ParseVersion(".\bin\Release\SeleniumWrapper.dll", Local[0], Local[1], Local[2], Local[3]), Str(Local[0]) + "." + Str(Local[1]) + "." + Str(Local[2]);
-
+#define XPIVersion "1.0.7.0"
     
 [Setup]
 AppId={#MyAppName}
@@ -48,7 +48,7 @@ Source: ".\QuickTest.vbs"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\Examples\*.*"; DestDir: "{app}\Examples"; Flags: ignoreversion skipifsourcedoesntexist overwritereadonly ; Attribs:readonly
 Source: ".\Templates\*.dot" ; DestDir: "{app}\Templates"; Flags: ignoreversion skipifsourcedoesntexist overwritereadonly ; Attribs:readonly
 Source: ".\Templates\*.xlt" ; DestDir: "{app}\Templates"; Flags: ignoreversion skipifsourcedoesntexist overwritereadonly ; Attribs:readonly
-Source: "..\formatters\SeleniumVbFormatters-{#MyAppVersion}.xpi" ; DestDir: "{app}";
+Source: "..\formatters\SeleniumVbFormatters-{#XPIVersion}.xpi" ; DestDir: "{app}";
 Source: ".\exe.config" ; DestDir: "{win}\SYSTEM32"; DestName: "wscript.exe.config"; Flags: ignoreversion uninsneveruninstall
 Source: ".\exe.config" ; DestDir: "{code:GetAppFolder|Excel.Application}"; DestName: "excel.exe.config"; Flags: ignoreversion uninsneveruninstall
 Source: ".\exe.config" ; DestDir: "{code:GetAppFolder|Word.Application}"; DestName: "winword.exe.config"; Flags: ignoreversion uninsneveruninstall
@@ -68,14 +68,18 @@ Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
 
 [Registry]
 ;clean com objects in the registry
-Root: HKCR; Subkey: "{{E57E03DE-C7FE-4C12-85C8-EC8B32DFFB86}"; Flags: deletekey 
-Root: HKCR; Subkey: "SeleniumWrapper.Assembly"; Flags: deletekey 
-Root: HKCR; Subkey: "{{5BDDC122-7092-453F-8486-DBC455180DE3}"; Flags: deletekey 
-Root: HKCR; Subkey: "SeleniumWrapper.PdfFile"; Flags: deletekey 
-Root: HKCR; Subkey: "{{980551C8-0DEB-4774-8A07-CDCD9EB97FD6}"; Flags: deletekey 
-Root: HKCR; Subkey: "SeleniumWrapper.WebDriver"; Flags: deletekey 
-Root: HKCR; Subkey: "{{432B62A5-6F09-45CE-B10E-E3CCFFAB4234}"; Flags: deletekey 
-;Fix for KB907417
+Root: HKCR; Subkey: "CLSID\{{E57E03DE-C7FE-4C12-85C8-EC8B32DFFB86}"; Flags: deletekey uninsdeletekey
+Root: HKCR; Subkey: "Wow6432Node\CLSID\{{E57E03DE-C7FE-4C12-85C8-EC8B32DFFB86}"; Flags: deletekey uninsdeletekey
+Root: HKCR; Subkey: "SeleniumWrapper.Assembly"; Flags: deletekey uninsdeletekey
+Root: HKCR; Subkey: "CLSID\{{5BDDC122-7092-453F-8486-DBC455180DE3}"; Flags: deletekey uninsdeletekey
+Root: HKCR; Subkey: "Wow6432Node\CLSID\{{5BDDC122-7092-453F-8486-DBC455180DE3}"; Flags: deletekey uninsdeletekey
+Root: HKCR; Subkey: "SeleniumWrapper.PdfFile"; Flags: deletekey uninsdeletekey
+Root: HKCR; Subkey: "CLSID\{{980551C8-0DEB-4774-8A07-CDCD9EB97FD6}"; Flags: deletekey uninsdeletekey
+Root: HKCR; Subkey: "Wow6432Node\CLSID\{{980551C8-0DEB-4774-8A07-CDCD9EB97FD6}"; Flags: deletekey uninsdeletekey
+Root: HKCR; Subkey: "SeleniumWrapper.WebDriver"; Flags: deletekey uninsdeletekey
+Root: HKCR; Subkey: "CLSID\{{432B62A5-6F09-45CE-B10E-E3CCFFAB4234}"; Flags: deletekey uninsdeletekey
+Root: HKCR; Subkey: "Wow6432Node\CLSID\{{432B62A5-6F09-45CE-B10E-E3CCFFAB4234}"; Flags: deletekey uninsdeletekey
+;Fix for KB907417 / get around with exe.config 
 ;Root: HKLM; Subkey: "SOFTWARE\Microsoft\.NETFramework\Policy\AppPatch\v2.0.50727.00000\excel.exe"; Flags: deletekey
 ;Root: HKLM; Subkey: "SOFTWARE\Microsoft\.NETFramework\Policy\AppPatch\v2.0.50727.00000\winword.exe"; Flags: deletekey
 

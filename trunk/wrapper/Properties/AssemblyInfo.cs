@@ -32,8 +32,8 @@ using System.ComponentModel;
 //
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
-[assembly: AssemblyVersion("1.0.7.0")]
-[assembly: AssemblyFileVersion("1.0.7.0")]
+[assembly: AssemblyVersion("2.0.0.0")]
+[assembly: AssemblyFileVersion("1.0.8.0")]
 
 namespace SeleniumWrapper
 {
@@ -52,7 +52,8 @@ namespace SeleniumWrapper
         {
             try
             {
-                return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+                //return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+                return System.Diagnostics.FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetExecutingAssembly().Location).FileVersion.ToString();
             }
             catch (System.Exception)
             {
