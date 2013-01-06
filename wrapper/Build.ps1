@@ -63,7 +63,7 @@ Get-Variable -name *_path | ForEach {if(!(test-path $_.Value)){write-host("  Err
 Get-Alias -name cmd-* | ForEach {if(!(test-path $_.Definition)){write-host("  Error : Program " + $_.Name + "=""" + $_.Definition + """ not found") -ForegroundColor Red;}}
 
 #Get the version from update.rdf and subversion URL
-$CurrentVersion = (([regex]::matches((get-content $CurrentVersion_path), "AssemblyVersion\(""([\.\d]+)\""\)"))[0]).Groups[1].Value;
+$CurrentVersion = (([regex]::matches((get-content $CurrentVersion_path), "AssemblyFileVersion\(""([\.\d]+)\""\)"))[0]).Groups[1].Value;
 
 #Get last compilation date
 $LastCompil_date = if ((test-path($CurrentVersion_path)) -eq 1){(get-item( $CurrentVersion_path )).LastWriteTime}
@@ -83,7 +83,7 @@ write-host ""
 write-host "   New version : " $NewVersion
 write-host ""
 write-host "   ** Update the version in AssemblyInfo.cs ..."
-		(get-content $CurrentVersion_path ) | %{$_ -replace "Version\(""[^\)]+""\)", "Version(""$NewVersion"")" } | Set-Content -path $CurrentVersion_path
+		(get-content $CurrentVersion_path ) | %{$_ -replace "AssemblyFileVersion\(""[^\)]+""\)", "AssemblyFileVersion(""$NewVersion"")" } | Set-Content -path $CurrentVersion_path
 
 write-host ""
 write-host "   ** Msbuild compile sources ..."
