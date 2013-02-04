@@ -1,5 +1,8 @@
-
-this.name = "vbs-wdb";
+/*
+ * Formatter for Selenium / Remote Control VBS client.
+ */
+ 
+this.name = "vbs-rc";
 
 function decodeText(text) {
 	text = text.replace(/¤/g, '"');
