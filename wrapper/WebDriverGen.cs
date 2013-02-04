@@ -1,7 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using System.Text;
 
 namespace SeleniumWrapper
 {
@@ -191,8 +188,8 @@ namespace SeleniumWrapper
 		public void mouseMoveAt(String locator, String coordString){InvokeWd(()=>webDriverBacked.MouseMoveAt(locator, coordString));}
 		public void mouseMoveAtAndWait(String locator, String coordString){InvokeWdAndWait(()=>webDriverBacked.MouseMoveAt(locator, coordString));}
 		/// <summary>Sets the value of an input field, as though you typed it in. Can also be used to set the value of combo boxes, check boxes, etc. In these cases, value should be the value of the option selected, not the visible text.an element locatorthe value to type</summary>
-		public void type(String locator, String value){InvokeWd(()=>webDriverBacked.Type(locator, value));}
-		public void typeAndWait(String locator, String value){InvokeWdAndWait(()=>webDriverBacked.Type(locator, value));}
+        public void type(String locator, String value) { InvokeWd(() => webDriverBacked.Type(locator, value)); }
+        public void typeAndWait(String locator, String value){InvokeWdAndWait(()=>webDriverBacked.Type(locator, value));}
 		/// <summary>Simulates keystroke events on the specified element, as though you typed the value key-by-key. This is a convenience method for calling keyDown, keyUp, keyPress for every character in the specified string; this is useful for dynamic UI widgets (like auto-completing combo boxes) that require explicit key events.Unlike the simple \"type\" command, which forces the specified value into the page directly, this command may or may not have any visible effect, even in cases where typing keys would normally have a visible effect. For example, if you use \"typeKeys\" on a form element, you may or may not see the results of what you typed in the field.In some cases, you may need to use the simple \"type\" command to set the value of the field and then the \"typeKeys\" command to send the keystroke events corresponding to what you just typed.an element locatorthe value to type</summary>
 		public void typeKeys(String locator, String value){InvokeWd(()=>webDriverBacked.TypeKeys(locator, value));}
 		public void typeKeysAndWait(String locator, String value){InvokeWdAndWait(()=>webDriverBacked.TypeKeys(locator, value));}
@@ -266,8 +263,6 @@ namespace SeleniumWrapper
 		public void refresh(){InvokeWd(()=>webDriverBacked.Refresh());}
 		public void refreshAndWait(){InvokeWdAndWait(()=>webDriverBacked.Refresh());}
 		/// <summary>Simulates the user clicking the \"close\" button in the titlebar of a popup window or tab. </summary>
-		public void close(){InvokeWd(()=>webDriverBacked.Close());}
-		/// <summary>Has an alert occurred? This function never throws an exception true if there is an alert</summary>
 		public Boolean isAlertPresent(){ return (Boolean)InvokeWd(()=>this.result=webDriverBacked.IsAlertPresent());}
 		public void assertAlertPresent(){InvokeWdAssert(()=>this.result=webDriverBacked.IsAlertPresent(),true,true);}
 		public String verifyAlertPresent(){return InvokeWdVerify(()=>this.result=webDriverBacked.IsAlertPresent(),true,true);}

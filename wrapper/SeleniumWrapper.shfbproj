@@ -34,8 +34,17 @@
 		<ApiFilter>
 			<Filter entryType="Namespace" fullName="SeleniumWrapper" isExposed="False" xmlns="">
 				<Filter entryType="Class" fullName="SeleniumWrapper.WebDriver" filterName="WebDriver" isExposed="True" />
+				<Filter entryType="Class" fullName="SeleniumWrapper.WebElement" filterName="WebElement" isExposed="True" />
 				<Filter entryType="Class" fullName="SeleniumWrapper.PdfFile" filterName="PdfFile" isExposed="True" />
-				<Filter entryType="Class" fullName="SeleniumWrapper.PdfFile" filterName="PdfFile" isExposed="True" />
+				<Filter entryType="Class" fullName="SeleniumWrapper.Image" filterName="Image" isExposed="True" />
+				<Filter entryType="Class" fullName="SeleniumWrapper.Select" filterName="Select" isExposed="True" />
+				<Filter entryType="Class" fullName="SeleniumWrapper.Keys" filterName="Keys" isExposed="True" />
+				<Filter entryType="Class" fullName="SeleniumWrapper.By" filterName="By" isExposed="True" />
+				<Filter entryType="Class" fullName="SeleniumWrapper.Utils" filterName="Utils" isExposed="True" />
+				<Filter entryType="Class" fullName="SeleniumWrapper.Assert" filterName="Assert" isExposed="True" />
+				<Filter entryType="Class" fullName="SeleniumWrapper.Verify" filterName="Verify" isExposed="True" />
+				<Filter entryType="Class" fullName="SeleniumWrapper.Alert" filterName="Alert" isExposed="True" />
+				<Filter entryType="Class" fullName="SeleniumWrapper.Waiter" filterName="Waiter" isExposed="True" />
 			</Filter>
 		</ApiFilter>
 		<SelfBranded>False</SelfBranded>

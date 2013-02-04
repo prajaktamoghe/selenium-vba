@@ -9,7 +9,7 @@ using System.ComponentModel;
 [assembly: AssemblyTitle("Selenium Wrapper")]
 [assembly: AssemblyDescription("SeleniumWrapper Type Library")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Florent Breheret")]
+[assembly: AssemblyCompany("Florent BREHERET")]
 [assembly: AssemblyProduct("SeleniumWrapper")]
 [assembly: AssemblyCopyright("Copyright © Florent Breheret 2012")]
 [assembly: AssemblyTrademark("")]
@@ -33,7 +33,7 @@ using System.ComponentModel;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 [assembly: AssemblyVersion("2.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.8.0")]
+[assembly: AssemblyFileVersion("1.0.9.0")]
 
 namespace SeleniumWrapper
 {
