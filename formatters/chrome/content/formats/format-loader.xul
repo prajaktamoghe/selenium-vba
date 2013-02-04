@@ -5,12 +5,14 @@
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
          xmlns:html="http://www.w3.org/1999/xhtml">
     <script type="application/x-javascript" src="chrome://selenium-ide/content/api.js"/>
-    <script type="application/x-javascript" src="chrome://vb-formatters/content/formats/vba-wdb.js"/>
-    <script type="application/x-javascript" src="chrome://vb-formatters/content/formats/vbs-wdb.js"/>
+    <script type="application/x-javascript" src="chrome://vb-formatters/content/formats/vba-rc.js"/>
+    <script type="application/x-javascript" src="chrome://vb-formatters/content/formats/vbs-rc.js"/>
     <html:script type="application/javascript">
         var ide_api = new API();
         ide_api.addPlugin("vbformatters@florent.breheret");
-        ide_api.addPluginProvidedFormatter("vbaformatter", "VBA (WebDriver Backed)", "chrome://vb-formatters/content/formats/vba-wdb.js");
-        ide_api.addPluginProvidedFormatter("vbsformatter", "VBS (WebDriver Backed)", "chrome://vb-formatters/content/formats/vbs-wdb.js");
+        ide_api.addPluginProvidedFormatter("vbarcformatter", "VBA / Remote Control", "chrome://vb-formatters/content/formats/vba-rc.js");
+        ide_api.addPluginProvidedFormatter("vbsrcformatter", "VBS / Remote Control", "chrome://vb-formatters/content/formats/vbs-rc.js");
+        ide_api.addPluginProvidedFormatter("vbawdformatter", "VBA / WebDriver", "chrome://vb-formatters/content/formats/vba-wd.js");
+        ide_api.addPluginProvidedFormatter("vbswdformatter", "VBS / WebDriver", "chrome://vb-formatters/content/formats/vbs-wd.js");
     </html:script>
 </overlay>

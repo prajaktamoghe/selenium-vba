@@ -1,10 +1,22 @@
-
+/*
+ * Formatter for Selenium / Remote Control VBA client.
+ */
+ 
 SeleniumIDE.Preferences.setString("enableExperimentalFeatures", "true");
 SeleniumIDE.Preferences.setString("disableFormatChangeMsg", "true");
-editor.app.options['enableExperimentalFeatures']='true';
-editor.app.options['disableFormatChangeMsg']='true';
 
-this.name = "vba-wdb";
+if(typeof(SeleniumIDE.Loader)!='undefined'){
+	if(SeleniumIDE.Loader.getTopEditor()!=null){
+		SeleniumIDE.Loader.getTopEditor().app.options['enableExperimentalFeatures']='true';
+		SeleniumIDE.Loader.getTopEditor().app.options['disableFormatChangeMsg']='true';
+	}
+}
+if(typeof(editor)!='undefined'){
+	editor.app.options['enableExperimentalFeatures']='true';
+	editor.app.options['disableFormatChangeMsg']='true';
+}
+
+this.name = "vba-rc";
 
 function decodeText(text) {
 	text = text.replace(/¤/g, '"');
@@ -26,8 +38,8 @@ function convertText(command, converter) {
  * @param source The source to parse
  */
 function parse(testCase, source) {
-	var cmdStart = options["instance"] + ".start";
-	var cmdStop = options["instance"] + ".stop";
+	var cmdStart = options["receiver"] + ".start";
+	var cmdStop = options["receiver"] + ".stop";
 	var startIndex = source.toLowerCase().indexOf( cmdStart.toLowerCase() );
 	var stopIndex = source.toLowerCase().indexOf( cmdStop.toLowerCase() );
 	if(startIndex==-1) throw cmdStart + " is missing !";
@@ -43,7 +55,7 @@ function parse(testCase, source) {
 			.replace(/(\w+[^"]) & ([^"]\w+)/g, '"$1$2"')
 			.replace(/" & "/g, '');
 	
-	var commandRegexp = new RegExp('((\\w+) *=)? *' + options["instance"] + '\\.(\\w+)([\\( ](\"[^\"]*\"|[\\w\\.]+)(\\, *(\"[^\"]*\"|[\\w\\.]+))?)?');
+	var commandRegexp = new RegExp('((\\w+) *=)? *' + options["receiver"] + '\\.(\\w+)([\\( ](\"[^\"]*\"|[\\w\\.]+)(\\, *(\"[^\"]*\"|[\\w\\.]+))?)?');
 	var commentRegexp = new RegExp("\\' *([^\\n]+)");
 	var storevalueRegexp = new RegExp('(\\w+) *= *(\"[^\"]*\")');
 	var commandOrCommentOrStoreRegexp = new RegExp("(" + storevalueRegexp.source + ")|(" + commandRegexp.source + ")|(" + commentRegexp.source + ")", 'g');
@@ -141,12 +153,12 @@ function getSourceForCommand(commandObj) {
 			}
 			template = options.commandTemplate.replace(/\$\{command\}/g,
 				(command.value != '' ? command.value : command.target) + " = "
-				+ options["instance"] + "." + command.command + '('
+				+ options["receiver"] + "." + command.command + '('
 				+ (command.value != '' ? command.target.replace(/(^[^]+)/g, '"$1"') : '' ) + ')'
 			);
 		}else{
 			template = options.commandTemplate.replace(/\$\{command\}/g, 
-				options["instance"] + "." + command.command
+				options["receiver"] + "." + command.command
 				+ ( command.target.match(/^[\d\.]+$/g) ? ' ' + command.target : command.target.replace(/(^[^]+)/g, ' "$1"') )
 				+ ( command.value.match(/^[\d\.]+$/g) ? ', ' + command.value : command.value.replace(/(^[^]+)/g, ', "$1"') )
 			);
@@ -210,7 +222,7 @@ function format(testCase, name, saveHeaderAndFooter, useDefaultHeaderAndFooter) 
 	testText = options.testTemplate;
 	testText = testText.replace(/\$\{name\}/g, TCname.replace(/\s/, '_')).
 		replace(/\$\{baseURL\}/g, testCase.getBaseURL()).
-		replace(/\$\{instance\}/g, options["instance"]).
+		replace(/\$\{receiver\}/g, options["receiver"]).
 		replace(/\$\{browser\}/g, options["browser"]);
 		
 	var commandsIndex = testText.indexOf("${commands}");
@@ -227,14 +239,14 @@ function format(testCase, name, saveHeaderAndFooter, useDefaultHeaderAndFooter) 
  */
 
 this.options = {
-	instance: "selenium",
+	receiver: "selenium",
 	browser: "firefox",
 	testTemplate:
 	'Public Sub ${name}()\n' +
-	'  Dim ${instance} As New SeleniumWrapper.WebDriver\n' +
-	'  ${instance}.start "${browser}", "${baseURL}"\n\n' +
+	'  Dim ${receiver} As New SeleniumWrapper.WebDriver\n' +
+	'  ${receiver}.start "${browser}", "${baseURL}"\n\n' +
 	'${commands}\n'+
-	'  ${instance}.stop\n' +
+	'  ${receiver}.stop\n' +
 	"End Sub",
 	suiteTemplate:
 	'Public Sub ${name}()\n' +
@@ -245,8 +257,8 @@ this.options = {
 };
 
 this.configForm = 
-	'<description>Instance</description>' +
-	'<textbox id="options_instance" />' +
+	'<description>Variable for Selenium receiver</description>' +
+	'<textbox id="options_receiver" />' +
 	'<description>Browser</description>' +
 	'<textbox id="options_browser" />' +
 	'<separator class="groove"/>' +
