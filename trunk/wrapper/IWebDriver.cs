@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Text;
-using System.Runtime.InteropServices;
 using System.ComponentModel;
+using System.Runtime.InteropServices;
 
 namespace SeleniumWrapper
 {
-
     [Guid("0CBCED71-4792-46BD-A527-8663BF7D9592")]
     [ComVisible(true), InterfaceType(ComInterfaceType.InterfaceIsIDispatch)]
     public interface WebDriverEvents
@@ -23,14 +21,29 @@ namespace SeleniumWrapper
         [Description("Specifies the amount of time that Selenium will wait for actions to complete. The default timeout is 30 seconds.")]
         void setTimeout(int timeout_ms);
 
-        [Description("Set a specific preference for Firefox")]
-        void setPreference (string parameter, object value);
+        [Description("Specifies or get the amount of time that Selenium will wait for actions to complete. The default timeout is 30 seconds.")]
+        int Timeout{get;set;}
+
+        [Description("Set a specific profile directory (Firefox and Chrome) or profile name (Firefox only)")]
+        void setProfile(string directory);
+
+        [Description("Set a specific preference")]
+        void setPreference(string key, object value);
+
+        [Description("Set a specific capability")]
+        void setCapability(string key, object value);
+
+        [Description("Add an extension to the browser (For Firefox and Chrome only)")]
+        void addExtension(string extensionPath);
+
+        [Description("Set a specific proxy")]
+        void setProxy(string url, bool isAutoConfigURL);
 
         [Description("Starts a new Selenium session")]
         void start(String browser, String url, [Optional][DefaultParameterValue("")]String directory);
 
         [Description("Starts remotely a new Selenium session")]
-        void startRemotely(String browser, String remoteAddress, String url, [Optional][DefaultParameterValue(true)]Boolean javascriptEnabled);
+        void startRemotely(String browser, String remoteAddress, String url);
 
         [Description("Opens an URL in the test frame. This accepts both relative and absolute URLs.")]
         void open(String url);
@@ -41,27 +54,27 @@ namespace SeleniumWrapper
         [Description("Wait the specified time in millisecond before executing the next command")]
         void pause(int time_ms);
 
-        [Description("Returns a string with the result of the verification ( <OK> or <KO, ...> )")]
-        String verifyEqual(Object expected, Object current);
+        [Description("Wait the specified time in millisecond before executing the next command")]
+        void sleep(int time_ms);
 
-        [Description("Returns a string with the result of the verification ( <OK> or <KO, ...> )")]
-        String verifyNotEqual(Object expected, Object current);
-
-        [Description("Raise an error if the assertion fails")]
-        void assertEqual(Object expected, Object current);
-
-        [Description("Raise an error if the assertion fails")]
-        void assertNotEqual(Object expected, Object current);
-
-        [Description("Capture a screenshot to the Clipboard")]
+        [Description("Deprecated. Use getScreenshot().Copy() instead")]
         void captureScreenshotToClipboard();
 
-        [Description("Capture a screenshot")]
+        [Description("Deprecated. Use getScreenshot() instead")]
         [return: MarshalAs(UnmanagedType.IUnknown)]
         object captureScreenshotToImage();
 
+        [Description("Capture a screenshot")]
+        Image getScreenshot();
+
+        //[Description("Gets the screenshot of the current window to the Clipboard")]
+        //void copyScreenshot();
+
         [Description("Execute JavaScrip on the page")]
         Object executeScript(String script, [Optional][DefaultParameterValue(null)]Object arguments);
+
+        [Description("")]
+        Alert Alert { get; }
 
         [Description("Undo the effect of calling chooseCancelOnNextConfirmation. Note that Selenium's overridden window.confirm() function will normally automatically return true, as if the user had manually clicked OK, so you shouldn't need to use this command unless for some reason you need to change your mind prior to the next confirmation. After any confirmation, Selenium will resume using the default behavior for future confirmations, automatically returning true (OK) unless/until you explicitly call chooseCancelOnNextConfirmation for each confirmation.  Take note - every time a confirmation comes up, you must consume it with a corresponding getConfirmation, or else the next selenium operation will fail.")]
         void chooseOkOnNextConfirmation();
@@ -73,7 +86,10 @@ namespace SeleniumWrapper
         void windowMaximize();
 
         [Description("Returns the page source")]
-        String pageSource { get; }
+        String PageSource { get; }
+
+        [Description("Find the first WebElement using the given method.")]
+        WebElement findElement(ref object by, [Optional][DefaultParameterValue(0)]int timeoutms);
 
         [Description("Finds the first element matching the specified name.")]
         WebElement findElementByName(String name, [Optional][DefaultParameterValue(0)]int timeoutms);
@@ -98,6 +114,12 @@ namespace SeleniumWrapper
 
         [Description("Finds the first element matching the specified tag name.")]
         WebElement findElementByTagName(String tagname, [Optional][DefaultParameterValue(0)]int timeoutms);
+        
+        [Description("Indicates whether a WebElement is present using the given method.")]
+        bool isElementPresent(ref object by, [Optional][DefaultParameterValue(0)]int timeoutms);
+
+        [Description("Find all elements within the current context using the given mechanism.")]
+        WebElement[] findElements(ref object by, int timeoutms);
 
         [Description("Finds elements matching the specified name.")]
         WebElement[] findElementsByName(String name, [Optional][DefaultParameterValue(0)]int timeoutms);
@@ -123,20 +145,22 @@ namespace SeleniumWrapper
         [Description("Finds elements matching the specified tag name.")]
         WebElement[] findElementsByTagName(String tagname, [Optional][DefaultParameterValue(0)]int timeoutms);
 
+        [Description("Returns the page tile")]
+        string Title{get;}
+
         [Description("Load a new web page in the current browser window.")]
         void get(String url);
 
         [Description("Sends a sequence of keystrokes to the browser.")]
         void sendKeys(string keysToSend);
 
+        [Description("Returns the current Url.")]
+        string Url{get;}
+
         [Description("Indicates whether the regular expression finds a match in the input string")]
-        bool isMatch(string input, string pattern);
+        bool isMatch(string pattern);
 
         [Description("Searches the input string for an occurrence of a regular expression with a specified input string")]
-        object match(string input, string pattern);
-
-        [Description("Within a specified input string, replaces all strings that match a regular expression pattern with a specified replacement string.")]
-        string replace(string value, string pattern, string replacement);
-
+        object match(string pattern);
     }
 }

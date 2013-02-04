@@ -2,6 +2,18 @@ Author : Florent BREHERET
 Contact : florentbr@gmail.com
 Website : http://code.google.com/p/selenium-vba
 
+v1.0.9.0 (2013/02/04)
+===============================================================================
+ * Added the PhantomJS headless web driver
+ * Updated Chrome Driver to version 26.0.1383
+ * Updated Selenium libraries to 2.29.1
+ * Updated IEDriverServer to 2.29.0
+ * Added setProxy, setProfile and setCapability methodes
+ * Added selenium 2 methodes
+ * Fixed Firefox Addon installation
+ * Added Selenium 2 formatting
+ * Refactored the PDF creation class
+ 
 v1.0.8.0 (2013/01/06)
 ===============================================================================
  * Fixed version issue (old workbooks weren't using the new driver version)

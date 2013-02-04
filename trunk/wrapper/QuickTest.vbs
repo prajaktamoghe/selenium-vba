@@ -8,10 +8,10 @@ set obj = CreateObject("SeleniumWrapper.Assembly")
 If Err = 0 Then
 	ret = obj.GetVersion()
 	If Err = 0 Then
-		If MsgBox("Version of SeleniumWrapper is : " & ret & vbCr & "Launch Internet Explorer and search <Eiffel tower> ?", vbYesNo) = vbYes then
+		If MsgBox("Version of SeleniumWrapper is : " & ret & vbCr & "Launch browser and search <Eiffel tower> ?", vbYesNo) = vbYes then
 			on error goto 0
 			Set selenium = CreateObject("SeleniumWrapper.WebDriver")
-			selenium.start "ie", "http://www.google.com"
+			selenium.start "firefox", "http://www.google.com"
 			selenium.windowMaximize
 			selenium.open "/"
 			selenium.type "name=q", "Eiffel tower"
@@ -19,7 +19,7 @@ If Err = 0 Then
 			'selenium.click "name=btnG"
 			selenium.keyPress "name=q", "\13"
 			selenium.wait 100
-			selenium.captureScreenshotToClipboard
+			selenium.getScreenshot().Copy
 			title = selenium.getTitle()
 			wscript.echo "Page title was : " & title & vbCr & "A website screenshoot has been sent to the clipboard" 
 			selenium.stop
