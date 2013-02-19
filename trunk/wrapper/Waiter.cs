@@ -4,6 +4,20 @@ using System.Runtime.InteropServices;
 
 namespace SeleniumWrapper
 {
+    [Guid("159495B0-A903-4FA5-873E-384C7E50EFA8")]
+    [ComVisible(true)]
+    public interface IWaiter{
+
+        [Description("Returns a boolean to continue waiting and throws an exception if the timeout is reached")]
+        bool Until(bool condition, [Optional][DefaultParameterValue("")]string timeoutmessage);
+
+        [Description("Returns a boolean to continue waiting and throws an exception if the timeout is reached")]
+        bool UntilNot(bool condition, [Optional][DefaultParameterValue("")]string timeoutmessage);
+
+        [Description("Set the waiter timeout. Default is 30000 milliseconds")]
+        int Timeout{get; set;}
+    }
+
 
     /// <summary>Waiting functions to keep the visual basic editor from not responding</summary>
     /// <example>
@@ -22,26 +36,12 @@ namespace SeleniumWrapper
     /// </example>
     ///
 
-    [Guid("159495B0-A903-4FA5-873E-384C7E50EFA8")]
-    [ComVisible(true)]
-    public interface IWaiter{
-
-        [Description("Returns a boolean to continue waiting and throws an exception if the timeout is reached")]
-        bool Until(bool condition, [Optional][DefaultParameterValue("")]string timeoutmessage);
-
-        [Description("Returns a boolean to continue waiting and throws an exception if the timeout is reached")]
-        bool UntilNot(bool condition, [Optional][DefaultParameterValue("")]string timeoutmessage);
-
-        [Description("Set the waiter timeout. Default is 30000 milliseconds")]
-        int Timeout{get; set;}
-    }
-
-    [Description("")]
+    [Description("Waiting functions to keep the visual basic editor from not responding")]
     [Guid("4A1829E7-800A-450E-86F9-7D30CBC3F6BB")]
     [ComVisible(true), ComDefaultInterface(typeof(IWaiter)), ClassInterface(ClassInterfaceType.None)]
     public class Waiter : IWaiter
     {
-        private object start;
+        private object end;
         private double timeout = 30000;
         
         /// <summary>Waiter timeout in millisecond. Default is 30000 milliseconds</summary>
@@ -53,7 +53,7 @@ namespace SeleniumWrapper
 
 
         /// <summary>Returns true once the time to wait is over</summary>
-        /// <param name="time_ms">Time to wait in milliseconde</param>
+        /// <param name="timems">Time to wait in milliseconde</param>
         /// <returns>Returns false if the time to wait is over</returns>
         /// <example>
         /// 
@@ -68,12 +68,12 @@ namespace SeleniumWrapper
         /// </code>
         /// 
         /// </example>
-        public bool Sleep(int time_ms){
-            if(this.start == null){
-                this.start = DateTime.Now;
+        public bool Sleep(int timems){
+            if(this.end == null){
+                this.end = DateTime.Now.AddMilliseconds(timems);
             }else{
-                if( (DateTime.Now - (DateTime)this.start).TotalMilliseconds > time_ms ){
-                    this.start = null;
+                if( DateTime.Now > (DateTime)this.end ){
+                    this.end = null;
                     return false;
                 }
                 System.Threading.Thread.Sleep(25);
@@ -100,17 +100,17 @@ namespace SeleniumWrapper
         /// 
         /// </example>
         public bool Until(bool condition, [Optional][DefaultParameterValue(null)]string timeoutmessage){
-            if(this.start == null){
-                this.start = DateTime.Now;
+            if(this.end == null){
+                this.end = DateTime.Now.AddMilliseconds(this.timeout);
             }else{
-                if( (DateTime.Now - (DateTime)this.start).TotalMilliseconds > this.timeout){
-                    this.start = null;
+                if( DateTime.Now > (DateTime)this.end ){
+                    this.end = null;
                     throw new TimeoutException(String.IsNullOrEmpty(timeoutmessage) ? "The operation has timed out!" : timeoutmessage);
                 }
                 System.Threading.Thread.Sleep(25);
             }
             if((bool)condition){
-                this.start = null;
+                this.end = null;
                 return false;
             }else{
                 return true;

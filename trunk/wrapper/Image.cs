@@ -22,8 +22,11 @@ namespace SeleniumWrapper
         string Signature{get;}
     }
 
+    /// <summary>
+    /// Screenshot of a web page or web element.
+    /// </summary>
 
-    [Description("Screenshot of a web page")]
+    [Description("Screenshot of a web page or web element.")]
     [Guid("3968EF67-AB74-4ADD-82E7-2853F52DAD14")]
     [ComVisible(true), ComDefaultInterface(typeof(IImage)), ClassInterface(ClassInterfaceType.None)]
     public class Image : IImage

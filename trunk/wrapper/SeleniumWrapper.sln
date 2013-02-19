@@ -7,7 +7,21 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InterfaceGeneration", "..\i
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "..\Tests\Tests.csproj", "{FB070E01-ACF3-43B6-B824-51984E394661}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SeleniumWrapper.Tests", "..\SeleniumWrapper.Tests\SeleniumWrapper.Tests.csproj", "{AE76EDD6-EED7-49D4-986D-EA42BA2BEA9B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0E558592-66EF-45C3-9C26-41A1F0253D10}"
+	ProjectSection(SolutionItems) = preProject
+		Local.testsettings = Local.testsettings
+		SeleniumWrapper.vsmdi = SeleniumWrapper.vsmdi
+		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestApp", "..\TestApp\TestApp.csproj", "{7655EB61-C600-46F3-886B-B2DE0DD0F1AB}"
+EndProject
 Global
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = SeleniumWrapper.vsmdi
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|Mixed Platforms = Debug|Mixed Platforms
@@ -18,6 +32,9 @@ Global
 		DebugVBScript|Any CPU = DebugVBScript|Any CPU
 		DebugVBScript|Mixed Platforms = DebugVBScript|Mixed Platforms
 		DebugVBScript|x86 = DebugVBScript|x86
+		Generate|Any CPU = Generate|Any CPU
+		Generate|Mixed Platforms = Generate|Mixed Platforms
+		Generate|x86 = Generate|x86
 		Release|Any CPU = Release|Any CPU
 		Release|Mixed Platforms = Release|Mixed Platforms
 		Release|x86 = Release|x86
@@ -38,6 +55,10 @@ Global
 		{C6044AEF-15CC-4DCE-A481-CE021AA9EEFF}.DebugVBScript|Mixed Platforms.ActiveCfg = Debug|Any CPU
 		{C6044AEF-15CC-4DCE-A481-CE021AA9EEFF}.DebugVBScript|Mixed Platforms.Build.0 = Debug|Any CPU
 		{C6044AEF-15CC-4DCE-A481-CE021AA9EEFF}.DebugVBScript|x86.ActiveCfg = Debug|Any CPU
+		{C6044AEF-15CC-4DCE-A481-CE021AA9EEFF}.Generate|Any CPU.ActiveCfg = Generate|Any CPU
+		{C6044AEF-15CC-4DCE-A481-CE021AA9EEFF}.Generate|Any CPU.Build.0 = Generate|Any CPU
+		{C6044AEF-15CC-4DCE-A481-CE021AA9EEFF}.Generate|Mixed Platforms.ActiveCfg = Generate|Any CPU
+		{C6044AEF-15CC-4DCE-A481-CE021AA9EEFF}.Generate|x86.ActiveCfg = Generate|Any CPU
 		{C6044AEF-15CC-4DCE-A481-CE021AA9EEFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C6044AEF-15CC-4DCE-A481-CE021AA9EEFF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C6044AEF-15CC-4DCE-A481-CE021AA9EEFF}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
@@ -45,20 +66,22 @@ Global
 		{C6044AEF-15CC-4DCE-A481-CE021AA9EEFF}.Release|x86.ActiveCfg = Release|Any CPU
 		{C70B9103-6FA4-4C6B-A368-36A620C48980}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{C70B9103-6FA4-4C6B-A368-36A620C48980}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{C70B9103-6FA4-4C6B-A368-36A620C48980}.Debug|Mixed Platforms.Build.0 = Debug|x86
 		{C70B9103-6FA4-4C6B-A368-36A620C48980}.Debug|x86.ActiveCfg = Debug|x86
 		{C70B9103-6FA4-4C6B-A368-36A620C48980}.Debug|x86.Build.0 = Debug|x86
 		{C70B9103-6FA4-4C6B-A368-36A620C48980}.DebugExcel|Any CPU.ActiveCfg = Debug Excel|x86
 		{C70B9103-6FA4-4C6B-A368-36A620C48980}.DebugExcel|Mixed Platforms.ActiveCfg = Debug Excel|x86
-		{C70B9103-6FA4-4C6B-A368-36A620C48980}.DebugExcel|Mixed Platforms.Build.0 = Debug Excel|x86
 		{C70B9103-6FA4-4C6B-A368-36A620C48980}.DebugExcel|x86.ActiveCfg = Debug Excel|x86
 		{C70B9103-6FA4-4C6B-A368-36A620C48980}.DebugVBScript|Any CPU.ActiveCfg = Debug|x86
 		{C70B9103-6FA4-4C6B-A368-36A620C48980}.DebugVBScript|Mixed Platforms.ActiveCfg = Debug|x86
 		{C70B9103-6FA4-4C6B-A368-36A620C48980}.DebugVBScript|x86.ActiveCfg = Debug|x86
 		{C70B9103-6FA4-4C6B-A368-36A620C48980}.DebugVBScript|x86.Build.0 = Debug|x86
+		{C70B9103-6FA4-4C6B-A368-36A620C48980}.Generate|Any CPU.ActiveCfg = Generate|x86
+		{C70B9103-6FA4-4C6B-A368-36A620C48980}.Generate|Mixed Platforms.ActiveCfg = Generate|x86
+		{C70B9103-6FA4-4C6B-A368-36A620C48980}.Generate|Mixed Platforms.Build.0 = Generate|x86
+		{C70B9103-6FA4-4C6B-A368-36A620C48980}.Generate|x86.ActiveCfg = Generate|x86
+		{C70B9103-6FA4-4C6B-A368-36A620C48980}.Generate|x86.Build.0 = Generate|x86
 		{C70B9103-6FA4-4C6B-A368-36A620C48980}.Release|Any CPU.ActiveCfg = Release|x86
 		{C70B9103-6FA4-4C6B-A368-36A620C48980}.Release|Mixed Platforms.ActiveCfg = Release|x86
-		{C70B9103-6FA4-4C6B-A368-36A620C48980}.Release|Mixed Platforms.Build.0 = Release|x86
 		{C70B9103-6FA4-4C6B-A368-36A620C48980}.Release|x86.ActiveCfg = Release|x86
 		{C70B9103-6FA4-4C6B-A368-36A620C48980}.Release|x86.Build.0 = Release|x86
 		{FB070E01-ACF3-43B6-B824-51984E394661}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -76,11 +99,60 @@ Global
 		{FB070E01-ACF3-43B6-B824-51984E394661}.DebugVBScript|Mixed Platforms.ActiveCfg = Debug|Any CPU
 		{FB070E01-ACF3-43B6-B824-51984E394661}.DebugVBScript|Mixed Platforms.Build.0 = Debug|Any CPU
 		{FB070E01-ACF3-43B6-B824-51984E394661}.DebugVBScript|x86.ActiveCfg = Debug|Any CPU
+		{FB070E01-ACF3-43B6-B824-51984E394661}.Generate|Any CPU.ActiveCfg = Generate|Any CPU
+		{FB070E01-ACF3-43B6-B824-51984E394661}.Generate|Any CPU.Build.0 = Generate|Any CPU
+		{FB070E01-ACF3-43B6-B824-51984E394661}.Generate|Mixed Platforms.ActiveCfg = Generate|Any CPU
+		{FB070E01-ACF3-43B6-B824-51984E394661}.Generate|x86.ActiveCfg = Generate|Any CPU
 		{FB070E01-ACF3-43B6-B824-51984E394661}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FB070E01-ACF3-43B6-B824-51984E394661}.Release|Any CPU.Build.0 = Release|Any CPU
 		{FB070E01-ACF3-43B6-B824-51984E394661}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{FB070E01-ACF3-43B6-B824-51984E394661}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{FB070E01-ACF3-43B6-B824-51984E394661}.Release|x86.ActiveCfg = Release|Any CPU
+		{AE76EDD6-EED7-49D4-986D-EA42BA2BEA9B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE76EDD6-EED7-49D4-986D-EA42BA2BEA9B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AE76EDD6-EED7-49D4-986D-EA42BA2BEA9B}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{AE76EDD6-EED7-49D4-986D-EA42BA2BEA9B}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{AE76EDD6-EED7-49D4-986D-EA42BA2BEA9B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{AE76EDD6-EED7-49D4-986D-EA42BA2BEA9B}.DebugExcel|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE76EDD6-EED7-49D4-986D-EA42BA2BEA9B}.DebugExcel|Any CPU.Build.0 = Debug|Any CPU
+		{AE76EDD6-EED7-49D4-986D-EA42BA2BEA9B}.DebugExcel|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{AE76EDD6-EED7-49D4-986D-EA42BA2BEA9B}.DebugExcel|Mixed Platforms.Build.0 = Debug|Any CPU
+		{AE76EDD6-EED7-49D4-986D-EA42BA2BEA9B}.DebugExcel|x86.ActiveCfg = Debug|Any CPU
+		{AE76EDD6-EED7-49D4-986D-EA42BA2BEA9B}.DebugVBScript|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE76EDD6-EED7-49D4-986D-EA42BA2BEA9B}.DebugVBScript|Any CPU.Build.0 = Debug|Any CPU
+		{AE76EDD6-EED7-49D4-986D-EA42BA2BEA9B}.DebugVBScript|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{AE76EDD6-EED7-49D4-986D-EA42BA2BEA9B}.DebugVBScript|Mixed Platforms.Build.0 = Debug|Any CPU
+		{AE76EDD6-EED7-49D4-986D-EA42BA2BEA9B}.DebugVBScript|x86.ActiveCfg = Debug|Any CPU
+		{AE76EDD6-EED7-49D4-986D-EA42BA2BEA9B}.Generate|Any CPU.ActiveCfg = Generate|Any CPU
+		{AE76EDD6-EED7-49D4-986D-EA42BA2BEA9B}.Generate|Any CPU.Build.0 = Generate|Any CPU
+		{AE76EDD6-EED7-49D4-986D-EA42BA2BEA9B}.Generate|Mixed Platforms.ActiveCfg = Generate|Any CPU
+		{AE76EDD6-EED7-49D4-986D-EA42BA2BEA9B}.Generate|x86.ActiveCfg = Generate|Any CPU
+		{AE76EDD6-EED7-49D4-986D-EA42BA2BEA9B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AE76EDD6-EED7-49D4-986D-EA42BA2BEA9B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AE76EDD6-EED7-49D4-986D-EA42BA2BEA9B}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{AE76EDD6-EED7-49D4-986D-EA42BA2BEA9B}.Release|x86.ActiveCfg = Release|Any CPU
+		{7655EB61-C600-46F3-886B-B2DE0DD0F1AB}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{7655EB61-C600-46F3-886B-B2DE0DD0F1AB}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{7655EB61-C600-46F3-886B-B2DE0DD0F1AB}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{7655EB61-C600-46F3-886B-B2DE0DD0F1AB}.Debug|x86.ActiveCfg = Debug|x86
+		{7655EB61-C600-46F3-886B-B2DE0DD0F1AB}.Debug|x86.Build.0 = Debug|x86
+		{7655EB61-C600-46F3-886B-B2DE0DD0F1AB}.DebugExcel|Any CPU.ActiveCfg = Debug|x86
+		{7655EB61-C600-46F3-886B-B2DE0DD0F1AB}.DebugExcel|Mixed Platforms.ActiveCfg = Debug|x86
+		{7655EB61-C600-46F3-886B-B2DE0DD0F1AB}.DebugExcel|Mixed Platforms.Build.0 = Debug|x86
+		{7655EB61-C600-46F3-886B-B2DE0DD0F1AB}.DebugExcel|x86.ActiveCfg = Debug|x86
+		{7655EB61-C600-46F3-886B-B2DE0DD0F1AB}.DebugExcel|x86.Build.0 = Debug|x86
+		{7655EB61-C600-46F3-886B-B2DE0DD0F1AB}.DebugVBScript|Any CPU.ActiveCfg = Debug|x86
+		{7655EB61-C600-46F3-886B-B2DE0DD0F1AB}.DebugVBScript|Mixed Platforms.ActiveCfg = Debug|x86
+		{7655EB61-C600-46F3-886B-B2DE0DD0F1AB}.DebugVBScript|Mixed Platforms.Build.0 = Debug|x86
+		{7655EB61-C600-46F3-886B-B2DE0DD0F1AB}.DebugVBScript|x86.ActiveCfg = Debug|x86
+		{7655EB61-C600-46F3-886B-B2DE0DD0F1AB}.DebugVBScript|x86.Build.0 = Debug|x86
+		{7655EB61-C600-46F3-886B-B2DE0DD0F1AB}.Generate|Any CPU.ActiveCfg = Generate|x86
+		{7655EB61-C600-46F3-886B-B2DE0DD0F1AB}.Generate|Mixed Platforms.ActiveCfg = Generate|x86
+		{7655EB61-C600-46F3-886B-B2DE0DD0F1AB}.Generate|x86.ActiveCfg = Generate|x86
+		{7655EB61-C600-46F3-886B-B2DE0DD0F1AB}.Generate|x86.Build.0 = Generate|x86
+		{7655EB61-C600-46F3-886B-B2DE0DD0F1AB}.Release|Any CPU.ActiveCfg = Release|x86
+		{7655EB61-C600-46F3-886B-B2DE0DD0F1AB}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{7655EB61-C600-46F3-886B-B2DE0DD0F1AB}.Release|x86.ActiveCfg = Release|x86
+		{7655EB61-C600-46F3-886B-B2DE0DD0F1AB}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

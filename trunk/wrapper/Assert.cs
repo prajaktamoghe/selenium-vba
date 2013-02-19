@@ -5,33 +5,6 @@ using System.Text.RegularExpressions;
 
 namespace SeleniumWrapper
 {
-
-    /// <summary>Testing functions. Throws an exception if the condition is not met</summary>
-    /// <example>
-    /// 
-    /// The following example asserts the page title.
-    /// <code lang="vbs">	
-    /// Set driver = CreateObject("SeleniumWrapper.WebDriver")
-    /// Set Assert = CreateObject("SeleniumWrapper.Assert")
-    /// driver.start "firefox", "http://www.google.com"
-    /// driver.open "/"
-    /// Assert.Equals "Google", driver.Title
-    /// driver.stop
-    /// </code>
-    /// 
-    /// <code lang="vbs">	
-    /// Public Sub TestCase()
-    ///   Dim driver As New SeleniumWrapper.WebDriver, Assert as New SeleniumWrapper.Assert
-    ///   driver.start "firefox", "http://www.google.com"
-    ///   driver.open "/"
-    ///   Assert.Equals "Google", driver.Title
-    ///   driver.stop
-    /// End Sub
-    /// </code>
-    /// 
-    /// </example>
-    ///
-
     [Guid("1F96D1DD-EF65-4D27-A7FF-0EA52ACB97D1")]
     [ComVisible(true)]
     public interface IAssert
@@ -61,8 +34,33 @@ namespace SeleniumWrapper
         void Fail([Optional][DefaultParameterValue(null)]string message);
     }
 
+    /// <summary>Testing functions. Throws an exception if the condition is not met</summary>
+    /// <example>
+    /// 
+    /// The following example asserts the page title.
+    /// <code lang="vbs">	
+    /// Set driver = CreateObject("SeleniumWrapper.WebDriver")
+    /// Set Assert = CreateObject("SeleniumWrapper.Assert")
+    /// driver.start "firefox", "http://www.google.com"
+    /// driver.open "/"
+    /// Assert.Equals "Google", driver.Title
+    /// driver.stop
+    /// </code>
+    /// 
+    /// <code lang="vbs">	
+    /// Public Sub TestCase()
+    ///   Dim driver As New SeleniumWrapper.WebDriver, Assert as New SeleniumWrapper.Assert
+    ///   driver.start "firefox", "http://www.google.com"
+    ///   driver.open "/"
+    ///   Assert.Equals "Google", driver.Title
+    ///   driver.stop
+    /// End Sub
+    /// </code>
+    /// 
+    /// </example>
+    ///
 
-    [Description("Assertion tool class")]
+    [Description("Testing functions. Throws an exception if the condition is not met")]
     [Guid("98E110D3-BD3D-4620-AFDA-6AAF7EDD33D6")]
     [ComVisible(true), ComDefaultInterface(typeof(IAssert)), ClassInterface(ClassInterfaceType.None)]
     public class Assert : IAssert

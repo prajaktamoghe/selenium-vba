@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.Runtime.InteropServices;
+using System.ComponentModel;
 
 namespace SeleniumWrapper
 {
@@ -76,6 +77,8 @@ namespace SeleniumWrapper
     /// <summary>
     /// Representations of pressable keys that are not text keys for sending to the browser.
     /// </summary>
+
+    [Description("Representations of pressable keys that are not text keys for sending to the browser.")]
     [Guid("02BAE541-F3BD-4E95-8349-BE75D14E7B41")]
     [ComVisible(true), ComDefaultInterface(typeof(IKeys)), ClassInterface(ClassInterfaceType.None)]
     public class Keys : IKeys

@@ -2,6 +2,14 @@ Author : Florent BREHERET
 Contact : florentbr@gmail.com
 Website : http://code.google.com/p/selenium-vba
 
+v1.0.10.0 (2013/02/19)
+===============================================================================
+ * Updated Selenium libraries to 2.30.1
+ * Updated IEDriverServer to 2.30.0
+ * Added methods switchToAlert, switchToFrame, switchToWindow
+ * Added actions chained methods
+ * Extended the cancellation when the ESC key is pressed
+
 v1.0.9.0 (2013/02/04)
 ===============================================================================
  * Added the PhantomJS headless web driver
