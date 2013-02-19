@@ -5,32 +5,6 @@ using System.Text.RegularExpressions;
 
 namespace SeleniumWrapper
 {
-    /// <summary>Testing functions. Return the résult of the verification</summary>
-    /// <example>
-    /// 
-    /// The following example asserts the page title.
-    /// <code lang="vbs">	
-    /// Set driver = CreateObject("SeleniumWrapper.WebDriver")
-    /// Set Verify = CreateObject("SeleniumWrapper.Verify")
-    /// driver.start "firefox", "http://www.google.com"
-    /// driver.open "/"
-    /// wscript.echo Assert.Verify("Google", driver.Title)
-    /// driver.stop
-    /// </code>
-    /// 
-    /// <code lang="vbs">	
-    /// Public Sub TestCase()
-    ///   Dim driver As New SeleniumWrapper.WebDriver, Verify as New SeleniumWrapper.Assert
-    ///   driver.start "firefox", "http://www.google.com"
-    ///   driver.open "/"
-    ///   Range("A1") = Verify.Equals("Google", driver.Title)
-    ///   driver.stop
-    /// End Sub
-    /// </code>
-    /// 
-    /// </example>
-    ///
-
     [Guid("AEBDE123-87BA-4BB6-A8E7-495CC9DBFB96")]
     [ComVisible(true)]
     public interface IVerify
@@ -57,7 +31,33 @@ namespace SeleniumWrapper
         string NotMatches(string input, string pattern, [Optional][DefaultParameterValue("")]string failmessage);
     }
 
-    [Description("Assertion tool class")]
+    /// <summary>Testing functions. Return the résult of the verification</summary>
+    /// <example>
+    /// 
+    /// The following example asserts the page title.
+    /// <code lang="vbs">	
+    /// Set driver = CreateObject("SeleniumWrapper.WebDriver")
+    /// Set Verify = CreateObject("SeleniumWrapper.Verify")
+    /// driver.start "firefox", "http://www.google.com"
+    /// driver.open "/"
+    /// wscript.echo Verify.Equals("Google", driver.Title)
+    /// driver.stop
+    /// </code>
+    /// 
+    /// <code lang="vbs">	
+    /// Public Sub TestCase()
+    ///   Dim driver As New SeleniumWrapper.WebDriver, Verify as New SeleniumWrapper.Assert
+    ///   driver.start "firefox", "http://www.google.com"
+    ///   driver.open "/"
+    ///   Range("A1") = Verify.Equals("Google", driver.Title)
+    ///   driver.stop
+    /// End Sub
+    /// </code>
+    /// 
+    /// </example>
+    ///
+
+    [Description("Testing functions. Return the résult of the verification")]
     [Guid("1EA5B911-25A8-493D-B882-B0C8C528C673")]
     [ComVisible(true), ComDefaultInterface(typeof(IVerify)), ClassInterface(ClassInterfaceType.None)]
     public class Verify : IVerify

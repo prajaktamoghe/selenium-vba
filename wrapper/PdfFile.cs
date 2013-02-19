@@ -41,8 +41,11 @@ namespace SeleniumWrapper
         void saveAs(string pdfpath);
     }
 
+    /// <summary>
+    /// Create a new empty PDF file
+    /// </summary>
 
-    [Description("Create a new empty PDF file and open it")]
+    [Description("Create a new empty PDF file")]
     [Guid("980551C8-0DEB-4774-8A07-CDCD9EB97FD6")]
     [ComVisible(true), ComDefaultInterface(typeof(IPdfFile)), ClassInterface(ClassInterfaceType.None)]
     public class PdfFile : IPdfFile

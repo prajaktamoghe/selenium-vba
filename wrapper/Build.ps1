@@ -87,7 +87,7 @@ write-host "   ** Update the version in AssemblyInfo.cs ..."
 
 write-host ""
 write-host "   ** Msbuild compile sources ..."
-	cmd-msbuild /v:quiet /p:Configuration=Release /p:TargetFrameworkVersion=v3.5 /p:SignAssembly=true $csproj_path
+	cmd-msbuild /v:quiet /t:"Clean,Rebuild" /p:Configuration=Release /p:TargetFrameworkVersion=v3.5 /p:SignAssembly=true $csproj_path
     if($LASTEXITCODE -eq 1) { write-host("  Source compilation failed ! ") -ForegroundColor red; pause ; break; }
 
 write-host ""

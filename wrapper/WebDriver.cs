@@ -12,11 +12,11 @@ using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium.IE;
 using OpenQA.Selenium.Remote;
-using Action = System.Action;
+using OpenQA.Selenium.PhantomJS;
 
 namespace SeleniumWrapper
 {
-    /// <summary>Wrap the WebDriverBackedSelenium class </summary>
+    /// <summary>Defines the interface through which the user controls the browser using WebDriver (Selenium 2) and Selenium RC (Selenium 1) commands.</summary>
     /// <example>
     /// 
     /// This example asks the user to launch internet explorer and search for "Eiffel tower".
@@ -49,7 +49,7 @@ namespace SeleniumWrapper
     /// </example>
     ///
 
-    [Description("")]
+    [Description("Defines the interface through which the user controls the browser using WebDriver (Selenium 2) and Selenium RC (Selenium 1) commands.")]
     [Guid("432b62a5-6f09-45ce-b10e-e3ccffab4234")]
     [ComVisible(true), ComDefaultInterface(typeof(IWebDriver)), ComSourceInterfaces(typeof(WebDriverEvents)), ClassInterface(ClassInterfaceType.None)]
     public partial class WebDriver : IDisposable, IWebDriver
@@ -57,6 +57,7 @@ namespace SeleniumWrapper
         //public delegate void EndOfCommandDelegate();
         //public event EndOfCommandDelegate EndOfCommand;
 
+        internal static OpenQA.Selenium.IWebDriver currentWebDriver;
         internal OpenQA.Selenium.IWebDriver webDriver;
         internal int timeout;
         internal bool canceled;
@@ -68,7 +69,7 @@ namespace SeleniumWrapper
         Proxy proxy { get; set; }
         bool isStartedRemotely;
         Thread thread;
-        Action action;
+        System.Action action;
         Object result;
         String error;
         System.Timers.Timer timerhotkey;
@@ -85,9 +86,11 @@ namespace SeleniumWrapper
         }
 
         private void AppDomain_UnhandledException(Object sender, UnhandledExceptionEventArgs e){
-            this.error = "UnhandledException: " + ((Exception)e.ExceptionObject).Message;
-            this.timerhotkey.Stop();
-            this.thread.Abort();
+            Exception exception = (Exception)e.ExceptionObject;
+            if(!(exception is ThreadAbortException)){
+                this.error = exception.GetType().Name + ": " + exception.Message;
+                this.thread.Abort();
+            }
         }
 
         ~WebDriver(){
@@ -107,51 +110,47 @@ namespace SeleniumWrapper
 
         private void TimerCheckHotKey(object source, ElapsedEventArgs e){
             if (Utils.isEscapeKeyPressed()) {
-                this.timerhotkey.Stop();
                 this.canceled = true;
                 this.thread.Abort();
             }
         }
 
-        Action delegate_function;
+        System.Action delegate_function;
 
-        public void RegisterFunction([MarshalAs(UnmanagedType.FunctionPtr)] Action doevents_function)
+        public void RegisterFunction([MarshalAs(UnmanagedType.FunctionPtr)] System.Action doevents_function)
         {
             this.delegate_function = doevents_function;
         }
 
-        private string GetErrorPrifix(Action action){
+        private string GetErrorPrifix(System.Action action){
             string lMethodname = Regex.Match(action.Method.Name, "<([^>]+)>").Groups[0].Value;
             return "Method " + lMethodname + " failed !";
         }
 
-        private Object InvokeWd(Action action){
+        private Object InvokeWd(System.Action action){
             this.action = action;
             this.result = null;
             this.error = null;
-            this.canceled = false;
-            this.timerhotkey.Start();
             this.thread = new System.Threading.Thread(new System.Threading.ThreadStart(() => {
                     try{
                         this.action();
-                    }catch(System.Exception ex){ this.error = ex.Message; }
+                    }catch(System.Exception ex){ 
+                        if(!(ex is ThreadAbortException)) this.error = ex.Message; 
+                    }
                 }));
             this.thread.Start();
             bool succeed = this.thread.Join(this.timeout + 1000);
-            this.timerhotkey.Stop();
-            if (this.canceled) throw new ApplicationException("Code execution has been interrupted");
+            this.CheckCanceled();
             if (!succeed) throw new ApplicationException(GetErrorPrifix(this.action) + "\nTimed out running command after " + this.timeout + " milliseconds");
             if (this.error != null) throw new ApplicationException(GetErrorPrifix(this.action) + "\n" + this.error);
             //if (EndOfCommand != null) EndOfCommand();
             return this.result;
         }
 
-        private void InvokeWdWaitFor(Action action, Object expected, bool match){
+        private void InvokeWdWaitFor(System.Action action, Object expected, bool match){
             this.action = action;
             this.result = null;
             this.error = null;
-            this.canceled = false;
-            this.timerhotkey.Start();
             this.thread = new System.Threading.Thread(new System.Threading.ThreadStart(() =>{
                 try {
                     this.action();
@@ -159,23 +158,24 @@ namespace SeleniumWrapper
                         Thread.Sleep(20);
                         this.action();
                     }
-                }catch (System.Exception ex) { this.error = ex.Message; }
+                }catch(System.Exception ex){ 
+                    if(!(ex is ThreadAbortException)) this.error = ex.Message; 
+                }
             }));
             this.thread.Start();
             bool succed = this.thread.Join(this.timeout + 1000);
-            this.timerhotkey.Stop();
-            if (this.canceled) throw new ApplicationException("Code execution has been interrupted");
+            this.CheckCanceled();
             if (!succed) throw new ApplicationException(GetErrorPrifix(this.action) + "\nexpected" + (match ? "=" : "!=") + "<" + expected.ToString() + ">\nresult=<" + this.result.ToString() + ">\nTimed out running command after " + this.timeout + " milliseconds");
             if (this.error != null) throw new ApplicationException(GetErrorPrifix(this.action) + " expected" + (match ? "=" : "!=") + "<" + expected.ToString() + "> result=<" + this.result.ToString() + ">\n" + this.error);
             //if (EndOfCommand != null) EndOfCommand();
         }
 
-        private void InvokeWdAssert(Action action, Object expected, bool match){
+        private void InvokeWdAssert(System.Action action, Object expected, bool match){
             Object result = InvokeWd(action);
             if (match ^ Utils.ObjectEquals(result, expected)) throw new ApplicationException(GetErrorPrifix(action) + "\nexpected" + (match ? "=" : "!=") + "<" + expected.ToString() + ">\nresult=<" + result.ToString() + "> ");
         }
 
-        private String InvokeWdVerify(Action action, Object expected, bool match){
+        private String InvokeWdVerify(System.Action action, Object expected, bool match){
             Object result = InvokeWd(action);
             if (match ^ Utils.ObjectEquals(result, expected)) {
                 return "KO, " + GetErrorPrifix(action) + " expected" + (match ? "=" : "!=") + "<" + expected.ToString() + "> result=<" + result.ToString() + "> ";
@@ -184,9 +184,37 @@ namespace SeleniumWrapper
             }
         }
 
-        private void InvokeWdAndWait(Action action){
+        private void InvokeWdAndWait(System.Action action){
             InvokeWd(action);
-            waitForPageToLoad(this.timeout.ToString());
+            waitForPageToLoad(this.timeout);
+        }
+
+        /// <summary>Repeatedly applies this instance's input value to the given function until one of the following</summary>
+        /// <param name="function"></param>
+        /// <param name="timeoutms"></param>
+        /// <returns></returns>
+        public object WaitUntilObject(Func<object> function, int timeoutms)
+        {
+            var endTime = DateTime.Now.AddMilliseconds(timeoutms);
+            while (true){
+                if( DateTime.Now > endTime ){
+                    throw new TimeoutException( "The operation has timed out!" );
+                }
+                try{
+                    var result = function();
+                    if(result!=null) return result;
+                }catch (Exception){ }
+                this.CheckCanceled();
+                Thread.Sleep(30);
+            }
+        }
+
+        internal void CheckCanceled()
+        {
+            if (this.canceled){
+                this.canceled = false;
+                throw new ApplicationException("Code execution has been interrupted");
+            }
         }
 
         // http://code.google.com/p/selenium/wiki/DesiredCapabilities#Proxy_JSON_Object
@@ -315,6 +343,18 @@ namespace SeleniumWrapper
             return ieoptions;
         }
 
+        private PhantomJSOptions getPhantomJSOptions()
+        {
+            PhantomJSOptions phantomjsOptions = new PhantomJSOptions();
+            if(this.preferences != null) throw new Exception("Preference configuration is not available for InternetExplorerDriver!");
+            if(this.extensions != null) throw new Exception("Preference configuration is not available for InternetExplorerDriver!");
+            if(this.proxy!=null) throw new Exception("Proxy configuration is not available for InternetExplorerDriver!");
+            foreach (KeyValuePair<string, object> capability in this.capabilities){
+                phantomjsOptions.AddAdditionalCapability(capability.Key, capability.Value);
+            }
+            return phantomjsOptions;
+        }
+
         public int Timeout{
             get{return this.timeout;}
             set{this.setTimeout(value);}
@@ -353,8 +393,7 @@ namespace SeleniumWrapper
                     if (this.preferences != null) throw new Exception("Preference configuration is not available for PhantomJS driver!");
                     if (this.extensions != null) throw new Exception("Extension configuration is not available for PhantomJS driver!");
                     if (this.proxy != null) throw new Exception("Proxy configuration is not available for PhantomJS driver!");
-                    this.webDriver = new OpenQA.Selenium.PhantomJS.PhantomJSDriver();
-                    OpenQA.Selenium.PhantomJS.PhantomJSOptions opt = new OpenQA.Selenium.PhantomJS.PhantomJSOptions();
+                    this.webDriver = new OpenQA.Selenium.PhantomJS.PhantomJSDriver(directory, getPhantomJSOptions());
                     break;
                 case "internetexplorer": case "iexplore": case "ie":
                 case "internetexplorer64": case "iexplore64": case "ie64":
@@ -370,10 +409,12 @@ namespace SeleniumWrapper
                 default:
                     throw new ApplicationException("Browser <" + browser + "> is not available !  \nAvailable are Firefox, IE, Chrome and PhantomJS");
             }
+            WebDriver.currentWebDriver = this.webDriver;
             this.webDriverBacked = new Selenium.WebDriverBackedSelenium(this.webDriver, url);
             InvokeWd(() => webDriverBacked.Start());
             this.setTimeout(this.timeout);
             this.baseUrl = url.TrimEnd('/');
+            this.timerhotkey.Start();
         }
 
         /// <summary>Starts remotely a new Selenium testing session</summary>
@@ -392,10 +433,12 @@ namespace SeleniumWrapper
                 case "cr": case "chrome":
                     lCapability = getChromeCapabilities();
                     break;
+                case "phantomjs": case "pjs":
+                    lCapability = (DesiredCapabilities)getPhantomJSOptions().ToCapabilities();
+                    break;
                 default:
                     switch (browser) {
                         case "internetexplorer": case "iexplore": case "ie": lCapability = DesiredCapabilities.InternetExplorer();break;
-                        case "phantomjs": case "pjs": lCapability = DesiredCapabilities.PhantomJS(); break;
                         case "htmlunit": lCapability = DesiredCapabilities.HtmlUnit(); break;
                         case "htmlunitwithjavascript": lCapability = DesiredCapabilities.HtmlUnitWithJavaScript(); break;
                         case "android": lCapability = DesiredCapabilities.Android(); break;
@@ -410,11 +453,20 @@ namespace SeleniumWrapper
                     }
                     break;
             }
+            WebDriver.currentWebDriver = this.webDriver;
             this.webDriver = new RemoteWebDriver(new Uri(remoteAddress), lCapability);
             this.webDriverBacked = new Selenium.WebDriverBackedSelenium(this.webDriver, url);
             InvokeWd(() => webDriverBacked.Start());
             this.setTimeout(this.timeout);
             this.baseUrl = url.TrimEnd('/');
+            this.timerhotkey.Start();
+        }
+
+		/// <summary>Ends the current Selenium testing session (normally killing the browser)</summary>
+        public void stop()
+        {
+            this.webDriverBacked.Stop();
+            this.timerhotkey.Stop();
         }
 
         /// <summary>Set a specific profile for the firefox webdriver</summary>
@@ -484,48 +536,46 @@ namespace SeleniumWrapper
         }
 
         /// <summary>Wait the specified time in millisecond before executing the next command</summary>
-        /// <param name="time_ms">Time to wait in millisecond</param>
-        public void sleep(int time_ms)
+        /// <param name="timems">Time to wait in millisecond</param>
+        public void sleep(int timems)
         {
-            this.canceled = false;
-            this.timerhotkey.Start();
-            for (int i = time_ms; i > 0; i -= 10){
-                if (this.canceled) throw new ApplicationException("Code execution has been interrupted");
-                Thread.Sleep(10);
-            }
-            this.timerhotkey.Stop();
+            var endTime = DateTime.Now.AddMilliseconds(timems);
+            do{
+                Thread.Sleep(30);
+                this.CheckCanceled();
+            }while(DateTime.Now < endTime);
         }
 
         /// <summary>Wait the specified time in millisecond before executing the next command</summary>
-        /// <param name="time_ms">Time to wait in millisecond</param>
-        public void wait(int time_ms)
+        /// <param name="timems">Time to wait in millisecond</param>
+        public void wait(int timems)
         {
-            this.sleep(time_ms);
+            this.sleep(timems);
         }
 
         /// <summary>Wait the specified time in millisecond before executing the next command</summary>
-        /// <param name="time_ms">Time to wait in millisecond</param>
-        public void pause(int time_ms)
+        /// <param name="timems">Time to wait in millisecond</param>
+        public void pause(int timems)
         {
-            this.sleep(time_ms);
+            this.sleep(timems);
         }
 
         /// <summary>Specifies the amount of time the driver should wait when searching for an element if it is not immediately present.</summary>
-        /// <param name="timeout_ms">timeout in millisecond</param>
-		public void setImplicitWait(int timeout_ms) {
-            this.webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromMilliseconds(timeout_ms));
+        /// <param name="timeoutms">timeout in millisecond</param>
+		public void setImplicitWait(int timeoutms) {
+            this.webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromMilliseconds(timeoutms));
         }
 
         /// <summary> Specifies the amount of time that Selenium will wait for actions to complete. The default timeout is 30 seconds.</summary>
-        /// <param name="timeout_ms">timeout in milliseconds, after which an error is raised</param>
-        public void setTimeout(int timeout_ms) {
-            this.timeout = timeout_ms;
+        /// <param name="timeoutms">timeout in milliseconds, after which an error is raised</param>
+        public void setTimeout(int timeoutms) {
+            this.timeout = timeoutms;
             if(this.webDriver!=null){
                 try{
                     //todo : remove silent exception once the chrome issue is resolved (Issue 4448)
-                    this.webDriver.Manage().Timeouts().SetPageLoadTimeout(TimeSpan.FromMilliseconds(timeout_ms));
+                    this.webDriver.Manage().Timeouts().SetPageLoadTimeout(TimeSpan.FromMilliseconds(timeoutms));
                 }catch(Exception){}
-                this.webDriver.Manage().Timeouts().SetScriptTimeout(TimeSpan.FromMilliseconds(timeout_ms));
+                this.webDriver.Manage().Timeouts().SetScriptTimeout(TimeSpan.FromMilliseconds(timeoutms));
                 this.webDriverBacked.SetTimeout(this.timeout.ToString());
             }
         }
@@ -584,14 +634,6 @@ namespace SeleniumWrapper
         public string Url
         {
             get { return this.webDriver.Url; }
-        }
-
-        /// <summary></summary>
-        public Alert Alert
-        {
-            get {
-                return new Alert(this);
-            }
         }
 
         /// <summary>Goes one step backward in the browser history.</summary>
@@ -658,7 +700,7 @@ namespace SeleniumWrapper
         /// <param name="by">Methode</param>
         /// <param name="timeoutms">Optional timeout</param>
         /// <returns>WebElement</returns>
-        public WebElement findElement(ref object by, [Optional][DefaultParameterValue(0)]int timeoutms)
+        public WebElement findElement(ref Object by, [Optional][DefaultParameterValue(0)]int timeoutms)
         {
             if (((By)by).base_ == null) throw new NullReferenceException("The locating mechanism is null!");
             return findElement(((By)by).base_, timeoutms);
@@ -737,11 +779,13 @@ namespace SeleniumWrapper
         }
 
 	    private WebElement findElement(OpenQA.Selenium.By by, int timeoutms){
+            object ret;
 			if(timeoutms>0){
-				var wait = new OpenQA.Selenium.Support.UI.WebDriverWait(this.webDriver, TimeSpan.FromMilliseconds(timeoutms));
-                return new WebElement(this, wait.Until(drv => drv.FindElement(by)));
-			}
-            return new WebElement(this, this.webDriver.FindElement(by));
+                ret = this.WaitUntilObject(()=>this.webDriver.FindElement(by), timeoutms);
+			}else{
+                ret = this.webDriver.FindElement(by);
+            }
+            return new WebElement(this, (OpenQA.Selenium.IWebElement)ret);
         }
 
         /// <summary>Find all elements within the current context using the given mechanism.</summary>
@@ -817,10 +861,12 @@ namespace SeleniumWrapper
             return this.findElements(OpenQA.Selenium.By.TagName(tagname), timeoutms);
         }
 
-	    internal WebElement[] findElements(OpenQA.Selenium.By by, int timeoutms){
+	    private WebElement[] findElements(OpenQA.Selenium.By by, int timeoutms){
 			if(timeoutms>0){
-				var wait = new OpenQA.Selenium.Support.UI.WebDriverWait(this.webDriver, TimeSpan.FromMilliseconds(timeoutms));
-                return WebElement.GetWebElements(this, wait.Until(drv => drv.FindElements(by)));
+                Object ret = this.WaitUntilObject(delegate(){
+                    return this.webDriver.FindElements(by);
+                }, timeoutms);
+                return WebElement.GetWebElements(this, (ReadOnlyCollection<OpenQA.Selenium.IWebElement>)ret);
 			}
             return WebElement.GetWebElements(this, this.webDriver.FindElements(by));
         }
@@ -853,6 +899,64 @@ namespace SeleniumWrapper
         public string Title
         {
             get { return this.webDriver.Title; }
+        }
+
+        /// <summary>Switches focus to the specified window.</summary>
+        /// <param name="windowName">The name of the window to switch to.</param>
+        /// <param name="timeoutms">Optional timeout</param>
+        /// <returns>Current web driver</returns>
+        public WebDriver switchToWindow(string windowName, [Optional][DefaultParameterValue(0)]int timeoutms)
+        {
+            if (timeoutms > 0){
+                this.WaitUntilObject(delegate(){
+                    return this.webDriver.SwitchTo().Window(windowName);
+                }, timeoutms);
+            }else{
+                this.webDriver.SwitchTo().Window(windowName);
+            }
+            return this;
+        }
+
+        /// <summary>Switches focus to the specified frame, by index or name.</summary>
+        /// <param name="index_or_name">The name of the window to switch to, or an integer representing the index to switch to.</param>
+        /// <param name="timeoutms">Optional timeout</param>
+        /// <returns>Current web driver</returns>
+        public WebDriver switchToFrame(object index_or_name, [Optional][DefaultParameterValue(0)]int timeoutms)
+        {
+            if (index_or_name is string){
+                string windowName = (string)index_or_name;
+                if (timeoutms > 0){
+                    this.WaitUntilObject(()=>this.webDriver.SwitchTo().Frame(windowName), timeoutms);
+                }else{
+                    this.webDriver.SwitchTo().Frame(windowName);
+                }
+            }else{
+                int frameIndex = (int)index_or_name;
+                if (timeoutms > 0){
+                    this.WaitUntilObject(()=>this.webDriver.SwitchTo().Frame(frameIndex), timeoutms);
+                }else{
+                    this.webDriver.SwitchTo().Frame(frameIndex);
+                }
+            }
+            return this;
+        }
+
+        /// <summary>Switches focus to an alert on the page.</summary>
+        /// <param name="timeoutms">Optional timeout</param>
+        /// <returns>Focused alert</returns>
+        public Alert switchToAlert([Optional][DefaultParameterValue(0)]int timeoutms)
+        {
+            Object alert;
+            if (timeoutms > 0){
+                alert = this.WaitUntilObject( ()=>this.webDriver.SwitchTo().Alert(), timeoutms);
+            }else{
+                try{
+                    alert = this.webDriver.SwitchTo().Alert();
+                }catch(Exception){
+                    throw new Exception("Alert not found!");
+                }
+            }
+            return new Alert(this, (OpenQA.Selenium.IAlert)alert);
         }
 
       #endregion WebDriver Code

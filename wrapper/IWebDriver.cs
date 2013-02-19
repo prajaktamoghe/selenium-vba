@@ -16,10 +16,10 @@ namespace SeleniumWrapper
     public partial interface IWebDriver
     {
         [Description("Specifies the amount of time the driver should wait when searching for an element if it is not immediately present.")]
-        void setImplicitWait(int timeout_ms);
+        void setImplicitWait(int timeoutms);
 
         [Description("Specifies the amount of time that Selenium will wait for actions to complete. The default timeout is 30 seconds.")]
-        void setTimeout(int timeout_ms);
+        void setTimeout(int timeoutms);
 
         [Description("Specifies or get the amount of time that Selenium will wait for actions to complete. The default timeout is 30 seconds.")]
         int Timeout{get;set;}
@@ -45,17 +45,20 @@ namespace SeleniumWrapper
         [Description("Starts remotely a new Selenium session")]
         void startRemotely(String browser, String remoteAddress, String url);
 
+        [Description("Ends the current Selenium testing session (normally killing the browser)")]
+        void stop();
+
         [Description("Opens an URL in the test frame. This accepts both relative and absolute URLs.")]
         void open(String url);
 
         [Description("Wait the specified time in millisecond before executing the next command")]
-        void wait(int time_ms);
+        void wait(int timems);
 
         [Description("Wait the specified time in millisecond before executing the next command")]
-        void pause(int time_ms);
+        void pause(int timems);
 
         [Description("Wait the specified time in millisecond before executing the next command")]
-        void sleep(int time_ms);
+        void sleep(int timems);
 
         [Description("Deprecated. Use getScreenshot().Copy() instead")]
         void captureScreenshotToClipboard();
@@ -73,9 +76,6 @@ namespace SeleniumWrapper
         [Description("Execute JavaScrip on the page")]
         Object executeScript(String script, [Optional][DefaultParameterValue(null)]Object arguments);
 
-        [Description("")]
-        Alert Alert { get; }
-
         [Description("Undo the effect of calling chooseCancelOnNextConfirmation. Note that Selenium's overridden window.confirm() function will normally automatically return true, as if the user had manually clicked OK, so you shouldn't need to use this command unless for some reason you need to change your mind prior to the next confirmation. After any confirmation, Selenium will resume using the default behavior for future confirmations, automatically returning true (OK) unless/until you explicitly call chooseCancelOnNextConfirmation for each confirmation.  Take note - every time a confirmation comes up, you must consume it with a corresponding getConfirmation, or else the next selenium operation will fail.")]
         void chooseOkOnNextConfirmation();
 
@@ -89,7 +89,7 @@ namespace SeleniumWrapper
         String PageSource { get; }
 
         [Description("Find the first WebElement using the given method.")]
-        WebElement findElement(ref object by, [Optional][DefaultParameterValue(0)]int timeoutms);
+        WebElement findElement(ref Object by, [Optional][DefaultParameterValue(0)]int timeoutms);
 
         [Description("Finds the first element matching the specified name.")]
         WebElement findElementByName(String name, [Optional][DefaultParameterValue(0)]int timeoutms);
@@ -144,6 +144,15 @@ namespace SeleniumWrapper
 
         [Description("Finds elements matching the specified tag name.")]
         WebElement[] findElementsByTagName(String tagname, [Optional][DefaultParameterValue(0)]int timeoutms);
+
+        [Description("Switches focus to the specified window.")]
+        WebDriver switchToWindow(string windowName, [Optional][DefaultParameterValue(0)]int timeoutms);
+
+        [Description("Switches focus to the specified frame, by index or name.")]
+        WebDriver switchToFrame(object index_or_name, [Optional][DefaultParameterValue(0)]int timeoutms);
+
+        [Description("Switches focus to an alert on the page.")]
+        Alert switchToAlert([Optional][DefaultParameterValue(0)]int timeoutms);
 
         [Description("Returns the page tile")]
         string Title{get;}

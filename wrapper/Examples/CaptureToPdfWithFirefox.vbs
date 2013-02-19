@@ -15,7 +15,7 @@ driver.open "/"
 
 'Define the PDF page size and margins
 pdf.setPageSize 210, 297
-pdf.setMargins 10, 10, 10, 15
+pdf.setMargins 5, 5, 10, 15
 
 'Add a title and informations to the PDF
 pdf.addText "Selenium search result",20,,true,,,true
@@ -35,12 +35,12 @@ Set textbox = driver.findElementByName("q")
 textbox.sendKeys "Eiffel tower"
 textbox.sendKeys Keys.Return
 driver.wait 500
-pdf.addImage driver.getScreenshot(), "Web résult page", true
+pdf.addImage driver.getScreenshot(), "Web result page", true
 
 'Go to the Image result page, take a screenschot and add it to the PDF file
 driver.findElementByLinkText("Maps").click
 driver.wait 500
-pdf.addImage driver.getScreenshot(), "Maps résult page", true
+pdf.addImage driver.getScreenshot(), "Maps result page", true
 
 'Save the PDF
 pdf.saveAs currentFolder & "my-capture.pdf"

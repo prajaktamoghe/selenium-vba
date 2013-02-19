@@ -21,7 +21,11 @@ namespace SeleniumWrapper
         string Text{get;}
     }
 
-    [Description("")]
+    /// <summary>
+    /// Defines the interface through which the user can manipulate JavaScript alerts.
+    /// </summary>
+
+    [Description("Defines the interface through which the user can manipulate JavaScript alerts.")]
     [Guid("3ACCA460-93E3-4CB9-9934-2845E23A4514")]
     [ComVisible(true), ComDefaultInterface(typeof(IAlert)), ClassInterface(ClassInterfaceType.None)]
     public class Alert : IAlert
@@ -29,16 +33,10 @@ namespace SeleniumWrapper
         private WebDriver webDriver;
         private OpenQA.Selenium.IAlert alert;
 
-        /// <summary></summary>
-        /// <param name="webDriver"></param>
-        internal Alert(WebDriver webDriver)
+        internal Alert(WebDriver webDriver, OpenQA.Selenium.IAlert alert)
         {
             this.webDriver = webDriver;
-            try{
-                this.alert = webDriver.webDriver.SwitchTo().Alert();
-            }catch(Exception){
-                throw new Exception("There is not alert present!");
-            }
+            this.alert = alert;
         }
 
         internal static bool isAlertPresent(WebDriver webDriver)

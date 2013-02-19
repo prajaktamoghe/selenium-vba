@@ -7,7 +7,6 @@ using System.Text.RegularExpressions;
 
 namespace SeleniumWrapper
 {
-
     [Guid("7CC07D9C-3BBF-450C-B7E6-01D514FE0B1A")]
     [ComVisible(true)]
     public interface IUtils
@@ -22,7 +21,11 @@ namespace SeleniumWrapper
         string replace(string input, string pattern, string replacement );
     }
 
-    [Description("Create a new empty PDF file and open it")]
+    /// <summary>
+    /// 
+    /// </summary>
+
+    [Description("")]
     [Guid("C9A3B3ED-EE5F-43BD-A47B-A34FCBA29598")]
     [ComVisible(true), ComDefaultInterface(typeof(IUtils)), ClassInterface(ClassInterfaceType.None)]
     public class Utils : IUtils

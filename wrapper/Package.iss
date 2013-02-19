@@ -6,7 +6,7 @@
 #define MyAppPublisher "Florent BREHERET"
 #define MyAppURL "http://code.google.com/p/selenium-vba/"
 #define MyVersion() ParseVersion(".\bin\Release\SeleniumWrapper.dll", Local[0], Local[1], Local[2], Local[3]), Str(Local[0]) + "." + Str(Local[1]) + "." + Str(Local[2]);
-#define XPIVersion "1.0.9.0"
+#define XPIVersion "1.0.9.1"
     
 [Setup]
 AppId={#MyAppName}

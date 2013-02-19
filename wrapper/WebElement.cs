@@ -20,6 +20,9 @@ namespace SeleniumWrapper
         [Description("Clicks the element.")]
         void click();
 
+        [Description("Clicks at the element offset.")]
+        void clickByOffset(int offset_x, int offset_y);
+
         [Description("Clicks the element and hold.")]
         void clickAndHold();
 
@@ -70,15 +73,6 @@ namespace SeleniumWrapper
 
         [Description("Returns the location of the element in the renderable canvas")]
         int[] Location { get; }
-
-        [Description("")]
-        void moveToElement();
-
-        [Description("")]
-        void moveToElementOffset(IWebElement toElement, int offsetX, int offsetY);
-
-        [Description("")]
-        IWebElement[] Options { get; }
 
         [Description("Whether the element is selected.")]
         bool Selected { get; }
@@ -152,7 +146,6 @@ namespace SeleniumWrapper
         [Description("Finds the first element matching the specified tag name.")]
         WebElement findElementByTagName(String tagname, [Optional][DefaultParameterValue(0)]int timeoutms);
 
-
         [Description("Find all elements within the current context using the given mechanism.")]
         WebElement[] findElements(ref object by, int timeoutms);
 
@@ -202,6 +195,11 @@ namespace SeleniumWrapper
         Image getImage();
     }
 
+    /// <summary>
+    /// Defines the interface through which the user controls elements on the page. 
+    /// </summary>
+
+    [Description("Defines the interface through which the user controls elements on the page.")]
     [Guid("567CB939-FD53-4E83-A8D2-A693991646BE")]
     [ComVisible(true), ComDefaultInterface(typeof(IWebElement)), ClassInterface(ClassInterfaceType.None)]
     public class WebElement : IWebElement, Select
@@ -352,8 +350,15 @@ namespace SeleniumWrapper
         }
 
         /// <summary>Clicks the element.</summary>
-        public void click() { 
-            this.webElement.Click(); 
+        public void click() {
+            this.webElement.Click();
+        }
+
+        /// <summary>Clicks at the element offset.</summary>
+        /// <param name="offset_x">Offset X</param>
+        /// <param name="offset_y">Offset Y</param>
+        public void clickByOffset(int offset_x, int offset_y) {
+            new OpenQA.Selenium.Interactions.Actions(this.webDriver).MoveToElement(this.webElement).MoveByOffset(offset_x, offset_y).Perform();
         }
 
         /// <summary>Simulates typing into the element.</summary>
@@ -412,19 +417,6 @@ namespace SeleniumWrapper
             new OpenQA.Selenium.Interactions.Actions(this.webDriver).KeyUp(this.webElement, theKey).Perform();
         }
 
-        /// <summary>Move to an element</summary>
-        public void moveToElement(){
-            new OpenQA.Selenium.Interactions.Actions(this.webDriver).MoveToElement(this.webElement).Perform();
-        }
-
-        /// <summary>Move to an element with an offset</summary>
-        /// <param name="toElement">Element</param>
-        /// <param name="offsetX">Offset X</param>
-        /// <param name="offsetY">Offset Y</param>
-        public void moveToElementOffset(IWebElement toElement, int offsetX, int offsetY){
-            new OpenQA.Selenium.Interactions.Actions(this.webDriver).MoveToElement(this.webElement, offsetX, offsetY).Perform();
-        }
-
         /// <summary>Waits for an attribute</summary>
         /// <param name="attribute">Attribute</param>
         /// <param name="value">Value</param>
@@ -473,15 +465,14 @@ namespace SeleniumWrapper
 
         private void waitFor(Func<bool> condition)
         {
-            this.wd.canceled = false;
-            DateTime start = DateTime.Now;
+            DateTime end = DateTime.Now.AddMilliseconds(this.wd.timeout);
             while(!this.wd.canceled && !condition()){
-                if( (DateTime.Now - start).TotalMilliseconds > this.wd.timeout ){
+                if( DateTime.Now > end ){
                     throw new Exception("Timeout reached!");
                 }
                 Thread.Sleep(15);
             }
-            if (this.wd.canceled) throw new ApplicationException("Code execution has been interrupted");
+            this.wd.CheckCanceled();
         }
 
         /// <summary>Gets the screenshot of the current element</summary>
@@ -585,11 +576,13 @@ namespace SeleniumWrapper
         }
 		
 	    private WebElement findElement(OpenQA.Selenium.By by, int timeoutms){
+            object ret;
 			if(timeoutms>0){
-				var wait = new OpenQA.Selenium.Support.UI.WebDriverWait(this.webDriver, TimeSpan.FromMilliseconds(timeoutms));
-                return new WebElement(this.wd, wait.Until(drv => this.webElement.FindElement(by)));
-			}
-            return new WebElement(this.wd, this.webElement.FindElement(by));
+                ret = this.wd.WaitUntilObject(()=>this.webElement.FindElement(by), timeoutms);
+			}else{
+                ret = this.webElement.FindElement(by);
+            }
+            return new WebElement(this.wd, (OpenQA.Selenium.IWebElement)ret);
         }
 
         /// <summary>Find all elements within the current context using the given mechanism.</summary>
@@ -668,8 +661,10 @@ namespace SeleniumWrapper
 
 	    private WebElement[] findElements(OpenQA.Selenium.By by, int timeoutms){
 			if(timeoutms>0){
-				var wait = new OpenQA.Selenium.Support.UI.WebDriverWait(this.webDriver, TimeSpan.FromMilliseconds(timeoutms));
-                return WebElement.GetWebElements(this.wd, wait.Until(drv => this.webElement.FindElements(by)));
+                Object ret = this.wd.WaitUntilObject(delegate(){
+                    return this.webElement.FindElements(by);
+                }, timeoutms);
+                return WebElement.GetWebElements(this.wd, (ReadOnlyCollection<OpenQA.Selenium.IWebElement>)ret);
 			}
             return WebElement.GetWebElements(this.wd, this.webElement.FindElements(by));
         }
