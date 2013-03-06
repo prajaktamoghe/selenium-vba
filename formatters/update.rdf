@@ -6,6 +6,36 @@
         <!-- one li for each new release; newest first according to some sources -->
         <RDF:li>
           <RDF:Description>
+            <em:version>1.0.11.0</em:version>
+            <em:targetApplication>
+              <RDF:Description>
+                <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
+                <!-- firefox -->
+                <em:minVersion>3.6.0</em:minVersion>
+                <em:maxVersion>20.*</em:maxVersion>
+                <em:updateLink>http://selenium-vba.googlecode.com/files/SeleniumVbFormatters-1.0.11.0.xpi</em:updateLink>
+                <em:updateHash>sha1:e3f24afe2f2007c7e6b5165a3c23c1f5f967e4e2</em:updateHash>
+              </RDF:Description>
+            </em:targetApplication>
+          </RDF:Description>
+        </RDF:li>
+        <RDF:li>
+          <RDF:Description>
+            <em:version>1.0.9.1</em:version>
+            <em:targetApplication>
+              <RDF:Description>
+                <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
+                <!-- firefox -->
+                <em:minVersion>3.6.0</em:minVersion>
+                <em:maxVersion>20.*</em:maxVersion>
+                <em:updateLink>http://selenium-vba.googlecode.com/files/SeleniumVbFormatters-1.0.9.1.xpi</em:updateLink>
+                <em:updateHash>sha1:e47c02e7ae124fb64b4a682832aa1d7d60e3697d</em:updateHash>
+              </RDF:Description>
+            </em:targetApplication>
+          </RDF:Description>
+        </RDF:li>
+        <RDF:li>
+          <RDF:Description>
             <em:version>1.0.9.0</em:version>
             <em:targetApplication>
               <RDF:Description>

@@ -185,6 +185,25 @@ function formatComment(comment) {
   });
 }
 
+/**
+ * Returns a string representing the suite for this formatter language.
+ *
+ * @param testSuite  the suite to format
+ * @param filename   the file the formatted suite will be saved as
+ */
+function formatSuite(testSuite, filename) {
+    var suiteClass = /^(\w+)/.exec(filename)[1];
+    suiteClass = suiteClass[0].toUpperCase() + suiteClass.substring(1);
+    var formattedSuite = options["suiteTemplate"].replace(/\$\{name\}/g, suiteClass);
+	var testTemplate = /.*\$\{tests\}.*\n/g.exec(formattedSuite)[0];
+	var formatedTests='';
+    for (var i = 0; i < testSuite.tests.length; ++i) {
+        var testClass = testSuite.tests[i].getTitle();
+        formatedTests += testTemplate.replace(/\$\{tests\}/g, testClass );
+    }
+    return formattedSuite.replace(/.*\$\{tests\}.*\n/g, formatedTests);
+}
+
 function defaultExtension() {
   return this.options.defaultExtension;
 }
@@ -199,10 +218,14 @@ this.options = {
 	'Set Assert = CreateObject("SeleniumWrapper.Assert")\n' +
 	'Set Verify = CreateObject("SeleniumWrapper.Verify")\n' +
 	'Set Waiter = CreateObject("SeleniumWrapper.Waiter")\n' +
-	'${receiver}.start "${environment}", "${baseURL}"\n\n',
+	'${receiver}.start "${environment}", "${baseURL}"\n' +
+	'${receiver}.setImplicitWait 5000\n\n',
   footer:
 	'\n' +
 	'${receiver}.stop\n',
+  suiteTemplate:
+	'Set oShell = CreateObject("WScript.Shell")\n' +
+	'oShell.Run "wscript ${tests}", ,true\n',
   indent:  '1',
   initialIndents: '0',
   defaultExtension: "cls"

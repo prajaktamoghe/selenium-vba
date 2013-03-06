@@ -6,7 +6,7 @@
 #define MyAppPublisher "Florent BREHERET"
 #define MyAppURL "http://code.google.com/p/selenium-vba/"
 #define MyVersion() ParseVersion(".\bin\Release\SeleniumWrapper.dll", Local[0], Local[1], Local[2], Local[3]), Str(Local[0]) + "." + Str(Local[1]) + "." + Str(Local[2]);
-#define XPIVersion "1.0.9.1"
+#define XPIVersion "1.0.11.0"
     
 [Setup]
 AppId={#MyAppName}
@@ -70,22 +70,27 @@ Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
 
 [Registry]
 ;clean com objects in the registry
-Root: HKCR; Subkey: "TypeLib\{{E57E03DE-C7FE-4C12-85C8-EC8B32DFFB86}"; Flags: deletekey uninsdeletekey
-Root: HKCR; Subkey: "Wow6432Node\TypeLib\{{E57E03DE-C7FE-4C12-85C8-EC8B32DFFB86}"; Flags: deletekey uninsdeletekey
-Root: HKCR; Subkey: "CLSID\{{E57E03DE-C7FE-4C12-85C8-EC8B32DFFB86}"; Flags: deletekey uninsdeletekey
-Root: HKCR; Subkey: "Wow6432Node\CLSID\{{E57E03DE-C7FE-4C12-85C8-EC8B32DFFB86}"; Flags: deletekey uninsdeletekey
-Root: HKCR; Subkey: "SeleniumWrapper.Assembly"; Flags: deletekey uninsdeletekey
-Root: HKCR; Subkey: "CLSID\{{5BDDC122-7092-453F-8486-DBC455180DE3}"; Flags: deletekey uninsdeletekey
-Root: HKCR; Subkey: "Wow6432Node\CLSID\{{5BDDC122-7092-453F-8486-DBC455180DE3}"; Flags: deletekey uninsdeletekey
-Root: HKCR; Subkey: "SeleniumWrapper.PdfFile"; Flags: deletekey uninsdeletekey
-Root: HKCR; Subkey: "CLSID\{{980551C8-0DEB-4774-8A07-CDCD9EB97FD6}"; Flags: deletekey uninsdeletekey
-Root: HKCR; Subkey: "Wow6432Node\CLSID\{{980551C8-0DEB-4774-8A07-CDCD9EB97FD6}"; Flags: deletekey uninsdeletekey
-Root: HKCR; Subkey: "SeleniumWrapper.WebDriver"; Flags: deletekey uninsdeletekey
-Root: HKCR; Subkey: "CLSID\{{432B62A5-6F09-45CE-B10E-E3CCFFAB4234}"; Flags: deletekey uninsdeletekey
-Root: HKCR; Subkey: "Wow6432Node\CLSID\{{432B62A5-6F09-45CE-B10E-E3CCFFAB4234}"; Flags: deletekey uninsdeletekey
-Root: HKCR; Subkey: "CLSID\{{C9A3B3ED-EE5F-43BD-A47B-A34FCBA29598}"; Flags: deletekey uninsdeletekey
-Root: HKCR; Subkey: "Wow6432Node\CLSID\{{C9A3B3ED-EE5F-43BD-A47B-A34FCBA29598}"; Flags: deletekey uninsdeletekey
-Root: HKCR; Subkey: "SeleniumWrapper.RegEx"; Flags: deletekey uninsdeletekey
+Root: HKCR32; Subkey: "TypeLib\{{E57E03DE-C7FE-4C12-85C8-EC8B32DFFB86}"; Flags: deletekey uninsdeletekey
+Root: HKCR64; Subkey: "TypeLib\{{E57E03DE-C7FE-4C12-85C8-EC8B32DFFB86}"; Flags: deletekey uninsdeletekey; Check: IsWin64;
+
+Root: HKCR32; Subkey: "CLSID\{{E57E03DE-C7FE-4C12-85C8-EC8B32DFFB86}"; Flags: deletekey uninsdeletekey
+Root: HKCR64; Subkey: "CLSID\{{E57E03DE-C7FE-4C12-85C8-EC8B32DFFB86}"; Flags: deletekey uninsdeletekey; Check: IsWin64;
+
+Root: HKCR32; Subkey: "SeleniumWrapper.WebDriver"; Flags: deletekey uninsdeletekey
+Root: HKCR64; Subkey: "SeleniumWrapper.WebDriver"; Flags: deletekey uninsdeletekey; Check: IsWin64;
+Root: HKCR32; Subkey: "CLSID\{{432B62A5-6F09-45CE-B10E-E3CCFFAB4234}"; Flags: deletekey uninsdeletekey
+Root: HKCR64; Subkey: "CLSID\{{432B62A5-6F09-45CE-B10E-E3CCFFAB4234}"; Flags: deletekey uninsdeletekey; Check: IsWin64;
+
+Root: HKCR32; Subkey: "SeleniumWrapper.Assembly"; Flags: deletekey uninsdeletekey
+Root: HKCR64; Subkey: "SeleniumWrapper.Assembly"; Flags: deletekey uninsdeletekey; Check: IsWin64;
+Root: HKCR32; Subkey: "CLSID\{{5BDDC122-7092-453F-8486-DBC455180DE3}"; Flags: deletekey uninsdeletekey
+Root: HKCR64; Subkey: "CLSID\{{5BDDC122-7092-453F-8486-DBC455180DE3}"; Flags: deletekey uninsdeletekey; Check: IsWin64;
+
+Root: HKCR32; Subkey: "SeleniumWrapper.PdfFile"; Flags: deletekey uninsdeletekey
+Root: HKCR64; Subkey: "SeleniumWrapper.PdfFile"; Flags: deletekey uninsdeletekey; Check: IsWin64;
+Root: HKCR32; Subkey: "CLSID\{{980551C8-0DEB-4774-8A07-CDCD9EB97FD6}"; Flags: deletekey uninsdeletekey
+Root: HKCR64; Subkey: "CLSID\{{980551C8-0DEB-4774-8A07-CDCD9EB97FD6}"; Flags: deletekey uninsdeletekey; Check: IsWin64;
+
 ;Fix for KB907417 / get around with exe.config 
 ;Root: HKLM; Subkey: "SOFTWARE\Microsoft\.NETFramework\Policy\AppPatch\v2.0.50727.00000\excel.exe"; Flags: deletekey
 ;Root: HKLM; Subkey: "SOFTWARE\Microsoft\.NETFramework\Policy\AppPatch\v2.0.50727.00000\winword.exe"; Flags: deletekey
@@ -93,7 +98,7 @@ Root: HKCR; Subkey: "SeleniumWrapper.RegEx"; Flags: deletekey uninsdeletekey
 [Run] 
 Filename: "{dotnet2064}\RegAsm.exe"; Parameters: {#MyAppName}.dll /codebase /tlb:{#MyAppName}.tlb; WorkingDir: {app}; StatusMsg: "Registering {#MyAppName} dll"; Flags: runhidden; Check: IsWin64;
 Filename: "{dotnet2032}\RegAsm.exe"; Parameters: {#MyAppName}.dll /codebase /tlb:{#MyAppName}.tlb; WorkingDir: {app}; StatusMsg: "Registering {#MyAppName} dll"; Flags: runhidden;
-Filename: "{pf}\Mozilla Firefox\firefox.exe"; Parameters: "SeleniumVbFormatters-{#XPIVersion}.xpi"; WorkingDir: {app}; Flags: shellexec postinstall; Description: "Install Addon for Firefox-Selenium IDE";
+Filename: "{pf32}\Mozilla Firefox\firefox.exe"; Parameters: "SeleniumVbFormatters-{#XPIVersion}.xpi"; WorkingDir: {app}; Flags: shellexec postinstall; Description: "Install Addon for Firefox-Selenium IDE";
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}"
@@ -108,63 +113,83 @@ function GetAppFolder(app: String): string;
   var clsid: String; server: String; ret: String; succeed: boolean;
   Begin
     succeed:= RegQueryStringValue(HKCR32, app + '\CLSID', '', clsid);
-    if not succeed then succeed:= RegQueryStringValue(HKCR, app + '\CLSID', '', clsid);
+    if not succeed And IsWin64 then succeed:= RegQueryStringValue(HKCR64, app + '\CLSID', '', clsid);
     if succeed then Begin
         succeed:= RegQueryStringValue(HKCR32, 'CLSID\' + clsid + '\LocalServer32', '', server);
-        if not succeed then succeed:= RegQueryStringValue(HKCR, 'CLSID\' + clsid + '\LocalServer32', '', server);
+        if not succeed And IsWin64 then succeed:= RegQueryStringValue(HKCR64, 'CLSID\' + clsid + '\LocalServer', '', server);
         if succeed then Begin
-          ret := Copy( server , 0, Pos('.EXE', server ) + 3 );
+          ret := RemoveQuotes(Trim(Copy( server , 0, Pos('.EXE', server ) + 3 )));
           ret:= ExtractFileDir(ret);
           Result := ret ;
         end;
     end;
   end;
 
-Function InitializeSetup() : boolean;
+Function CheckDotNetFramework() : boolean;
   var
     iResultCode: Integer;
   Begin
-    If RegKeyExists(HKLM,'SOFTWARE\Wow6432Node\Microsoft\NET Framework Setup\NDP\v3.5') Or RegKeyExists(HKLM,'SOFTWARE\Microsoft\NET Framework Setup\NDP\v3.5') Then Begin
-      Result := True;
-    End Else Begin
+    Result := RegKeyExists(HKLM32,'SOFTWARE\Microsoft\NET Framework Setup\NDP\v3.5');
+    if not Result And IsWin64 then Result:= RegKeyExists(HKLM64,'SOFTWARE\Microsoft\NET Framework Setup\NDP\v3.5');
+    If not Result Then Begin
       MsgBox(ExpandConstant('Microsoft .NET Framework 3.5 is required !  '+ CHR(13) + 'Please download and install it to continue the installaton.'), mbError, MB_OK);
       ShellExec('open', 'http://www.microsoft.com/en-us/download/details.aspx?id=25150','', '', SW_SHOW, ewNoWait, iResultCode);
     End;
   End;
 
-procedure CurStepChanged(CurStep: TSetupStep);
+Function UninstallPrevious() : boolean;
   var
-    sUnInstallString: String;
-    iResultCode: Integer;
-    ret: Bool;
+    iResultCode: Integer; sUnInstallString: String;
+  Begin
+    Result:= RegQueryStringValue(HKLM32, ExpandConstant('SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{#MyAppName}_is1'), 'UnInstallString', sUnInstallString);
+    if Not Result And IsWin64 then Result:= RegQueryStringValue(HKLM64, ExpandConstant('SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{#MyAppName}_is1'), 'UnInstallString', sUnInstallString);
+    If Result Then Begin
+        Exec( RemoveQuotes(sUnInstallString), '/SILENT', '', SW_SHOW, ewWaitUntilTerminated, iResultCode) ;
+        Sleep(1000);
+    End;
+  End;
+
+Function TestInstallation(): boolean;
+  var
     sLibVersion: Variant;
+  Begin
+    try
+      sLibVersion := CreateOleObject(ExpandConstant('{#MyAppName}.Assembly'));
+      sLibVersion.GetVersion();
+    except
+      RaiseException( 'Instalation tests failed ! '#13'Error : ' + GetExceptionMessage );
+    end;
+  End;
+
+Function CheckOnUse(): boolean;
+  var
+    sInstallLib: String;
+  Begin
+    sInstallLib := ExpandConstant('{app}\{#MyAppName}.tlb' );
+    if FileExists( sInstallLib ) then begin
+     while Not RenameFile( sInstallLib, sInstallLib ) do begin
+        if MsgBox(ExpandConstant('Uninstallation of {#MyAppName} is not possible as a program is currently using it.'#13'Close all Office applications or restart Windows and try again.'), mbError, MB_RETRYCANCEL) = IDCANCEL then Abort();
+     end;
+    end;
+  End;
+
+Function InitializeSetup() : boolean;
+  Begin
+    Result := CheckDotNetFramework();
+  End;
+
+procedure CurStepChanged(CurStep: TSetupStep);
   begin
     if CurStep = ssInstall  then begin
-      ret:= RegQueryStringValue(HKLM, ExpandConstant('SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{#MyAppName}_is1'), 'UnInstallString', sUnInstallString);
-      if Not ret Then  ret:= RegQueryStringValue(HKLM, ExpandConstant('SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\{#MyAppName}_is1'), 'UnInstallString', sUnInstallString);
-      If ret Then Begin
-          Exec( RemoveQuotes(sUnInstallString), '/SILENT', '', SW_SHOW, ewWaitUntilTerminated, iResultCode) ;
-          //if iResultCode <> 0 then Abort();
-          Sleep(1000);
-      End;
+       UninstallPrevious();
     end Else If CurStep = ssPostInstall then begin
-      try
-        sLibVersion := CreateOleObject(ExpandConstant('{#MyAppName}.Assembly'));
-        sLibVersion.GetVersion();
-      except
-        RaiseException( 'Instalation tests failed ! '#13'Error : ' + GetExceptionMessage );
-      end;
+       TestInstallation();
     end;
   end;
 
-procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
-  var
-    sInstallLib: String;
+procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep); 
   begin
     if CurUninstallStep = usUninstall  then begin
-       sInstallLib := ExpandConstant('{app}\{#MyAppName}.tlb' );
-       if FileExists( sInstallLib ) then begin
-         If Not RenameFile( sInstallLib, sInstallLib ) then RaiseException(ExpandConstant('Uninstallation of {#MyAppName} is not possible as a program is currently using it.'#13'Close all Office applications or restart Windows and try again.'));
-       end;
+        CheckOnUse();
     end;
   end;

@@ -609,6 +609,7 @@ namespace SeleniumWrapper
                 InvokeWd(() => this.webDriver.Manage().Window.Maximize());
                 //InvokeWd(() => this.webDriverBacked.WindowMaximize());
             }else{
+                string handle = this.webDriver.CurrentWindowHandle;
                 Utils.maximizeForegroundWindow();
             }
             
