@@ -244,13 +244,14 @@ this.options = {
 	testTemplate:
 	'Public Sub ${name}()\n' +
 	'  Dim ${receiver} As New SeleniumWrapper.WebDriver\n' +
-	'  ${receiver}.start "${browser}", "${baseURL}"\n\n' +
+	'  ${receiver}.start "${browser}", "${baseURL}"\n' +
+	'  ${receiver}.setImplicitWait 5000\n\n' +
 	'${commands}\n'+
 	'  ${receiver}.stop\n' +
 	"End Sub",
 	suiteTemplate:
 	'Public Sub ${name}()\n' +
-	'   ${tests}\n'+
+	'   Call ${tests}\n'+
 	"End Sub",
 	commandTemplate: "  ${command}\n",
 	commentTemplate: "  '${comment}\n"

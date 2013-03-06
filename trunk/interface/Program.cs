@@ -35,8 +35,8 @@ namespace InterfaceGeneration
                 StringBuilder sb = new StringBuilder();
 
                 Assembly lAssembly = Assembly.LoadFrom("Selenium.WebDriverBackedSelenium.dll");
-                String[] exclusionList = new String[] { "ChooseOkOnNextConfirmation", "ChooseCancelOnNextConfirmation", "Start", "get_Processor", "SetTimeout", "Open", "WindowMaximize" };
-                String[] noWaitActionsList = new String[] { "Open", "SelectWindow", "ChooseCancelOnNextConfirmation", "AnswerOnNextPrompt", "Close", "SetContext", "SetTimeout", "SelectFrame", "Stop", "Wait", "Set", "Capture", "Delete", "WindowFocus" };
+                String[] exclusionList = new String[] { "ChooseOkOnNextConfirmation", "ChooseCancelOnNextConfirmation", "Start", "Stop", "Close", "get_Processor", "SetTimeout", "Open", "WindowMaximize" };
+                String[] noWaitActionsList = new String[] { "Open", "SelectWindow", "ChooseCancelOnNextConfirmation", "AnswerOnNextPrompt", "SetContext", "SelectFrame", "Wait", "Set", "Capture", "Delete", "WindowFocus" };
 
                 System.Reflection.MethodInfo[] lMethods = lAssembly.GetType("Selenium.WebDriverBackedSelenium").GetMethods();
                 string[] lRet = new string[lMethods.Length];
@@ -58,8 +58,13 @@ namespace InterfaceGeneration
                             {
                                 if (argsInt != string.Empty) { argsInt += ", "; }
                                 if (argsMeth != string.Empty) { argsMeth += ", "; }
-                                argsInt += lParameters[j].ParameterType.Name + " " + lParameters[j].Name;
-                                argsMeth += lParameters[j].Name;
+                                if(lParameters[j].Name=="timeout"){
+                                    argsInt += "Object timeoutms";
+                                    argsMeth += "timeoutms.ToString()";
+                                }else{
+                                    argsInt += lParameters[j].ParameterType.Name + " " + lParameters[j].Name;
+                                    argsMeth += lParameters[j].Name;
+                                }
                             }
                             string retType = lMethods[i].ReturnType.Name.Replace("Void", "void");
                             string expected = "expected";
@@ -155,9 +160,6 @@ namespace InterfaceGeneration
 
                 TextWriter fclasse = new StreamWriter("..\\..\\..\\wrapper\\WebDriverGen.cs");
                 fclasse.WriteLine("using System;");
-                fclasse.WriteLine("using System.Collections.Generic;");
-                fclasse.WriteLine("using System.Runtime.InteropServices;");
-                fclasse.WriteLine("using System.Text;");
                 fclasse.WriteLine("");
                 fclasse.WriteLine("namespace SeleniumWrapper");
                 fclasse.WriteLine("{");

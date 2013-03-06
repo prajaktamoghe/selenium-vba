@@ -230,12 +230,13 @@ this.options = {
 	testTemplate:
 	'Dim ${instance}\n' +
 	'Set ${instance} = CreateObject("SeleniumWrapper.WebDriver")\n' +
-	'${instance}.start "${browser}", "${baseURL}"\n\n' +
+	'${instance}.start "${browser}", "${baseURL}"\n' +
+	'${instance}.setImplicitWait 5000\n\n' +
 	'${commands}\n'+
 	'${instance}.stop\n',
 	suiteTemplate:
 	'Set oShell = CreateObject("WScript.Shell")\n' +
-	'oShell.Run "wscript ${tests}", , True\n',
+	'oShell.Run "wscript ${tests}", ,true\n',
 	commandTemplate: "${command}\n",
 	commentTemplate: "'${comment}\n"
 };
