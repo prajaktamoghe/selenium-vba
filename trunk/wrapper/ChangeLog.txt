@@ -2,6 +2,14 @@ Author : Florent BREHERET
 Contact : florentbr@gmail.com
 Website : http://code.google.com/p/selenium-vba
 
+v1.0.12.1 (2013/05/04)
+===============================================================================
+ * Updated Selenium libraries to 2.32.1
+ * Updated IEDriverServer to 2.32.3
+ * Updated Chrome driver to 0.8
+ * Updated PhantomJs to 1.9
+ * Fixed setProxy methode
+
 v1.0.11.1 (2013/03/06)
 ===============================================================================
  * Updated Selenium libraries to 2.31.2
