@@ -131,13 +131,13 @@ namespace SeleniumWrapper
             this.action = action;
             this.result = null;
             this.error = null;
-            this.thread = new System.Threading.Thread(new System.Threading.ThreadStart(() => {
+            this.thread = new System.Threading.Thread( (System.Threading.ThreadStart)delegate {
                     try{
                         this.action();
                     }catch(System.Exception ex){ 
                         if(!(ex is ThreadAbortException)) this.error = ex.Message; 
                     }
-                }));
+                });
             this.thread.Start();
             bool succeed = this.thread.Join(this.timeout + 1000);
             this.CheckCanceled();
@@ -151,17 +151,17 @@ namespace SeleniumWrapper
             this.action = action;
             this.result = null;
             this.error = null;
-            this.thread = new System.Threading.Thread(new System.Threading.ThreadStart(() =>{
-                try {
-                    this.action();
-                    while( !this.canceled && (match ^ Utils.ObjectEquals(this.result,expected)) ){
-                        Thread.Sleep(20);
+            this.thread = new System.Threading.Thread( (System.Threading.ThreadStart)delegate{
+                    try {
                         this.action();
+                        while( !this.canceled && (match ^ Utils.ObjectEquals(this.result,expected)) ){
+                            Thread.Sleep(20);
+                            this.action();
+                        }
+                    }catch(System.Exception ex){ 
+                        if(!(ex is ThreadAbortException)) this.error = ex.Message; 
                     }
-                }catch(System.Exception ex){ 
-                    if(!(ex is ThreadAbortException)) this.error = ex.Message; 
-                }
-            }));
+                });
             this.thread.Start();
             bool succed = this.thread.Join(this.timeout + 1000);
             this.CheckCanceled();
@@ -345,13 +345,12 @@ namespace SeleniumWrapper
 
         private PhantomJSOptions getPhantomJSOptions()
         {
-            PhantomJSOptions phantomjsOptions = new PhantomJSOptions();
+            var phantomjsOptions = new PhantomJSOptions();
             if(this.preferences != null) throw new Exception("Preference configuration is not available for InternetExplorerDriver!");
             if(this.extensions != null) throw new Exception("Preference configuration is not available for InternetExplorerDriver!");
             if(this.proxy!=null) throw new Exception("Proxy configuration is not available for InternetExplorerDriver!");
-            foreach (KeyValuePair<string, object> capability in this.capabilities){
+            foreach (var capability in this.capabilities)
                 phantomjsOptions.AddAdditionalCapability(capability.Key, capability.Value);
-            }
             return phantomjsOptions;
         }
 
@@ -515,14 +514,14 @@ namespace SeleniumWrapper
         /// <summary>Set a specific proxy for the webdriver</summary>
         /// <param name="url">Proxy URL</param>
         /// <param name="isAutoConfigURL">Is an auto-config URL</param>
-        public void setProxy(string url, bool isAutoConfigURL) {
+        public void setProxy(string url, [Optional][DefaultParameterValue(false)]bool isAutoConfigURL) {
             this.proxy = new Proxy();
-            if(isAutoConfigURL){
+            if(isAutoConfigURL)
+                this.proxy.ProxyAutoConfigUrl = url;
+            else{
                 this.proxy.HttpProxy = url;
                 this.proxy.FtpProxy = url;
                 this.proxy.SslProxy = url;
-            }else{
-                this.proxy.ProxyAutoConfigUrl = url;
             }
         }
 

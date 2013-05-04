@@ -37,7 +37,7 @@ namespace SeleniumWrapper
         void addExtension(string extensionPath);
 
         [Description("Set a specific proxy")]
-        void setProxy(string url, bool isAutoConfigURL);
+        void setProxy(string url, [Optional][DefaultParameterValue(false)]bool isAutoConfigURL);
 
         [Description("Starts a new Selenium session")]
         void start(String browser, String url, [Optional][DefaultParameterValue("")]String directory);
