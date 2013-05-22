@@ -2,6 +2,8 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "SeleniumWrapper"
+#define MyDllName "SeleniumWrapper"
+#define MyAppLongName "Selenium Wrapper"
 #define MyAppVersion GetFileVersion(".\bin\Release\SeleniumWrapper.dll")
 #define MyAppPublisher "Florent BREHERET"
 #define MyAppURL "http://code.google.com/p/selenium-vba/"
@@ -44,24 +46,24 @@ Source: ".\References\IEDriverServer64.exe"; DestDir: "{app}\ie64" ;DestName: "I
 Source: ".\License.txt"; DestDir: "{app}"; Flags: ignoreversion overwritereadonly ; Attribs:readonly
 Source: ".\Readme.txt"; DestDir: "{app}"; Flags: ignoreversion overwritereadonly ; Attribs:readonly
 Source: ".\ChangeLog.txt"; DestDir: "{app}"; Flags: ignoreversion overwritereadonly ; Attribs:readonly
-Source: ".\bin\Release\SeleniumWrapperApi.chm"; DestDir: "{app}"; Flags: ignoreversion
+Source: ".\chm\SeleniumWrapperApi.chm"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\QuickTest.vbs"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\Examples\*.*"; DestDir: "{app}\Examples"; Flags: ignoreversion skipifsourcedoesntexist overwritereadonly ; Attribs:readonly
-Source: ".\Templates\*.dot" ; DestDir: "{app}\Templates"; Flags: ignoreversion skipifsourcedoesntexist overwritereadonly ; Attribs:readonly
-Source: ".\Templates\*.xlt" ; DestDir: "{app}\Templates"; Flags: ignoreversion skipifsourcedoesntexist overwritereadonly ; Attribs:readonly
+Source: ".\Templates\*.dot" ; DestDir: "{userappdata}\Microsoft\Templates"; Flags: ignoreversion skipifsourcedoesntexist overwritereadonly ; Attribs:readonly
+Source: ".\Templates\*.xlt" ; DestDir: "{userappdata}\Microsoft\Templates"; Flags: ignoreversion skipifsourcedoesntexist overwritereadonly ; Attribs:readonly
 Source: "..\formatters\SeleniumVbFormatters-{#XPIVersion}.xpi" ; DestDir: "{app}";
 Source: ".\exe.config" ; DestDir: "{win}\SYSTEM32"; DestName: "wscript.exe.config"; Flags: ignoreversion uninsneveruninstall
-Source: ".\exe.config" ; DestDir: "{code:GetAppFolder|Excel.Application}"; DestName: "excel.exe.config"; Flags: ignoreversion uninsneveruninstall
-Source: ".\exe.config" ; DestDir: "{code:GetAppFolder|Word.Application}"; DestName: "winword.exe.config"; Flags: ignoreversion uninsneveruninstall
-Source: ".\exe.config" ; DestDir: "{code:GetAppFolder|PowerPoint.Application}"; DestName: "powerpnt.exe.config"; Flags: ignoreversion uninsneveruninstall
-Source: ".\exe.config" ; DestDir: "{code:GetAppFolder|Access.Application}"; DestName: "msaccess.exe.config"; Flags: ignoreversion uninsneveruninstall
-Source: ".\exe.config" ; DestDir: "{code:GetAppFolder|Outlook.Application}"; DestName: "outlook.exe.config"; Flags: ignoreversion uninsneveruninstall
+Source: ".\exe.config" ; DestDir: "{code:GetAppFolder|Excel.Application}"; DestName: "excel.exe.config"; Flags: ignoreversion uninsneveruninstall; Check: IsWin64;
+Source: ".\exe.config" ; DestDir: "{code:GetAppFolder|Word.Application}"; DestName: "winword.exe.config"; Flags: ignoreversion uninsneveruninstall; Check: IsWin64;
+Source: ".\exe.config" ; DestDir: "{code:GetAppFolder|PowerPoint.Application}"; DestName: "powerpnt.exe.config"; Flags: ignoreversion uninsneveruninstall; Check: IsWin64;
+Source: ".\exe.config" ; DestDir: "{code:GetAppFolder|Access.Application}"; DestName: "msaccess.exe.config"; Flags: ignoreversion uninsneveruninstall; Check: IsWin64;
+Source: ".\exe.config" ; DestDir: "{code:GetAppFolder|Outlook.Application}"; DestName: "outlook.exe.config"; Flags: ignoreversion uninsneveruninstall; Check: IsWin64;
 
 [Icons]
 ;Name: "{group}\Readme"; Filename: "{app}\Readme.txt"; WorkingDir: "{app}";
 Name: "{group}\Project Home Page"; Filename: "http://code.google.com/p/selenium-vba/"; WorkingDir: "{app}";
-Name: "{group}\Excel Template"; Filename: "{app}\Templates\SeleniumWrapper.xlt"; WorkingDir: "{app}";
-Name: "{group}\Word Template"; Filename: "{app}\Templates\SeleniumWrapper.dot"; WorkingDir: "{app}";
+Name: "{group}\Excel Template"; Filename: "{userappdata}\Microsoft\Templates\SeleniumWrapper.xlt"; WorkingDir: "{app}";
+Name: "{group}\Word Template"; Filename: "{userappdata}\Microsoft\Templates\SeleniumWrapper.dot"; WorkingDir: "{app}";
 Name: "{group}\Examples"; Filename: "{app}\Examples"; WorkingDir: "{app}";
 Name: "{group}\QuickTest"; Filename: "{app}\QuickTest.vbs"; WorkingDir: "{app}";
 Name: "{group}\API documentation"; Filename: "{app}\SeleniumWrapperApi.chm"; WorkingDir: "{app}";
@@ -91,24 +93,36 @@ Root: HKCR64; Subkey: "SeleniumWrapper.PdfFile"; Flags: deletekey uninsdeletekey
 Root: HKCR32; Subkey: "CLSID\{{980551C8-0DEB-4774-8A07-CDCD9EB97FD6}"; Flags: deletekey uninsdeletekey
 Root: HKCR64; Subkey: "CLSID\{{980551C8-0DEB-4774-8A07-CDCD9EB97FD6}"; Flags: deletekey uninsdeletekey; Check: IsWin64;
 
+Root: HKCU; Subkey: {code:GetTrustedLocation|}; ValueType: string; ValueName: "Path"; ValueData: "{app}\Examples"; Flags: uninsdeletekey;
+
 ;Fix for KB907417 / get around with exe.config 
 ;Root: HKLM; Subkey: "SOFTWARE\Microsoft\.NETFramework\Policy\AppPatch\v2.0.50727.00000\excel.exe"; Flags: deletekey
 ;Root: HKLM; Subkey: "SOFTWARE\Microsoft\.NETFramework\Policy\AppPatch\v2.0.50727.00000\winword.exe"; Flags: deletekey
 
 [Run] 
-Filename: "{dotnet2064}\RegAsm.exe"; Parameters: {#MyAppName}.dll /codebase /tlb:{#MyAppName}.tlb; WorkingDir: {app}; StatusMsg: "Registering {#MyAppName} dll"; Flags: runhidden; Check: IsWin64;
-Filename: "{dotnet2032}\RegAsm.exe"; Parameters: {#MyAppName}.dll /codebase /tlb:{#MyAppName}.tlb; WorkingDir: {app}; StatusMsg: "Registering {#MyAppName} dll"; Flags: runhidden;
+Filename: "{dotnet2064}\RegAsm.exe"; Parameters: {#MyDllName}.dll /codebase /tlb:{#MyDllName}.tlb; WorkingDir: {app}; StatusMsg: "Registering {#MyDllName} dll"; Flags: runhidden; Check: IsWin64;
+Filename: "{dotnet2032}\RegAsm.exe"; Parameters: {#MyDllName}.dll /codebase /tlb:{#MyDllName}.tlb; WorkingDir: {app}; StatusMsg: "Registering {#MyDllName} dll"; Flags: runhidden;
 Filename: "{pf32}\Mozilla Firefox\firefox.exe"; Parameters: "SeleniumVbFormatters-{#XPIVersion}.xpi"; WorkingDir: {app}; Flags: shellexec postinstall; Description: "Install Addon for Firefox-Selenium IDE";
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}"
 
 [UninstallRun]
-Filename: "{dotnet2064}\RegAsm.exe"; Parameters: {#MyAppName}.dll /unregister /tlb:{#MyAppName}.tlb; WorkingDir: {app}; StatusMsg: "Unregistering {#MyAppName} dll"; Flags: runhidden; Check: IsWin64;
-Filename: "{dotnet2032}\RegAsm.exe"; Parameters: {#MyAppName}.dll /unregister /tlb:{#MyAppName}.tlb; WorkingDir: {app}; StatusMsg: "Unregistering {#MyAppName} dll"; Flags: runhidden;
+Filename: "{dotnet2064}\RegAsm.exe"; Parameters: {#MyDllName}.dll /unregister /tlb:{#MyDllName}.tlb; WorkingDir: {app}; StatusMsg: "Unregistering {#MyDllName} dll"; Flags: runhidden; Check: IsWin64;
+Filename: "{dotnet2032}\RegAsm.exe"; Parameters: {#MyDllName}.dll /unregister /tlb:{#MyDllName}.tlb; WorkingDir: {app}; StatusMsg: "Unregistering {#MyDllName} dll"; Flags: runhidden;
 
 [Code]
+var _AppDir: String;
+var _Version: String;
+var _IsWin32: Boolean;
+var _IsExcel32: Boolean;
+var _IsExcel64: Boolean;
+var _IsExcel2003: Boolean;
+var _IsExcel2007orSup: Boolean;
 
+//---------------------------------------------------------------------------------------
+// Excel functions
+//--------------------------------------------------------------------------------------- 
 function GetAppFolder(app: String): string;
   var clsid: String; server: String; ret: String; succeed: boolean;
   Begin
@@ -119,10 +133,68 @@ function GetAppFolder(app: String): string;
         if not succeed And IsWin64 then succeed:= RegQueryStringValue(HKCR64, 'CLSID\' + clsid + '\LocalServer', '', server);
         if succeed then Begin
           ret := RemoveQuotes(Trim(Copy( server , 0, Pos('.EXE', server ) + 3 )));
-          ret:= ExtractFileDir(ret);
-          Result := ret ;
+          Result := ExtractFileDir(ret);
         end;
     end;
+  end;
+
+function GetExcelVersionStr(): String;
+  var lVersion: String; i: Integer;
+  begin
+    if _Version='' then begin
+      if RegKeyExists(HKCR,'Excel.Application\CurVer') then begin
+        RegQueryStringValue(HKCR,'Excel.Application\CurVer', '', lVersion);
+      end else RaiseException( 'Failed to detect Excel version!' );
+      for i := 1 to Length(lVersion) do
+          if (lVersion[i] >= '0') and (lVersion[i] <= '9') then _Version := _Version + lVersion[i];
+    end
+    Result := _Version;
+  end;
+
+function GetTrustedLocation(app: String): string;
+  var base: string; i : integer;
+  Begin
+    base := 'Software\Microsoft\Office\' + GetExcelVersionStr() + '.0';
+    if RegKeyExists(HKCU, base) then begin
+        for i := 0 to 10 do begin
+           Result := base + '\Excel\Security\Trusted Locations\Location' + IntToStr(i);
+           if not RegKeyExists(HKCU, Result) then break;
+        end;
+    end
+  end;
+
+//---------------------------------------------------------------------------------------
+// Status
+//---------------------------------------------------------------------------------------
+function IsWin32(): Boolean;
+  begin
+    if not _IsWin32 then _IsWin32 := Not IsWin64();
+    Result := _IsWin32;
+  end;
+
+function IsExcel64(): Boolean;
+  begin
+    if not _IsExcel64 then _IsExcel64 := IsWin64() and RegKeyExists(HKLM64,'SOFTWARE\Microsoft\Office\' + GetExcelVersionStr() + '.0\Excel');
+    Result := _IsExcel64;
+  end;
+
+function IsExcel32(): Boolean;
+  begin
+    if not _IsExcel32 then _IsExcel32 := Not IsExcel64();
+    Result := _IsExcel32;
+  end;
+
+function IsExcel2003orInf(): Boolean;
+  begin
+    Result := StrToIntDef(GetExcelVersionStr(), 0) < 12;
+  end;
+ 
+function AppDir(argument : String): String;
+  begin
+    if _AppDir = '' then begin
+        if IsWin64() then _AppDir := ExpandConstant('{pf64}\{#MyAppName}') else _AppDir := ExpandConstant('{pf32}\{#MyAppName}');
+    end
+    Result := _AppDir;
   end;
 
 Function CheckDotNetFramework() : boolean;
@@ -161,18 +233,23 @@ Function TestInstallation(): boolean;
     end;
   End;
 
-Function CheckOnUse(): boolean;
-  var
-    sInstallLib: String;
+//---------------------------------------------------------------------------------------
+// Check on use
+//---------------------------------------------------------------------------------------
+Function IsOnUse(): boolean;
+  var file_tlb: String; file_dll: String;
   Begin
-    sInstallLib := ExpandConstant('{app}\{#MyAppName}.tlb' );
-    if FileExists( sInstallLib ) then begin
-     while Not RenameFile( sInstallLib, sInstallLib ) do begin
-        if MsgBox(ExpandConstant('Uninstallation of {#MyAppName} is not possible as a program is currently using it.'#13'Close all Office applications or restart Windows and try again.'), mbError, MB_RETRYCANCEL) = IDCANCEL then Abort();
-     end;
+    file_tlb := ExpandConstant('{app}\{#MyDllName}.tlb' );
+    file_dll := ExpandConstant('{app}\{#MyDllName}.dll' );
+    if FileExists( file_tlb ) and FileExists( file_dll ) then begin
+       while not result and not( RenameFile( file_tlb, file_tlb ) and RenameFile( file_dll, file_dll )  )do
+           result := IDCANCEL = MsgBox(ExpandConstant('Uninstallation of {#MyAppLongName} is not possible as a program is currently using it.'#13'Close all Office applications and try again.'), mbError, MB_RETRYCANCEL);
     end;
   End;
 
+//---------------------------------------------------------------------------------------
+// Workflow
+//---------------------------------------------------------------------------------------
 Function InitializeSetup() : boolean;
   Begin
     Result := CheckDotNetFramework();
@@ -190,6 +267,6 @@ procedure CurStepChanged(CurStep: TSetupStep);
 procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep); 
   begin
     if CurUninstallStep = usUninstall  then begin
-        CheckOnUse();
+        if IsOnUse then exit
     end;
   end;

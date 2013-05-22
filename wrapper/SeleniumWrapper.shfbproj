@@ -15,7 +15,7 @@
     <RootNamespace>Documentation</RootNamespace>
     <Name>Documentation</Name>
     <!-- SHFB properties -->
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>chm\</OutputPath>
     <HtmlHelpName>SeleniumWrapperApi</HtmlHelpName>
     <Language>en-US</Language>
     <DocumentationSources>
