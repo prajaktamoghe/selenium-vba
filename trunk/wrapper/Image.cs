@@ -38,7 +38,8 @@ namespace SeleniumWrapper
 
         internal Image(byte[] imageBytes)
         {
-            if (imageBytes == null || imageBytes.Length == 0) throw new ApplicationException("Method <Copy> failed !\nScreenshoot is empty");
+            if (imageBytes == null || imageBytes.Length == 0)
+                throw new ApplicationException("Method <Copy> failed !\nScreenshoot is empty");
             this.imageBytes = imageBytes;
         }
 

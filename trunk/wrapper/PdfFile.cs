@@ -346,14 +346,12 @@ namespace SeleniumWrapper
                             imgSize.Height *= scale;
                         }
 
-                        if (newpage) this.AddPage();
-
-                        if( !String.IsNullOrEmpty(bookmark)){
+                        if (newpage)
+                            this.AddPage();
+                        if( !String.IsNullOrEmpty(bookmark))
                             this.addBookmark(bookmark, false);
-                        }
-
-                        if (this.AvailableHeigth < 20) this.AddPage();
-
+                        if (this.AvailableHeigth < 20)
+                            this.AddPage();
                         if( imgSize.Height < this.AvailableHeigth ){
                             this.AddImageToPdf(bitmap, imgSize.Width, imgSize.Height);
                         }else{
@@ -364,19 +362,18 @@ namespace SeleniumWrapper
                                 if (leftHeightPt < 1) break;
                                 if (this.AvailableHeigth < 20) this.AddPage();
                                 double insertHeightPt;
-                                if(leftHeightPt>this.AvailableHeigth){
+                                if(leftHeightPt>this.AvailableHeigth)
                                     insertHeightPt = this.AvailableHeigth;
-                                }else{
+                                else
                                     insertHeightPt = leftHeightPt;
-                                }
+
                                 System.Drawing.Rectangle cropArea = new System.Drawing.Rectangle{
                                     X = 0,
                                     Y = (int)(yPosPt * scaledPointsToPixelsY), 
                                     Height = (int)(insertHeightPt * scaledPointsToPixelsY),
                                     Width = bitmap.Width
                                 };
-                                using (System.Drawing.Bitmap bmpCrop = bitmap.Clone(cropArea, bitmap.PixelFormat))
-                                {
+                                using (System.Drawing.Bitmap bmpCrop = bitmap.Clone(cropArea, bitmap.PixelFormat)){
                                     this.AddImageToPdf(bmpCrop, imgSize.Width, insertHeightPt);
                                 }
                                 leftHeightPt = imgSize.Height - yPosPt - insertHeightPt;

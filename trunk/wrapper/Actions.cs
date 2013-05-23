@@ -64,9 +64,8 @@ namespace SeleniumWrapper
 
         private void instantiateActions()
         {
-            if(this.actions==null){
-                this.actions = new OpenQA.Selenium.Interactions.Actions(WebDriver.currentWebDriver);
-            }
+            if(this.actions==null)
+                this.actions = new OpenQA.Selenium.Interactions.Actions(WebDriver.CurrentWebDriver);
         }
 
         /// <summary>Clicks an element.</summary>
@@ -75,11 +74,10 @@ namespace SeleniumWrapper
         public Actions click([Optional][DefaultParameterValue(null)]ref object webelement)
         {
             instantiateActions();
-            if(webelement==null){
+            if(webelement==null)
                 actions.Click();
-            }else{
+            else
                 actions.Click(((WebElement)webelement).webElement);
-            }
             return this;
         }
 
@@ -89,11 +87,10 @@ namespace SeleniumWrapper
         public Actions clickAndHold([Optional][DefaultParameterValue(null)]ref object webelement)
         {
             instantiateActions();
-            if(webelement==null){
+            if(webelement==null)
                 actions.ClickAndHold();
-            }else{
+            else
                 actions.ClickAndHold(((WebElement)webelement).webElement);
-            }
             return this;
         }
 
@@ -103,11 +100,10 @@ namespace SeleniumWrapper
         public Actions contextClick([Optional][DefaultParameterValue(null)]ref object webelement)
         {
             instantiateActions();
-            if(webelement==null){
+            if(webelement==null)
                 actions.ContextClick();
-            }else{
+            else
                 actions.ContextClick(((WebElement)webelement).webElement);
-            }
             return this;
         }
 
@@ -117,11 +113,10 @@ namespace SeleniumWrapper
         public Actions doubleClick([Optional][DefaultParameterValue(null)]ref object webelement)
         {
             instantiateActions();
-            if(webelement==null){
+            if(webelement==null)
                 actions.DoubleClick();
-            }else{
+            else
                 actions.DoubleClick(((WebElement)webelement).webElement);
-            }
             return this;
         }
 
@@ -155,11 +150,10 @@ namespace SeleniumWrapper
         public Actions keyDown(string key, [Optional][DefaultParameterValue(null)]ref object webelement)
         {
             instantiateActions();
-            if(webelement==null){
+            if(webelement==null)
                 actions.KeyDown(key);
-            }else{
+            else
                 actions.KeyDown(((WebElement)webelement).webElement, key);
-            }
             return this;
         }
 
@@ -170,11 +164,10 @@ namespace SeleniumWrapper
         public Actions key_up(string key, [Optional][DefaultParameterValue(null)]ref object webelement)
         {
             instantiateActions();
-            if(webelement==null){
+            if(webelement==null)
                 actions.KeyUp(key);
-            }else{
+            else
                 actions.KeyUp(((WebElement)webelement).webElement, key);
-            }
             return this;
         }
 
@@ -215,11 +208,10 @@ namespace SeleniumWrapper
         public Actions sendKeys(string keys, [Optional][DefaultParameterValue(null)]ref object webelement)
         {
             instantiateActions();
-            if(webelement==null){
+            if(webelement==null)
                 actions.SendKeys(keys);
-            }else{
+            else
                 actions.SendKeys(((WebElement)webelement).webElement, keys);
-            }
             return this;
         }
 

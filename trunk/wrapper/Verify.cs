@@ -67,11 +67,9 @@ namespace SeleniumWrapper
         /// <param name="failmessage"></param>
         /// <returns></returns>
         public string True(bool value, [Optional][DefaultParameterValue(null)]string failmessage){
-            if (value==true) {
+            if (value==true)
                 return "OK";
-            }else{
-                return String.IsNullOrEmpty(failmessage) ? "KO, Verify.True failed!" : failmessage;
-            }
+            return String.IsNullOrEmpty(failmessage) ? "KO, Verify.True failed!" : failmessage;
         }
 
         /// <summary></summary>
@@ -79,11 +77,9 @@ namespace SeleniumWrapper
         /// <param name="failmessage"></param>
         /// <returns></returns>
         public string False(bool value, [Optional][DefaultParameterValue(null)]string failmessage){
-            if (value==false) {
+            if (value==false)
                 return "OK";
-            }else{
-                return String.IsNullOrEmpty(failmessage) ? "KO, Verify.False failed!" : failmessage;
-            }
+            return String.IsNullOrEmpty(failmessage) ? "KO, Verify.False failed!" : failmessage;
         }
 
         /// <summary>Test that two objects are equal and raise an exception if the result is false</summary>
@@ -91,11 +87,9 @@ namespace SeleniumWrapper
         /// <param name="current">current object. Can be a string, number, array...</param>
         /// <param name="failmessage">Message to return if the verification fails...</param>
         public string Equals(Object expected, Object current, [Optional][DefaultParameterValue(null)]string failmessage) {
-            if ( Utils.ObjectEquals(expected, current)) {
+            if ( Utils.ObjectEquals(expected, current))
                 return "OK";
-            }else{
-                return String.IsNullOrEmpty(failmessage) ? "KO, Verify.Equals failed! expected=<" + Utils.Truncate(expected.ToString()) + "> result=<" + Utils.Truncate(current.ToString()) + ">" : failmessage; 
-            }
+            return String.IsNullOrEmpty(failmessage) ? "KO, Verify.Equals failed! expected=<" + Utils.Truncate(expected.ToString()) + "> result=<" + Utils.Truncate(current.ToString()) + ">" : failmessage; 
         }
 
         /// <summary>Test that two objects are not equal and raise an exception if the result is false</summary>
@@ -103,11 +97,9 @@ namespace SeleniumWrapper
         /// <param name="current">current object. Can be a string, number, array...</param>
         /// <param name="failmessage">Message to return if the verification fails...</param>
         public string NotEquals(Object expected, Object current, [Optional][DefaultParameterValue(null)]string failmessage) {
-            if ( Utils.ObjectEquals(expected, current)) {
+            if ( Utils.ObjectEquals(expected, current))
                 return String.IsNullOrEmpty(failmessage) ? "KO, Verify.NotEquals failed! expected=<" + Utils.Truncate(expected.ToString()) + "> result=<" + Utils.Truncate(current.ToString()) + ">" : failmessage;
-            }else{
-                return "OK";
-            }
+            return "OK";
         }
 
         /// <summary></summary>
@@ -116,11 +108,9 @@ namespace SeleniumWrapper
         /// <param name="failmessage"></param>
         /// <returns></returns>
         public string Matches(string input, string pattern, [Optional][DefaultParameterValue(null)]string failmessage){
-            if(Regex.IsMatch(input, pattern)){
+            if(Regex.IsMatch(input, pattern))
                 return "OK";
-            }else{
-                return String.IsNullOrEmpty(failmessage) ? "KO, Verify.Matches failed! input=<" + Utils.Truncate(input.ToString()) + "> pattern=<" + pattern + ">" : failmessage;
-            }
+            return String.IsNullOrEmpty(failmessage) ? "KO, Verify.Matches failed! input=<" + Utils.Truncate(input.ToString()) + "> pattern=<" + pattern + ">" : failmessage;
         }
 
         /// <summary></summary>
@@ -129,12 +119,9 @@ namespace SeleniumWrapper
         /// <param name="failmessage"></param>
         /// <returns></returns>
         public string NotMatches(string input, string pattern, [Optional][DefaultParameterValue(null)]string failmessage){
-            if(Regex.IsMatch(input, pattern)){
+            if(Regex.IsMatch(input, pattern))
                 return String.IsNullOrEmpty(failmessage) ? "KO, Verify.NotMatches failed! input=<" + Utils.Truncate(input.ToString()) + "> pattern=<" + pattern + ">" : failmessage;
-                
-            }else{
-                return "OK";
-            }
+            return "OK";
         }
 
         /// <summary></summary>
@@ -144,11 +131,9 @@ namespace SeleniumWrapper
         /// <returns></returns>
         public string Contains(string input, string text, [Optional][DefaultParameterValue(null)]string failmessage)
         {
-            if (input.Contains(text)){
+            if (input.Contains(text))
                 return "OK";
-            }else{
-                return String.IsNullOrEmpty(failmessage) ? "KO, Verify.Contains failed! input=<" + Utils.Truncate(input) + "> text=<" + text + ">" : failmessage;
-            }
+            return String.IsNullOrEmpty(failmessage) ? "KO, Verify.Contains failed! input=<" + Utils.Truncate(input) + "> text=<" + text + ">" : failmessage;
         }
 
     }

@@ -210,7 +210,7 @@ namespace SeleniumWrapper
 
         internal WebElement(WebDriver webDriver, OpenQA.Selenium.IWebElement webElement) {
             this.wd = webDriver;
-            this.webDriver = wd.webDriver;
+            this.webDriver = wd._webDriver;
             this.webElement = webElement;
         }
 
@@ -465,8 +465,8 @@ namespace SeleniumWrapper
 
         private void waitFor(Func<bool> condition)
         {
-            DateTime end = DateTime.Now.AddMilliseconds(this.wd.timeout);
-            while(!this.wd.canceled && !condition()){
+            DateTime end = DateTime.Now.AddMilliseconds(this.wd._timeout);
+            while(!this.wd._canceled && !condition()){
                 if( DateTime.Now > end ){
                     throw new Exception("Timeout reached!");
                 }
