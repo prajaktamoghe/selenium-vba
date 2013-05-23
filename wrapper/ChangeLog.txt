@@ -2,7 +2,7 @@ Author : Florent BREHERET
 Contact : florentbr@gmail.com
 Website : http://code.google.com/p/selenium-vba
 
-v1.0.13.0 (2013/05/23)
+v1.0.13.1 (2013/05/23)
 ===============================================================================
  * Updated Selenium libraries to 2.33
  * Updated IEDriverServer to 2.33

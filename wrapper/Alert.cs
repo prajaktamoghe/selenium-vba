@@ -42,7 +42,7 @@ namespace SeleniumWrapper
         internal static bool isAlertPresent(WebDriver webDriver)
         {
             try{
-                return webDriver.webDriver.SwitchTo().Alert() != null;
+                return webDriver._webDriver.SwitchTo().Alert() != null;
             }catch(Exception){
                 throw new Exception("There is not alert present!");
             }

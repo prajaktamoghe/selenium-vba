@@ -122,9 +122,8 @@ namespace SeleniumWrapper
                 String[] a2 = (String[])B;
                 if (a1.Length == a2.Length) {
                     for (int i = 0; i < a1.Length; i++) {
-                        if ( ! object.Equals( a1[i], a2[i] )){
+                        if ( ! object.Equals( a1[i], a2[i] ))
                             return false;
-                        }
                     }
                     return true;
                 }
@@ -143,9 +142,8 @@ namespace SeleniumWrapper
         /// <summary>Get a substring of the first N characters.</summary>
         public static string Truncate(string source, int length)
         {
-	        if (source.Length > length){
+	        if (source.Length > length)
 	            source = source.Substring(0, length) + "...";
-	        }
 	        return source;
         }
     }
