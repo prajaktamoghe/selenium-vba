@@ -576,12 +576,9 @@ namespace SeleniumWrapper
         }
 		
 	    private WebElement findElement(OpenQA.Selenium.By by, int timeoutms){
-            object ret;
-			if(timeoutms>0){
-                ret = this.wd.WaitUntilObject(()=>this.webElement.FindElement(by), timeoutms);
-			}else{
-                ret = this.webElement.FindElement(by);
-            }
+            object ret = timeoutms > 0 ?
+                this.wd.WaitUntilObject(() => this.webElement.FindElement(by), timeoutms)
+                : this.webElement.FindElement(by);
             return new WebElement(this.wd, (OpenQA.Selenium.IWebElement)ret);
         }
 
@@ -678,9 +675,8 @@ namespace SeleniumWrapper
             get {  
                 System.Collections.Generic.IList<OpenQA.Selenium.IWebElement> elements = new OpenQA.Selenium.Support.UI.SelectElement(this.webElement).AllSelectedOptions; 
                 IWebElement[] ret = new IWebElement[elements.Count];
-                for(int i=0; i<elements.Count; i++){
+                for(int i=0; i<elements.Count; i++)
                     ret[i] = new WebElement( this.wd, elements[i]);
-                }
                 return ret;
             }
         }
@@ -695,9 +691,8 @@ namespace SeleniumWrapper
             get {  
                 System.Collections.Generic.IList<OpenQA.Selenium.IWebElement> elements = new OpenQA.Selenium.Support.UI.SelectElement(this.webElement).Options; 
                 IWebElement[] ret = new IWebElement[elements.Count];
-                for(int i=0; i<elements.Count; i++){
+                for(int i=0; i<elements.Count; i++)
                     ret[i] = new WebElement( this.wd, elements[i]);
-                }
                 return ret;
             }
         }
@@ -799,11 +794,10 @@ namespace SeleniumWrapper
         /// </code>
         /// </example>
         public string[,] getArrayByCssSelector([Optional][DefaultParameterValue(null)]String rowsCssSelector, [Optional][DefaultParameterValue(null)]String columnsCssSelector){
-            if(columnsCssSelector==null){
+            if(columnsCssSelector==null)
                 return getArrayBy(this.webElement, OpenQA.Selenium.By.CssSelector(rowsCssSelector));
-            }else{
+            else
                 return getArrayBy(this.webElement, OpenQA.Selenium.By.CssSelector(rowsCssSelector), OpenQA.Selenium.By.CssSelector(columnsCssSelector));
-            }
         }
 
         /// <summary>Return an array filled with datas from an XPath query.</summary>
@@ -819,20 +813,18 @@ namespace SeleniumWrapper
         /// </code>
         /// </example>
         public string[,] getArrayByXPath([Optional][DefaultParameterValue(null)]String rowXPath, [Optional][DefaultParameterValue(null)]String columnXPath){
-            if(columnXPath==null){
+            if(columnXPath==null)
                 return getArrayBy(this.webElement, OpenQA.Selenium.By.XPath(rowXPath));
-            }else{
+            else
                 return getArrayBy(this.webElement, OpenQA.Selenium.By.XPath(rowXPath), OpenQA.Selenium.By.XPath(columnXPath));
-            }
         }
 
         private static string[,] getArrayBy(OpenQA.Selenium.IWebElement webElement, OpenQA.Selenium.By rowsBy){
             ReadOnlyCollection<OpenQA.Selenium.IWebElement> rows = webElement.FindElements(rowsBy);
             int nbRow = rows.Count;
             string[,] ret = new string[nbRow, 1];
-            for(int r=0;r<nbRow;r++) {
+            for(int r=0;r<nbRow;r++) 
                 ret[r, 0] = rows[r].Text;
-            }
             return ret;
         }
 
@@ -848,9 +840,8 @@ namespace SeleniumWrapper
                     init= true;
                     ret = new string[nbRow, nbCol];
                 }
-                for(int c=0;c<nbCol;c++) {
+                for(int c=0;c<nbCol;c++) 
                     ret[r, c] = cols[c].Text;
-                }
             }
             return ret;
         }
