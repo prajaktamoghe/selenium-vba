@@ -109,12 +109,9 @@ namespace SeleniumWrapper
                 }
                 System.Threading.Thread.Sleep(25);
             }
-            if((bool)condition){
-                this.end = null;
-                return false;
-            }else{
-                return true;
-            }
+            if(!(bool)condition) return true;
+            this.end = null;
+            return false;
         }
 
         /// <summary>Returns a boolean to continue waiting and throws an exception if the timeout is reached</summary>

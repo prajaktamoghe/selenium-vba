@@ -123,9 +123,8 @@ namespace SeleniumWrapper
         public void AddPage()
         {
             if (!this.IsPageEmpty){
-                if(this.pageCount!=0){
+                if(this.pageCount!=0)
                     addPagenumber();
-                }
                 this.page = new PdfSharp.Pdf.PdfPage();
                 if(this.pageCount == 0){
                     this.size.Width = this.page.Width;
@@ -144,7 +143,8 @@ namespace SeleniumWrapper
                 this.horizontalePosition = this.area.X;
                 this.verticalPosition = this.area.Y;
                 this.doc.AddPage(this.page);
-                if (this.graphics!=null) this.graphics.Dispose();
+                if (this.graphics!=null)
+                    this.graphics.Dispose();
                 this.graphics = PdfSharp.Drawing.XGraphics.FromPdfPage(this.page);
                 this.textformater = new PdfSharp.Drawing.Layout.XTextFormatter(this.graphics);
                 this.pageCount++;
@@ -199,7 +199,8 @@ namespace SeleniumWrapper
         /// <param name="bookmark">Bookmark name</param>
         /// <param name="newpage">Create the page in a new page. Default is true</param>
         public void addBookmark(string bookmark, [Optional][DefaultParameterValue(true)]bool newpage){
-            if(newpage) this.AddPage();
+            if(newpage)
+                this.AddPage();
             bookmark = ++this.bookmarkCount + " " + bookmark;
             PdfSharp.Drawing.XFont font = new PdfSharp.Drawing.XFont("Verdana", 12);
             this.verticalPosition += font.Height;
@@ -232,11 +233,10 @@ namespace SeleniumWrapper
                 | (underline ? PdfSharp.Drawing.XFontStyle.Underline : 0)
                 | (italic ? PdfSharp.Drawing.XFontStyle.Italic : 0);
             PdfSharp.Drawing.XFont xfont;
-            if( bold || underline || italic ){
+            if( bold || underline || italic )
                 xfont =  new PdfSharp.Drawing.XFont(font, size, xfontStyle);
-            }else{
+            else
                 xfont =  new PdfSharp.Drawing.XFont(font, size);
-            }
             PdfSharp.Drawing.XBrush xBrush;
             try{
                 xBrush = (PdfSharp.Drawing.XSolidBrush)typeof(PdfSharp.Drawing.XBrushes).GetProperty(color).GetValue(null, null);
@@ -261,11 +261,10 @@ namespace SeleniumWrapper
                     string textToAdd;
                     PdfSharp.Drawing.XSize textSize = this.graphics.MeasureString(leftText, xfont, PdfSharp.Drawing.XStringFormats.Default);
                     double textHeight;
-                    if (textSize.Width < this.area.Width){
+                    if (textSize.Width < this.area.Width)
                         textHeight = textSize.Height;
-                    }else{
+                    else
                         textHeight = textSize.Height * 1.2 * (textSize.Width / this.area.Width);
-                    }
 
                     if( textHeight < this.AvailableHeigth){
                         PdfSharp.Drawing.XRect rect = new PdfSharp.Drawing.XRect{
@@ -352,9 +351,9 @@ namespace SeleniumWrapper
                             this.addBookmark(bookmark, false);
                         if (this.AvailableHeigth < 20)
                             this.AddPage();
-                        if( imgSize.Height < this.AvailableHeigth ){
+                        if( imgSize.Height < this.AvailableHeigth )
                             this.AddImageToPdf(bitmap, imgSize.Width, imgSize.Height);
-                        }else{
+                        else{
                             double scaledPointsToPixelsY = bitmap.VerticalResolution / scale / 72; // Points scaled -> Points original -> Pixels
                             double yPosPt = 0;
                             double leftHeightPt = imgSize.Height;

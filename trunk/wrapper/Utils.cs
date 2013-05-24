@@ -116,21 +116,16 @@ namespace SeleniumWrapper
         }
 
         public static bool ObjectEquals(Object A, Object B) {
-            if(A!=null && A.GetType().IsArray){
-                if (!B.GetType().IsArray) return false;
-                String[] a1 = (String[])A;
-                String[] a2 = (String[])B;
-                if (a1.Length == a2.Length) {
-                    for (int i = 0; i < a1.Length; i++) {
-                        if ( ! object.Equals( a1[i], a2[i] ))
-                            return false;
-                    }
-                    return true;
-                }
-                return false;
-            }else{
+            if(A==null || A.GetType().IsArray==false)
                 return object.Equals(A, B);
+            if (!B.GetType().IsArray) return false;
+            var a1 = (String[])A;
+            var a2 = (String[])B;
+            if (a1.Length != a2.Length) return false;
+            for (int i = 0; i < a1.Length; i++) {
+                if ( ! object.Equals( a1[i], a2[i] )) return false;
             }
+            return true;
         }
     
         /// <summary>Get a substring of the first N characters.</summary>
