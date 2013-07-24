@@ -206,7 +206,7 @@ namespace SeleniumWrapper
         /// <param name="function"></param>
         /// <param name="timeoutms"></param>
         /// <returns></returns>
-        public object WaitUntilObject(ActionResult function, int timeoutms) {
+        internal object WaitUntilObject(ActionResult function, int timeoutms) {
             var endTime = DateTime.Now.AddMilliseconds(timeoutms);
             while (true) {
                 if (DateTime.Now > endTime)
@@ -355,14 +355,14 @@ namespace SeleniumWrapper
 
         /// <summary>Starts a new Selenium testing session</summary>
         /// <param name="browser">Name of the browser : firefox, ie, chrome, phantomjs</param>
-        /// <param name="url">The base URL</param>
+        /// <param name="baseUrl">The base URL</param>
         /// <param name="directory">Optional - Directory path for drivers or binaries</param>
         /// <example>
         ///     WebDriver driver = New WebDriver()
         ///     driver.start "firefox", "http://www.google.com"
         ///     driver.open "/"
         /// </example>
-        public void start(string browser, String url, [Optional][DefaultParameterValue("")]String directory) {
+        public void start(string browser, String baseUrl, [Optional][DefaultParameterValue("")]String directory) {
             _isStartedRemotely = false;
             if (!String.IsNullOrEmpty(directory)) {
                 if (!System.IO.Directory.Exists(directory))
@@ -408,18 +408,18 @@ namespace SeleniumWrapper
                     throw new ApplicationException("Browser <" + browser + "> is not available !  \nAvailable are Firefox, IE, Chrome and PhantomJS");
             }
             WebDriver.CurrentWebDriver = _webDriver;
-            _webDriverBacked = new Selenium.WebDriverBackedSelenium(_webDriver, url);
+            _webDriverBacked = new Selenium.WebDriverBackedSelenium(_webDriver, baseUrl);
             InvokeWd(() => _webDriverBacked.Start());
             this.setTimeout(_timeout);
-            _baseUrl = url.TrimEnd('/');
+            _baseUrl = baseUrl.TrimEnd('/');
             _timerhotkey.Start();
         }
 
         /// <summary>Starts remotely a new Selenium testing session</summary>
         /// <param name="browser">Name of the browser : firefox, ie, chrome, phantomjs, htmlunit, htmlunitwithjavascript, android, ipad, opera</param>
         /// <param name="remoteAddress">Remote url address (ex : "http://localhost:4444/wd/hub")</param>
-        /// <param name="url">Base URL</param>
-        public void startRemotely(string browser, String remoteAddress, String url) {
+        /// <param name="baseUrl">Base URL</param>
+        public void startRemotely(string browser, String remoteAddress, String baseUrl) {
             _isStartedRemotely = true;
             DesiredCapabilities lCapability;
             browser = browser.ToLower().Replace("*", "");
@@ -456,11 +456,11 @@ namespace SeleniumWrapper
                     break;
             }
             WebDriver.CurrentWebDriver = _webDriver;
-            _webDriver = new RemoteWebDriver(new Uri(remoteAddress), lCapability);
-            _webDriverBacked = new Selenium.WebDriverBackedSelenium(_webDriver, url);
+            _webDriver = new RemoteWebDriverCust(new Uri(remoteAddress), lCapability);
+            _webDriverBacked = new Selenium.WebDriverBackedSelenium(_webDriver, baseUrl);
             InvokeWd(() => _webDriverBacked.Start());
             this.setTimeout(_timeout);
-            _baseUrl = url.TrimEnd('/');
+            _baseUrl = baseUrl.TrimEnd('/');
             _timerhotkey.Start();
         }
 
@@ -603,10 +603,9 @@ namespace SeleniumWrapper
             // With chrome: use maximize switch
             // With IE: use windowMaximize javascript function
             // With Firefox: use Manage().Window.Maximize() method
-            if (_isStartedRemotely) {
+            if (_isStartedRemotely)
                 InvokeWd(() => _webDriver.Manage().Window.Maximize());
-                //InvokeWd(() => this.webDriverBacked.WindowMaximize());
-            } else {
+            else {
                 string handle = _webDriver.CurrentWindowHandle;
                 Utils.maximizeForegroundWindow();
             }

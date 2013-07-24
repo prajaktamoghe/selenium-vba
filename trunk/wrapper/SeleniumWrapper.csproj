@@ -84,6 +84,7 @@
     <Compile Include="PdfFile.cs" />
     <Compile Include="ISelect.cs" />
     <Compile Include="Image.cs" />
+    <Compile Include="RemoteWebDriverCust.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="Verify.cs" />
     <Compile Include="Waiter.cs" />
