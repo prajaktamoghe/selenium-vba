@@ -53,11 +53,10 @@ Source: ".\Templates\*.dot" ; DestDir: "{userappdata}\Microsoft\Templates"; Flag
 Source: ".\Templates\*.xlt" ; DestDir: "{userappdata}\Microsoft\Templates"; Flags: ignoreversion skipifsourcedoesntexist overwritereadonly ; Attribs:readonly
 Source: "..\formatters\SeleniumVbFormatters-{#XPIVersion}.xpi" ; DestDir: "{app}";
 Source: ".\exe.config" ; DestDir: "{win}\SYSTEM32"; DestName: "wscript.exe.config"; Flags: ignoreversion uninsneveruninstall
-Source: ".\exe.config" ; DestDir: "{code:GetAppFolder|Excel.Application}"; DestName: "excel.exe.config"; Flags: ignoreversion uninsneveruninstall; Check: IsWin64;
-Source: ".\exe.config" ; DestDir: "{code:GetAppFolder|Word.Application}"; DestName: "winword.exe.config"; Flags: ignoreversion uninsneveruninstall; Check: IsWin64;
-Source: ".\exe.config" ; DestDir: "{code:GetAppFolder|PowerPoint.Application}"; DestName: "powerpnt.exe.config"; Flags: ignoreversion uninsneveruninstall; Check: IsWin64;
-Source: ".\exe.config" ; DestDir: "{code:GetAppFolder|Access.Application}"; DestName: "msaccess.exe.config"; Flags: ignoreversion uninsneveruninstall; Check: IsWin64;
-Source: ".\exe.config" ; DestDir: "{code:GetAppFolder|Outlook.Application}"; DestName: "outlook.exe.config"; Flags: ignoreversion uninsneveruninstall; Check: IsWin64;
+Source: ".\exe.config" ; DestDir: "{code:GetAppFolder|Excel.Application}"; DestName: "excel.exe.config"; Flags: ignoreversion uninsneveruninstall;
+Source: ".\exe.config" ; DestDir: "{code:GetAppFolder|Word.Application}"; DestName: "winword.exe.config"; Flags: ignoreversion uninsneveruninstall;
+Source: ".\exe.config" ; DestDir: "{code:GetAppFolder|Access.Application}"; DestName: "msaccess.exe.config"; Flags: ignoreversion uninsneveruninstall;
+Source: ".\exe.config" ; DestDir: "{code:GetAppFolder|Outlook.Application}"; DestName: "outlook.exe.config"; Flags: ignoreversion uninsneveruninstall;
 
 [Icons]
 ;Name: "{group}\Readme"; Filename: "{app}\Readme.txt"; WorkingDir: "{app}";

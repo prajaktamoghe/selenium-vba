@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using OpenQA.Selenium.Remote;
 using OpenQA.Selenium;
+using OpenQA.Selenium.Remote;
 
 namespace SeleniumWrapper
 {
@@ -16,9 +13,7 @@ namespace SeleniumWrapper
 
         public Screenshot GetScreenshot()
         { 
-            Response screenshotResponse = this.Execute(DriverCommand.Screenshot, null); 
-            string base64 = screenshotResponse.Value.ToString(); 
-            return new Screenshot(base64); 
+            return new Screenshot( (string)base.Execute(DriverCommand.Screenshot, null).Value ); 
         }
     }
 }

@@ -42,7 +42,7 @@
     </ApiFilter>
     <MissingTags>None</MissingTags>
     <VisibleItems>None</VisibleItems>
-    <SyntaxFilters>None</SyntaxFilters>
+    <SyntaxFilters>VisualBasic</SyntaxFilters>
     <SdkLinkTarget>Blank</SdkLinkTarget>
     <RootNamespaceContainer>False</RootNamespaceContainer>
     <PresentationStyle>VS2005</PresentationStyle>
