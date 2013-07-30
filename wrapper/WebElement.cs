@@ -15,7 +15,7 @@ namespace SeleniumWrapper
         Select AsSelect{ get; }
 
         [Description("Clears the text if it’s a text entry element.")]
-        void clear();
+        WebElement clear();
 
         [Description("Clicks the element.")]
         void click();
@@ -345,8 +345,9 @@ namespace SeleniumWrapper
         }
         
         /// <summary>Clears the text if it’s a text entry element.</summary>
-        public void clear() { 
+        public WebElement clear() { 
             this.webElement.Clear();
+            return this;
         }
 
         /// <summary>Clicks the element.</summary>

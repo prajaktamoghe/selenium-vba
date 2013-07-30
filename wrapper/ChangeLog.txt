@@ -9,6 +9,8 @@ v1.0.13.4 (2013/)
  * Updated Chrome driver to 2.1
  * Rebuild of templates and examples
  * Fixed regression on the exe.config file
+ * Added SeleniumIDE to the package
+ * Fixed time-out message on wait commands
 
 v1.0.13.3 (2013/05/23)
 ===============================================================================

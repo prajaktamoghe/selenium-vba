@@ -43,6 +43,7 @@ Source: ".\References\phantomjs.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\References\chromedriver.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\References\IEDriverServer.exe"; DestDir: "{app}"; DestName: "IEDriverServer.exe" ; Flags: ignoreversion;
 Source: ".\References\IEDriverServer64.exe"; DestDir: "{app}\ie64" ;DestName: "IEDriverServer.exe" ; Flags: ignoreversion; Check: IsWin64;
+Source: ".\References\selenium-ide.xpi"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\License.txt"; DestDir: "{app}"; Flags: ignoreversion overwritereadonly ; Attribs:readonly
 Source: ".\Readme.txt"; DestDir: "{app}"; Flags: ignoreversion overwritereadonly ; Attribs:readonly
 Source: ".\ChangeLog.txt"; DestDir: "{app}"; Flags: ignoreversion overwritereadonly ; Attribs:readonly
@@ -51,7 +52,6 @@ Source: ".\QuickTest.vbs"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\Examples\*.*"; DestDir: "{app}\Examples"; Flags: ignoreversion skipifsourcedoesntexist overwritereadonly ; Attribs:readonly
 Source: ".\Templates\*.dot" ; DestDir: "{userappdata}\Microsoft\Templates"; Flags: ignoreversion skipifsourcedoesntexist overwritereadonly ; Attribs:readonly
 Source: ".\Templates\*.xlt" ; DestDir: "{userappdata}\Microsoft\Templates"; Flags: ignoreversion skipifsourcedoesntexist overwritereadonly ; Attribs:readonly
-Source: "..\formatters\SeleniumVbFormatters-{#XPIVersion}.xpi" ; DestDir: "{app}";
 Source: ".\exe.config" ; DestDir: "{win}\SYSTEM32"; DestName: "wscript.exe.config"; Flags: ignoreversion uninsneveruninstall
 Source: ".\exe.config" ; DestDir: "{code:GetAppFolder|Excel.Application}"; DestName: "excel.exe.config"; Flags: ignoreversion uninsneveruninstall;
 Source: ".\exe.config" ; DestDir: "{code:GetAppFolder|Word.Application}"; DestName: "winword.exe.config"; Flags: ignoreversion uninsneveruninstall;
@@ -101,7 +101,7 @@ Root: HKCU; Subkey: {code:GetTrustedLocation|}; ValueType: string; ValueName: "P
 [Run] 
 Filename: "{dotnet2064}\RegAsm.exe"; Parameters: {#MyDllName}.dll /codebase /tlb:{#MyDllName}.tlb; WorkingDir: {app}; StatusMsg: "Registering {#MyDllName} dll"; Flags: runhidden; Check: IsWin64;
 Filename: "{dotnet2032}\RegAsm.exe"; Parameters: {#MyDllName}.dll /codebase /tlb:{#MyDllName}.tlb; WorkingDir: {app}; StatusMsg: "Registering {#MyDllName} dll"; Flags: runhidden;
-Filename: "{pf32}\Mozilla Firefox\firefox.exe"; Parameters: "SeleniumVbFormatters-{#XPIVersion}.xpi"; WorkingDir: {app}; Flags: shellexec postinstall; Description: "Install Addon for Firefox-Selenium IDE";
+Filename: "{pf32}\Mozilla Firefox\firefox.exe"; Parameters: "selenium-ide.xpi"; WorkingDir: {app}; Flags: shellexec postinstall; Description: "Install Selenium IDE Addon for Firefox";
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}"
