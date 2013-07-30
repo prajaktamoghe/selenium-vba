@@ -208,13 +208,17 @@ namespace SeleniumWrapper
         /// <returns></returns>
         internal object WaitUntilObject(ActionResult function, int timeoutms) {
             var endTime = DateTime.Now.AddMilliseconds(timeoutms);
+			string errorMsg = String.Empty;
             while (true) {
                 if (DateTime.Now > endTime)
-                    throw new TimeoutException("The operation has timed out!");
+                    throw new TimeoutException("The operation has timed out! " + errorMsg);
                 try {
+					errorMsg = String.Empty;
                     var result = function();
                     if (result != null) return result;
-                } catch (Exception) { }
+                } catch (Exception ex) { 
+					errorMsg = ex.Message;
+				}
                 this.CheckCanceled();
                 Thread.Sleep(30);
             }

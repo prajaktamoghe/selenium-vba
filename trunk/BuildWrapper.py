@@ -6,10 +6,12 @@ Project_name = 'SeleniumWrapper';
 Current_dir = os.getcwd() + '\\';
 AssemblyInfo_path = Current_dir + r'wrapper\Properties\AssemblyInfo.cs';
 iss_path = Current_dir + r'wrapper\Package.iss';
+seleniumIde_path = Current_dir + r'wrapper\References\selenium-ide.xpi';
+formaters_path = Current_dir + r'formatters\vb-format.xpi';
 
 DXROOT_dir = "c:\Progra~1\Sandcastle"
 SHFBROOT_dir = "c:\Progra~1\EWSoftware\Sandcastle Help File Builder"
-sevenzip_path = r"C:\Program Files\7-Zip\7zFM.exe";
+sevenzip_path = r"C:\Program Files\7-Zip\7z.exe";
 innosetup_path = r"C:\Program Files\Inno Setup 5\ISCC.exe";
 msbuild_path = r"C:\WINDOWS\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe";
 
@@ -89,10 +91,13 @@ DeleteFolder(Current_dir + r'wrapper\obj' );
 print( "** Compile main library ...")
 if( not MsBuild( Current_dir + r'wrapper\SeleniumWrapper.csproj' ) ): exit(1)
 
+print( "** Include the formatters ...")
+if( not RunCommand([ sevenzip_path, 'a', '-tzip', seleniumIde_path, formaters_path ])) : exit(1)
+
 if(GetInput("Create the .chm help file [y/n] ? ") == 'y'):
 	print( "** Api documentation creation ...");
 	if( not RunCommand([ msbuild_path,'/v:quiet', '/p:Configuration=Release;CleanIntermediates=True', Current_dir + 'wrapper\SeleniumWrapper.shfbproj' ]) ): exit(1)
-
+	
 print( "** Build setup package ...")
 if( not RunCommand([ innosetup_path, '/q', '/O'+Current_dir, iss_path ])): exit(1)
 
