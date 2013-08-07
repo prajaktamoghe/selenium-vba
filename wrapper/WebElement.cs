@@ -254,7 +254,7 @@ namespace SeleniumWrapper
 
         /// <summary>Cast the WebElement to a Select element</summary>
         public Select AsSelect { 
-            get { return (Select)this.webElement; } 
+            get { return (Select)this; } 
         }
 
         /// <summary>Gets the text of the element.</summary>
@@ -468,9 +468,8 @@ namespace SeleniumWrapper
         {
             DateTime end = DateTime.Now.AddMilliseconds(this.wd._timeout);
             while(!this.wd._canceled && !condition()){
-                if( DateTime.Now > end ){
+                if( DateTime.Now > end )
                     throw new Exception("Timeout reached!");
-                }
                 Thread.Sleep(15);
             }
             this.wd.CheckCanceled();
