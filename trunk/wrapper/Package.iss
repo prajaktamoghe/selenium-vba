@@ -143,9 +143,10 @@ function GetExcelVersionStr(): String;
     if _Version='' then begin
       if RegKeyExists(HKCR,'Excel.Application\CurVer') then begin
         RegQueryStringValue(HKCR,'Excel.Application\CurVer', '', lVersion);
-      end else RaiseException( 'Failed to detect Excel version!' );
-      for i := 1 to Length(lVersion) do
-          if (lVersion[i] >= '0') and (lVersion[i] <= '9') then _Version := _Version + lVersion[i];
+      //end else RaiseException( 'Failed to detect Excel version!' );
+		for i := 1 to Length(lVersion) do
+			if (lVersion[i] >= '0') and (lVersion[i] <= '9') then _Version := _Version + lVersion[i];
+	  end
     end
     Result := _Version;
   end;
