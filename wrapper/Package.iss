@@ -38,7 +38,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Files]
 Source: ".\bin\Release\*.dll"; DestDir: "{app}"; Flags: ignoreversion
-;Source: ".\bin\Release\*.pdb"; DestDir: "{app}"; Flags: ignoreversion 
+Source: ".\bin\Release\*.pdb"; DestDir: "{app}"; Flags: ignoreversion 
 Source: ".\References\phantomjs.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\References\chromedriver.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\References\IEDriverServer.exe"; DestDir: "{app}"; DestName: "IEDriverServer.exe" ; Flags: ignoreversion;
@@ -53,10 +53,11 @@ Source: ".\Examples\*.*"; DestDir: "{app}\Examples"; Flags: ignoreversion skipif
 Source: ".\Templates\*.dot" ; DestDir: "{userappdata}\Microsoft\Templates"; Flags: ignoreversion skipifsourcedoesntexist overwritereadonly ; Attribs:readonly
 Source: ".\Templates\*.xlt" ; DestDir: "{userappdata}\Microsoft\Templates"; Flags: ignoreversion skipifsourcedoesntexist overwritereadonly ; Attribs:readonly
 Source: ".\exe.config" ; DestDir: "{win}\SYSTEM32"; DestName: "wscript.exe.config"; Flags: ignoreversion uninsneveruninstall
-Source: ".\exe.config" ; DestDir: "{code:GetAppFolder|Excel.Application}"; DestName: "excel.exe.config"; Flags: ignoreversion uninsneveruninstall;
-Source: ".\exe.config" ; DestDir: "{code:GetAppFolder|Word.Application}"; DestName: "winword.exe.config"; Flags: ignoreversion uninsneveruninstall;
-Source: ".\exe.config" ; DestDir: "{code:GetAppFolder|Access.Application}"; DestName: "msaccess.exe.config"; Flags: ignoreversion uninsneveruninstall;
-Source: ".\exe.config" ; DestDir: "{code:GetAppFolder|Outlook.Application}"; DestName: "outlook.exe.config"; Flags: ignoreversion uninsneveruninstall;
+Source: ".\exe.config" ; DestDir: "{win}\SYSTEM32"; DestName: "cscript.exe.config"; Flags: ignoreversion uninsneveruninstall
+Source: ".\exe.config" ; DestDir: "{code:GetAppFolder|Excel.Application}"; DestName: "EXCEL.EXE.CONFIG"; Flags: ignoreversion uninsneveruninstall; Check: IsAppInstalled('Excel.Application');
+Source: ".\exe.config" ; DestDir: "{code:GetAppFolder|Word.Application}"; DestName: "WINWORD.EXE.CONFIG"; Flags: ignoreversion uninsneveruninstall; Check: IsAppInstalled('Word.Application');
+Source: ".\exe.config" ; DestDir: "{code:GetAppFolder|Access.Application}"; DestName: "MSACCESS.EXE.CONFIG"; Flags: ignoreversion uninsneveruninstall; Check: IsAppInstalled('Access.Application');
+Source: ".\exe.config" ; DestDir: "{code:GetAppFolder|Outlook.Application}"; DestName: "OUTLOOK.EXE.CONFIG"; Flags: ignoreversion uninsneveruninstall; Check: IsAppInstalled('Outlook.Application');
 
 [Icons]
 ;Name: "{group}\Readme"; Filename: "{app}\Readme.txt"; WorkingDir: "{app}";
@@ -95,8 +96,10 @@ Root: HKCR64; Subkey: "CLSID\{{980551C8-0DEB-4774-8A07-CDCD9EB97FD6}"; Flags: de
 Root: HKCU; Subkey: {code:GetTrustedLocation|}; ValueType: string; ValueName: "Path"; ValueData: "{app}\Examples"; Flags: uninsdeletekey;
 
 ;Fix for KB907417 / get around with exe.config 
-;Root: HKLM; Subkey: "SOFTWARE\Microsoft\.NETFramework\Policy\AppPatch\v2.0.50727.00000\excel.exe"; Flags: deletekey
-;Root: HKLM; Subkey: "SOFTWARE\Microsoft\.NETFramework\Policy\AppPatch\v2.0.50727.00000\winword.exe"; Flags: deletekey
+Root: HKLM; Subkey: "SOFTWARE\Microsoft\.NETFramework\Policy\AppPatch\v2.0.50727.00000\excel.exe"; Flags: deletekey; Check: IsExcel2003orInf;
+Root: HKLM; Subkey: "SOFTWARE\Microsoft\.NETFramework\Policy\AppPatch\v2.0.50727.00000\winword.exe"; Flags: deletekey; Check: IsExcel2003orInf;
+Root: HKLM; Subkey: "SOFTWARE\Microsoft\.NETFramework\Policy\AppPatch\v2.0.50727.00000\msaccess.exe"; Flags: deletekey; Check: IsExcel2003orInf;
+Root: HKLM; Subkey: "SOFTWARE\Microsoft\.NETFramework\Policy\AppPatch\v2.0.50727.00000\outlook.exe"; Flags: deletekey; Check: IsExcel2003orInf;
 
 [Run] 
 Filename: "{dotnet2064}\RegAsm.exe"; Parameters: {#MyDllName}.dll /codebase /tlb:{#MyDllName}.tlb; WorkingDir: {app}; StatusMsg: "Registering {#MyDllName} dll"; Flags: runhidden; Check: IsWin64;
@@ -135,6 +138,11 @@ function GetAppFolder(app: String): string;
           Result := ExtractFileDir(ret);
         end;
     end;
+  end;
+
+function IsAppInstalled(app: String): Boolean;
+  Begin
+    Result := GetAppFolder(app) <> '';
   end;
 
 function GetExcelVersionStr(): String;
