@@ -132,7 +132,7 @@ namespace SeleniumWrapper
                 try {
                     action();
                 } catch (System.Exception ex) {
-                    if (!(ex is ThreadAbortException)) _error = ex.Message;
+                    if (!(ex is ThreadAbortException)) _error = ex.GetType().ToString() + ": " + ex.Message;
                 }
             });
             _thread.Start();
@@ -582,14 +582,9 @@ namespace SeleniumWrapper
             }
         }
 
-        /// <summary>Deprecated. Use copyScreenshot instead</summary>
-        public void captureScreenshotToClipboard() {
-            throw new Exception("captureScreenshotToClipboard is deprecated, use copyScreenshot instead");
-        }
-
-        /// <summary>Deprecated. Use getScreenshot instead</summary>
-        public object captureScreenshotToImage() {
-            throw new Exception("captureScreenshotToImage is deprecated, use getScreenshot instead");
+        /// <summary>Saves the entire contents of the current window canvas to a PNG file. Contrast this with the captureScreenshot command, which captures the contents of the OS viewport (i.e. whatever is currently being displayed on the monitor), and is implemented in the RC only. Currently this only works in Firefox when running in chrome mode, and in IE non-HTA using the EXPERIMENTAL \"Snapsie\" utility. The Firefox implementation is mostly borrowed from the Screengrab! Firefox extension. Please see http://www.screengrab.org and http://snapsie.sourceforge.net/ for details. the path to the file to persist the screenshot as. No filename extension will be appended by default. Directories will not be created if they do not exist, and an exception will be thrown, possibly by native code.a kwargs string that modifies the way the screenshot is captured. Example: \"background=#CCFFDD\" . Currently valid options: backgroundthe background CSS for the HTML document. This may be useful to set for capturing screenshots of less-than-ideal layouts, for example where absolute positioning causes the calculation of the canvas dimension to fail and a black background is exposed (possibly obscuring black text).</summary>
+        public void captureEntirePageScreenshot(String filename, [Optional][DefaultParameterValue("")]String kwargs) {
+            getScreenshot().SaveAs(filename);
         }
 
         /// <summary>Undo the effect of calling chooseCancelOnNextConfirmation. Note that Selenium's overridden window.confirm() function will normally automatically return true, as if the user had manually clicked OK, so you shouldn't need to use this command unless for some reason you need to change your mind prior to the next confirmation. After any confirmation, Selenium will resume using the default behavior for future confirmations, automatically returning true (OK) unless/until you explicitly call chooseCancelOnNextConfirmation for each confirmation. Take note - every time a confirmation comes up, you must consume it with a corresponding getConfirmation, or else the next selenium operation will fail. </summary>
@@ -865,7 +860,7 @@ namespace SeleniumWrapper
         /// <returns>Image</returns>
         public Image getScreenshot() {
             OpenQA.Selenium.Screenshot ret = ((OpenQA.Selenium.ITakesScreenshot)_webDriver).GetScreenshot();
-            if (ret == null) throw new ApplicationException("Method <captureScreenshotToPdf> failed !\nReturned value is empty");
+            if (ret == null) throw new ApplicationException("Method <getScreenshot> failed !\nReturned value is empty");
             return new Image(ret.AsByteArray);
         }
 

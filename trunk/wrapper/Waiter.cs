@@ -24,11 +24,11 @@ namespace SeleniumWrapper
     /// 
     /// <code lang="vbs">	
     /// Public Sub TestCase()
-    ///   Dim driver As New SeleniumWrapper.WebDriver, Waiter as New SeleniumWrapper.Assert
+    ///   Dim driver As New SeleniumWrapper.WebDriver, Waiter as New SeleniumWrapper.Waiter
     ///   driver.start "firefox", "http://www.google.com"
     ///   driver.open "/"
     ///   Waiter.Timeout = 5000
-    ///   While Waiter.Wait(driver.Title = "MyTitle"): DoEvents: Wend
+    ///   While Waiter.Until(driver.Title = "MyTitle"): DoEvents: Wend
     ///   driver.stop
     /// End Sub
     /// </code>
@@ -93,7 +93,7 @@ namespace SeleniumWrapper
         ///   driver.Start "firefox", "http://www.mywebsite.com/"   'Launch Firefox
         ///   driver.Open "/"
         ///   Waiter.Timeout = 5000
-        ///   While Waiter.Wait(driver.Title = "MyTitle"): DoEvents: Wend
+        ///   While Waiter.Until(driver.Title = "MyTitle"): DoEvents: Wend
         ///   ...
         /// End Sub
         /// </code>

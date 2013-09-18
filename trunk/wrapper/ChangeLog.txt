@@ -3,6 +3,14 @@ Contact : florentbr@gmail.com
 Website : http://code.google.com/p/selenium-vba
 
 
+v1.0.15.0
+===============================================================================
+ * Updated Selenium libraries to 2.35.0
+ * Updated IEDriverServer to 2.35.3
+ * Updated Chrome driver to 2.3
+ * Issue 28 : CaptureEntirePageScreenshot is not working
+ * Updated selenium IDE to 2.4.0
+
 v1.0.14.0 (2013/08/07)
 ===============================================================================
  * Updated Selenium libraries to 2.34.0

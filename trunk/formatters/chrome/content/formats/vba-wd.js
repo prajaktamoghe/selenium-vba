@@ -185,6 +185,90 @@ function formatComment(comment) {
   });
 }
 
+function keyVariable(key) {
+  return "Keys." + key;
+}
+
+this.sendKeysMaping = {
+  BKSP: "Backspace",
+  BACKSPACE: "Backspace",
+  TAB: "Tab",
+  ENTER: "Enter",
+  SHIFT: "Shift",
+  CONTROL: "Control",
+  CTRL: "Control",
+  ALT: "Alt",
+  PAUSE: "Pause",
+  ESCAPE: "Escape",
+  ESC: "Escape",
+  SPACE: "Space",
+  PAGE_UP: "PageUp",
+  PGUP: "PageUp",
+  PAGE_DOWN: "PageDown",
+  PGDN: "PageDown",
+  END: "End",
+  HOME: "Home",
+  LEFT: "Left",
+  UP: "Up",
+  RIGHT: "Right",
+  DOWN: "Down",
+  INSERT: "Insert",
+  INS: "Insert",
+  DELETE: "Delete",
+  DEL: "Delete",
+  SEMICOLON: "Semicolon",
+  EQUALS: "Equal",
+
+  NUMPAD0: "NumberPad0",
+  N0: "NumberPad0",
+  NUMPAD1: "NumberPad1",
+  N1: "NumberPad1",
+  NUMPAD2: "NumberPad2",
+  N2: "NumberPad2",
+  NUMPAD3: "NumberPad3",
+  N3: "NumberPad3",
+  NUMPAD4: "NumberPad4",
+  N4: "NumberPad4",
+  NUMPAD5: "NumberPad5",
+  N5: "NumberPad5",
+  NUMPAD6: "NumberPad6",
+  N6: "NumberPad6",
+  NUMPAD7: "NumberPad7",
+  N7: "NumberPad7",
+  NUMPAD8: "NumberPad8",
+  N8: "NumberPad8",
+  NUMPAD9: "NumberPad9",
+  N9: "NumberPad9",
+  MULTIPLY: "Multiply",
+  MUL: "Multiply",
+  ADD: "Add",
+  PLUS: "Add",
+  SEPARATOR: "Separator",
+  SEP: "Separator",
+  SUBTRACT: "Subtract",
+  MINUS: "Subtract",
+  DECIMAL: "Decimal",
+  PERIOD: "Decimal",
+  DIVIDE: "Divide",
+  DIV: "Divide",
+
+  F1: "F1",
+  F2: "F2",
+  F3: "F3",
+  F4: "F4",
+  F5: "F5",
+  F6: "F6",
+  F7: "F7",
+  F8: "F8",
+  F9: "F9",
+  F10: "F10",
+  F11: "F11",
+  F12: "F12",
+
+  META: "Meta",
+  COMMAND: "Command"
+};
+
 /**
  * Returns a string representing the suite for this formatter language.
  *

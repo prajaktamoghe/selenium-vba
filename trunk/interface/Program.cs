@@ -35,8 +35,37 @@ namespace InterfaceGeneration
                 StringBuilder sb = new StringBuilder();
 
                 Assembly lAssembly = Assembly.LoadFrom("Selenium.WebDriverBackedSelenium.dll");
-                String[] exclusionList = new String[] { "ChooseOkOnNextConfirmation", "ChooseCancelOnNextConfirmation", "Start", "Stop", "Close", "get_Processor", "SetTimeout", "Open", "WindowMaximize" };
-                String[] noWaitActionsList = new String[] { "Open", "SelectWindow", "ChooseCancelOnNextConfirmation", "AnswerOnNextPrompt", "SetContext", "SelectFrame", "Wait", "Set", "Capture", "Delete", "WindowFocus", "CreateCookie" };
+
+                String[] exclusionList = new String[] { 
+                    "ChooseOkOnNextConfirmation", 
+                    "ChooseCancelOnNextConfirmation", 
+                    "Start", 
+                    "Stop", 
+                    "Close", 
+                    "get_Processor", 
+                    "SetTimeout", 
+                    "Open", 
+                    "WindowMaximize",
+                    "CaptureScreenshot",
+                    "CaptureEntirePageScreenshot",
+                    "CaptureEntirePageScreenshotToString",
+                    "ShutDownSeleniumServer"
+                };
+
+                String[] noWaitActionsList = new String[] { 
+                    "Open", 
+                    "SelectWindow", 
+                    "ChooseCancelOnNextConfirmation", 
+                    "AnswerOnNextPrompt", 
+                    "SetContext", 
+                    "SelectFrame", 
+                    "Wait", 
+                    "Set", 
+                    "Capture", 
+                    "Delete", 
+                    "WindowFocus", 
+                    "CreateCookie"
+                };
 
                 System.Reflection.MethodInfo[] lMethods = lAssembly.GetType("Selenium.WebDriverBackedSelenium").GetMethods();
                 string[] lRet = new string[lMethods.Length];
@@ -77,74 +106,74 @@ namespace InterfaceGeneration
                             if (retType == "void")
                             {
                                 WriteLine( retType + " " + Char.ToLower(lMethods[i].Name[0]) + lMethods[i].Name.Substring(1) + "(" + argsInt + ")",
-                                        "InvokeWd(()=>webDriverBacked." + lMethods[i].Name + "(" + argsMeth + "))");
+                                        "InvokeWd(()=>_webDriverBacked." + lMethods[i].Name + "(" + argsMeth + "))");
 
                                 if (!Array.Exists(noWaitActionsList, p => lMethods[i].Name.StartsWith(p)))
                                 {
                                     WriteLine( retType + " " + Char.ToLower(lMethods[i].Name[0]) + lMethods[i].Name.Substring(1) + "AndWait(" + argsInt + ")",
-                                            "InvokeWdAndWait(()=>webDriverBacked." + lMethods[i].Name + "(" + argsMeth + "))");
+                                            "InvokeWdAndWait(()=>_webDriverBacked." + lMethods[i].Name + "(" + argsMeth + "))");
                                 }
 
                             }
                             else
                             {
                                 WriteLine( retType + " " + Char.ToLower(lMethods[i].Name[0]) + lMethods[i].Name.Substring(1) + "(" + argsInt + ")",
-                                        " return (" + retType + ")InvokeWd(()=>webDriverBacked." + lMethods[i].Name + "(" + argsMeth + "))");
+                                        " return (" + retType + ")InvokeWd(()=>_webDriverBacked." + lMethods[i].Name + "(" + argsMeth + "))");
 
                                 if (lMethods[i].Name.StartsWith("Get"))
                                 {
                                     if (argsInt != string.Empty) argsInt += ", ";
                                     argsInt += retType + " expected";
                                     WriteLine( "void " + lMethods[i].Name.Replace("Get", "assert") + "(" + argsInt + ")",
-                                            "InvokeWdAssert(()=>webDriverBacked." + lMethods[i].Name + "(" + argsMeth + ")," + expected + ",true)");
+                                            "InvokeWdAssert(()=>_webDriverBacked." + lMethods[i].Name + "(" + argsMeth + ")," + expected + ",true)");
 
                                     WriteLine( "void " + lMethods[i].Name.Replace("Get", "assertNot") + "(" + argsInt + ")",
-                                            "InvokeWdAssert(()=>webDriverBacked." + lMethods[i].Name + "(" + argsMeth + ")," + expected + ",false)");
+                                            "InvokeWdAssert(()=>_webDriverBacked." + lMethods[i].Name + "(" + argsMeth + ")," + expected + ",false)");
 
                                     WriteLine( "String " + lMethods[i].Name.Replace("Get", "verify") + "(" + argsInt + ")",
-                                            "return InvokeWdVerify(()=>webDriverBacked." + lMethods[i].Name + "(" + argsMeth + ")," + expected + ",true)");
+                                            "return InvokeWdVerify(()=>_webDriverBacked." + lMethods[i].Name + "(" + argsMeth + ")," + expected + ",true)");
 
                                     WriteLine( "String " + lMethods[i].Name.Replace("Get", "verifyNot") + "(" + argsInt + ")",
-                                            "return InvokeWdVerify(()=>webDriverBacked." + lMethods[i].Name + "(" + argsMeth + ")," + expected + ",false)");
+                                            "return InvokeWdVerify(()=>_webDriverBacked." + lMethods[i].Name + "(" + argsMeth + ")," + expected + ",false)");
 
                                     WriteLine( "void " + lMethods[i].Name.Replace("Get", "waitFor") + "(" + argsInt + ")",
-                                            "InvokeWdWaitFor(()=>webDriverBacked." + lMethods[i].Name + "(" + argsMeth + ")," + expected + ",true)");
+                                            "InvokeWdWaitFor(()=>_webDriverBacked." + lMethods[i].Name + "(" + argsMeth + ")," + expected + ",true)");
 
                                     WriteLine( "void " + lMethods[i].Name.Replace("Get", "waitForNot") + "(" + argsInt + ")",
-                                            "InvokeWdWaitFor(()=>webDriverBacked." + lMethods[i].Name + "(" + argsMeth + ")," + expected + ",false)");
+                                            "InvokeWdWaitFor(()=>_webDriverBacked." + lMethods[i].Name + "(" + argsMeth + ")," + expected + ",false)");
                                 }
                                 else if (lMethods[i].Name.StartsWith("Is"))
                                 {
                                     WriteLine( "void " + lMethods[i].Name.Replace("Is", "assert") + "(" + argsInt + ")",
-                                            "InvokeWdAssert(()=>webDriverBacked." + lMethods[i].Name + "(" + argsMeth + "),true,true)");
+                                            "InvokeWdAssert(()=>_webDriverBacked." + lMethods[i].Name + "(" + argsMeth + "),true,true)");
 
                                     WriteLine( "String " + lMethods[i].Name.Replace("Is", "verify") + "(" + argsInt + ")",
-                                            "return InvokeWdVerify(()=>webDriverBacked." + lMethods[i].Name + "(" + argsMeth + "),true,true)");
+                                            "return InvokeWdVerify(()=>_webDriverBacked." + lMethods[i].Name + "(" + argsMeth + "),true,true)");
 
                                     WriteLine( "void " + lMethods[i].Name.Replace("Is", "waitFor") + "(" + argsInt + ")",
-                                            "InvokeWdWaitFor(()=>webDriverBacked." + lMethods[i].Name + "(" + argsMeth + "),true,true)");
+                                            "InvokeWdWaitFor(()=>_webDriverBacked." + lMethods[i].Name + "(" + argsMeth + "),true,true)");
 
                                     if (lMethods[i].Name.EndsWith("Present"))
                                     {
                                         WriteLine( "void " + lMethods[i].Name.Replace("Is", "assert").Replace("Present", "NotPresent") + "(" + argsInt + ")",
-                                                "InvokeWdAssert(()=>webDriverBacked." + lMethods[i].Name + "(" + argsMeth + "),false,true)");
+                                                "InvokeWdAssert(()=>_webDriverBacked." + lMethods[i].Name + "(" + argsMeth + "),false,true)");
 
                                         WriteLine( "String " + lMethods[i].Name.Replace("Is", "verify").Replace("Present", "NotPresent") + "(" + argsInt + ")",
-                                                "return InvokeWdVerify(()=>webDriverBacked." + lMethods[i].Name + "(" + argsMeth + "),false,true)");
+                                                "return InvokeWdVerify(()=>_webDriverBacked." + lMethods[i].Name + "(" + argsMeth + "),false,true)");
 
                                         WriteLine( "void " + lMethods[i].Name.Replace("Is", "waitFor").Replace("Present", "NotPresent") + "(" + argsInt + ")",
-                                                "InvokeWdWaitFor(()=>webDriverBacked." + lMethods[i].Name + "(" + argsMeth + "),false,true)");
+                                                "InvokeWdWaitFor(()=>_webDriverBacked." + lMethods[i].Name + "(" + argsMeth + "),false,true)");
                                     }
                                     else
                                     {
                                         WriteLine( "void " + lMethods[i].Name.Replace("Is", "assertNot") + "(" + argsInt + ")",
-                                                "InvokeWdAssert(()=>webDriverBacked." + lMethods[i].Name + "(" + argsMeth + "),false,true)");
+                                                "InvokeWdAssert(()=>_webDriverBacked." + lMethods[i].Name + "(" + argsMeth + "),false,true)");
 
                                         WriteLine( "String " + lMethods[i].Name.Replace("Is", "verifyNot") + "(" + argsInt + ")",
-                                                "return InvokeWdVerify(()=>webDriverBacked." + lMethods[i].Name + "(" + argsMeth + "),false,true)");
+                                                "return InvokeWdVerify(()=>_webDriverBacked." + lMethods[i].Name + "(" + argsMeth + "),false,true)");
 
                                         WriteLine( "void " + lMethods[i].Name.Replace("Is", "waitForNot") + "(" + argsInt + ")",
-                                                "InvokeWdWaitFor(()=>webDriverBacked." + lMethods[i].Name + "(" + argsMeth + "),false,true)");
+                                                "InvokeWdWaitFor(()=>_webDriverBacked." + lMethods[i].Name + "(" + argsMeth + "),false,true)");
                                     }
                                 }
                             }
