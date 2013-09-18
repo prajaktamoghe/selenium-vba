@@ -34,12 +34,12 @@ pdf.addImage driver.getScreenshot(), "Search page"
 Set textbox = driver.findElementByName("q")
 textbox.sendKeys "Eiffel tower"
 textbox.sendKeys Keys.Return
-driver.wait 500
+driver.wait 1000
 pdf.addImage driver.getScreenshot(), "Web result page", true
 
 'Go to the Image result page, take a screenschot and add it to the PDF file
 driver.findElementByLinkText("Maps").click
-driver.wait 500
+driver.wait 1000
 pdf.addImage driver.getScreenshot(), "Maps result page", true
 
 'Save the PDF
