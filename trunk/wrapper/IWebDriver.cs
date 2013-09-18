@@ -109,7 +109,7 @@ namespace SeleniumWrapper
         WebElement findElementByTagName(String tagname, [Optional][DefaultParameterValue(0)]int timeoutms);
         
         [Description("Indicates whether a WebElement is present using the given method.")]
-        bool isElementPresent(ref object by, [Optional][DefaultParameterValue(0)]int timeoutms);
+        bool isElementPresent(object locator);
 
         [Description("Find all elements within the current context using the given mechanism.")]
         WebElement[] findElements(ref object by, int timeoutms);

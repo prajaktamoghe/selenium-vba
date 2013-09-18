@@ -462,7 +462,7 @@ namespace SeleniumWrapper
 		public String verifyTextNotPresent(String pattern){return InvokeWdVerify(()=>_webDriverBacked.IsTextPresent(pattern),false,true);}
 		public void waitForTextNotPresent(String pattern){InvokeWdWaitFor(()=>_webDriverBacked.IsTextPresent(pattern),false,true);}
 		/// <summary>Verifies that the specified element is somewhere on the page. an element locatortrue if the element is present, false otherwise</summary>
-		public Boolean isElementPresent(String locator){ return (Boolean)InvokeWd(()=>_webDriverBacked.IsElementPresent(locator));}
+		//public Boolean isElementPresent(String locator){ return (Boolean)InvokeWd(()=>_webDriverBacked.IsElementPresent(locator));}
 		public void assertElementPresent(String locator){InvokeWdAssert(()=>_webDriverBacked.IsElementPresent(locator),true,true);}
 		public String verifyElementPresent(String locator){return InvokeWdVerify(()=>_webDriverBacked.IsElementPresent(locator),true,true);}
 		public void waitForElementPresent(String locator){InvokeWdWaitFor(()=>_webDriverBacked.IsElementPresent(locator),true,true);}

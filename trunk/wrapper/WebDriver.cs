@@ -758,12 +758,20 @@ namespace SeleniumWrapper
             return this.findElement(OpenQA.Selenium.By.TagName(tagname), timeoutms);
         }
 
-        public bool isElementPresent(ref object by, [Optional][DefaultParameterValue(0)]int timeoutms) {
-            try {
-                return findElement(((By)by).base_, timeoutms) != null;
-            } catch (Exception) {
-                return false;
-            }
+        /// <summary>"Verifies that the specified element is somewhere on the page."</summary>
+        /// <param name="locator">An element loctor. String or By object</param>
+        /// <returns>true if the element is present, false otherwise</returns>
+        public bool isElementPresent(object locator) {
+            if (locator is By)
+                try {
+                    return findElement(((By)locator).base_, 0) != null;
+                } catch (Exception) {
+                    return false;
+                }
+            else if (locator is string)
+                return (Boolean)InvokeWd(() => _webDriverBacked.IsElementPresent((string)locator));
+            else
+                throw new ArgumentException("Locator has to be a 'String' or a 'By' object!");
         }
 
         private WebElement findElement(OpenQA.Selenium.By by, int timeoutms) {
