@@ -466,7 +466,7 @@ namespace SeleniumWrapper
 		String verifyTextNotPresent(String pattern);
 		void waitForTextNotPresent(String pattern);
 		[Description("Verifies that the specified element is somewhere on the page. an element locatortrue if the element is present, false otherwise")]
-		Boolean isElementPresent(String locator);
+		//Boolean isElementPresent(String locator);
 		void assertElementPresent(String locator);
 		String verifyElementPresent(String locator);
 		void waitForElementPresent(String locator);
