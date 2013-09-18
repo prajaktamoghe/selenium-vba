@@ -60,18 +60,11 @@ namespace SeleniumWrapper
         [Description("Wait the specified time in millisecond before executing the next command")]
         void sleep(int timems);
 
-        [Description("Deprecated. Use getScreenshot().Copy() instead")]
-        void captureScreenshotToClipboard();
-
-        [Description("Deprecated. Use getScreenshot() instead")]
-        [return: MarshalAs(UnmanagedType.IUnknown)]
-        object captureScreenshotToImage();
+        [Description("Saves the entire contents of the current window canvas to a PNG file. Contrast this with the captureScreenshot command, which captures the contents of the OS viewport (i.e. whatever is currently being displayed on the monitor), and is implemented in the RC only. Currently this only works in Firefox when running in chrome mode, and in IE non-HTA using the EXPERIMENTAL \"Snapsie\" utility. The Firefox implementation is mostly borrowed from the Screengrab! Firefox extension. Please see http://www.screengrab.org and http://snapsie.sourceforge.net/ for details. the path to the file to persist the screenshot as. No filename extension will be appended by default. Directories will not be created if they do not exist, and an exception will be thrown, possibly by native code.a kwargs string that modifies the way the screenshot is captured. Example: \"background=#CCFFDD\" . Currently valid options: backgroundthe background CSS for the HTML document. This may be useful to set for capturing screenshots of less-than-ideal layouts, for example where absolute positioning causes the calculation of the canvas dimension to fail and a black background is exposed (possibly obscuring black text).")]
+        void captureEntirePageScreenshot(String filename, [Optional][DefaultParameterValue("")]String kwargs);
 
         [Description("Capture a screenshot")]
         Image getScreenshot();
-
-        //[Description("Gets the screenshot of the current window to the Clipboard")]
-        //void copyScreenshot();
 
         [Description("Execute JavaScrip on the page")]
         Object executeScript(String script, [Optional][DefaultParameterValue(null)]Object arguments);

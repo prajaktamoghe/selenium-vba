@@ -69,18 +69,21 @@
     <OutputPath>bin\Debug\</OutputPath>
     <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'test|x86'">
+    <OutputPath>bin\x86\test\</OutputPath>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Selenium.WebDriverBackedSelenium">
-      <HintPath>..\wrapper\Reference\Selenium.WebDriverBackedSelenium.dll</HintPath>
+      <HintPath>..\wrapper\References\Selenium.WebDriverBackedSelenium.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.XML" />
     <Reference Include="ThoughtWorks.Selenium.Core">
-      <HintPath>..\wrapper\Reference\ThoughtWorks.Selenium.Core.dll</HintPath>
+      <HintPath>..\wrapper\References\ThoughtWorks.Selenium.Core.dll</HintPath>
     </Reference>
     <Reference Include="WebDriver">
-      <HintPath>..\wrapper\Reference\WebDriver.dll</HintPath>
+      <HintPath>..\wrapper\References\WebDriver.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

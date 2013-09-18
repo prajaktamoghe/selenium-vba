@@ -32,7 +32,7 @@ namespace SeleniumWrapper
             [Optional][DefaultParameterValue("Helvetica")]string font);
 
         [Description("Add a page")]
-        void AddPage();
+        void addPage();
 
         [Description("Add a bookmark")]
         void addBookmark(string bookmark, [Optional][DefaultParameterValue(false)]bool newpage);
@@ -50,24 +50,24 @@ namespace SeleniumWrapper
     [ComVisible(true), ComDefaultInterface(typeof(IPdfFile)), ClassInterface(ClassInterfaceType.None)]
     public class PdfFile : IPdfFile
     {
-        private PdfSharp.Pdf.PdfDocument doc;
-        private PdfSharp.Pdf.PdfPage page;
-        private PdfSharp.Drawing.XGraphics graphics;
-        private PdfSharp.Drawing.XSize size;
-        private PdfSharp.Drawing.XRect area;
-        private double verticalPosition;
-        private double horizontalePosition;
-        private bool IsPageEmpty;
-        private int pageCount;
-        private int bookmarkCount;
-        private PdfSharp.Drawing.XFont font_pageNumber;
-        private PdfSharp.Drawing.Layout.XTextFormatter textformater;
+        private PdfSharp.Pdf.PdfDocument _doc;
+        private PdfSharp.Pdf.PdfPage _page;
+        private PdfSharp.Drawing.XGraphics _graphics;
+        private PdfSharp.Drawing.XSize _size;
+        private PdfSharp.Drawing.XRect _area;
+        private double _verticalPosition;
+        private double _horizontalePosition;
+        private bool _isPageEmpty;
+        private int _pageCount;
+        private int _bookmarkCount;
+        private PdfSharp.Drawing.XFont _font_pageNumber;
+        private PdfSharp.Drawing.Layout.XTextFormatter _textformater;
 
         public PdfFile(){
             try{
-                this.doc = new PdfSharp.Pdf.PdfDocument();
-                this.font_pageNumber = new PdfSharp.Drawing.XFont("Arial", 8);
-                AddPage();
+                _doc = new PdfSharp.Pdf.PdfDocument();
+                _font_pageNumber = new PdfSharp.Drawing.XFont("Arial", 8);
+                addPage();
             }catch (Exception ex){
                 throw new ApplicationException(ex.Message);
             }
@@ -78,8 +78,8 @@ namespace SeleniumWrapper
         }
 
         public void Dispose(){
-            this.graphics.Dispose();
-            this.doc.Dispose();
+            _graphics.Dispose();
+            _doc.Dispose();
             //if(this.doc.IsOpen())this.doc.Close();
             //ms.Dispose();
         }
@@ -91,13 +91,13 @@ namespace SeleniumWrapper
         {
             PdfSharp.Drawing.XUnit width = PdfSharp.Drawing.XUnit.FromMillimeter(width_mm);
             PdfSharp.Drawing.XUnit heigth = PdfSharp.Drawing.XUnit.FromMillimeter(heigth_mm);
-            this.page.Width = width;
-            this.page.Height = heigth;
-            this.size.Width = width;
-            this.size.Height = heigth;
-            this.area.Width = this.area.Width + (width - this.page.Width);
-            this.area.Height = this.area.Height + (heigth - this.page.Height);
-            this.verticalPosition = this.verticalPosition + heigth - this.page.Height;
+            _page.Width = width;
+            _page.Height = heigth;
+            _size.Width = width;
+            _size.Height = heigth;
+            _area.Width = _area.Width + (width - _page.Width);
+            _area.Height = _area.Height + (heigth - _page.Height);
+            _verticalPosition = _verticalPosition + heigth - _page.Height;
         }
 
         /// <summary>Set page margins in millimeter</summary>
@@ -109,46 +109,46 @@ namespace SeleniumWrapper
         {
             PdfSharp.Drawing.XUnit left = PdfSharp.Drawing.XUnit.FromMillimeter(left_mm);
             PdfSharp.Drawing.XUnit top = PdfSharp.Drawing.XUnit.FromMillimeter(top_mm);
-            this.horizontalePosition = this.horizontalePosition + left - this.area.X;
-            this.verticalPosition = this.verticalPosition + top - this.area.Y;
-            this.area = new PdfSharp.Drawing.XRect{
+            _horizontalePosition = _horizontalePosition + left - _area.X;
+            _verticalPosition = _verticalPosition + top - _area.Y;
+            _area = new PdfSharp.Drawing.XRect{
                 X = left,
                 Y = top,
-                Width = this.page.Width - PdfSharp.Drawing.XUnit.FromMillimeter(left_mm + rigth_mm),
-                Height = this.page.Height - PdfSharp.Drawing.XUnit.FromMillimeter(top_mm + bottom_mm)
+                Width = _page.Width - PdfSharp.Drawing.XUnit.FromMillimeter(left_mm + rigth_mm),
+                Height = _page.Height - PdfSharp.Drawing.XUnit.FromMillimeter(top_mm + bottom_mm)
             };
         }
 
         /// <summary>Add a new page if the current page is not empty</summary>
-        public void AddPage()
+        public void addPage()
         {
-            if (!this.IsPageEmpty){
-                if(this.pageCount!=0)
+            if (!_isPageEmpty){
+                if(_pageCount!=0)
                     addPagenumber();
-                this.page = new PdfSharp.Pdf.PdfPage();
-                if(this.pageCount == 0){
-                    this.size.Width = this.page.Width;
-                    this.size.Height = this.page.Height;
-                    this.area = new PdfSharp.Drawing.XRect{
+                _page = new PdfSharp.Pdf.PdfPage();
+                if(_pageCount == 0){
+                    _size.Width = _page.Width;
+                    _size.Height = _page.Height;
+                    _area = new PdfSharp.Drawing.XRect{
                         X = PdfSharp.Drawing.XUnit.FromMillimeter(10),
                         Y = PdfSharp.Drawing.XUnit.FromMillimeter(10),
-                        Width = this.page.Width - PdfSharp.Drawing.XUnit.FromMillimeter(20),
-                        Height = this.page.Height - PdfSharp.Drawing.XUnit.FromMillimeter(45)
+                        Width = _page.Width - PdfSharp.Drawing.XUnit.FromMillimeter(20),
+                        Height = _page.Height - PdfSharp.Drawing.XUnit.FromMillimeter(45)
                     };
                 }else{
-                    this.page = new PdfSharp.Pdf.PdfPage();
-                    this.page.Width = this.size.Width;
-                    this.page.Height = this.size.Height;
+                    _page = new PdfSharp.Pdf.PdfPage();
+                    _page.Width = _size.Width;
+                    _page.Height = _size.Height;
                 }
-                this.horizontalePosition = this.area.X;
-                this.verticalPosition = this.area.Y;
-                this.doc.AddPage(this.page);
-                if (this.graphics!=null)
-                    this.graphics.Dispose();
-                this.graphics = PdfSharp.Drawing.XGraphics.FromPdfPage(this.page);
-                this.textformater = new PdfSharp.Drawing.Layout.XTextFormatter(this.graphics);
-                this.pageCount++;
-                this.IsPageEmpty = true;
+                _horizontalePosition = _area.X;
+                _verticalPosition = _area.Y;
+                _doc.AddPage(_page);
+                if (_graphics!=null)
+                    _graphics.Dispose();
+                _graphics = PdfSharp.Drawing.XGraphics.FromPdfPage(_page);
+                _textformater = new PdfSharp.Drawing.Layout.XTextFormatter(_graphics);
+                _pageCount++;
+                _isPageEmpty = true;
             }
         }
 
@@ -156,16 +156,16 @@ namespace SeleniumWrapper
         /// <param name="space_mm">Vertical space in millimeter</param>
         public void addVerticalSpace(int space_mm)
         {
-            this.verticalPosition += PdfSharp.Drawing.XUnit.FromMillimeter(space_mm);
+            _verticalPosition += PdfSharp.Drawing.XUnit.FromMillimeter(space_mm);
         }
 
         private void addPagenumber(){
-            this.graphics.DrawString(this.pageCount.ToString(), font_pageNumber, PdfSharp.Drawing.XBrushes.Black, this.area.Right - 15, this.area.Bottom + 10);
+            _graphics.DrawString(_pageCount.ToString(), _font_pageNumber, PdfSharp.Drawing.XBrushes.Black, _area.Right - 15, _area.Bottom + 10);
         }
 
         private float AvailableHeigth
         {
-            get { return (float)(this.area.Bottom - this.verticalPosition); }
+            get { return (float)(_area.Bottom - _verticalPosition); }
 
         }
 
@@ -174,9 +174,9 @@ namespace SeleniumWrapper
         public void saveAs(string pdfpath){
             addPagenumber();
             using (FileStream fs = File.Create(pdfpath)){
-                this.doc.Save(fs);
+                _doc.Save(fs);
             }
-            this.doc.Close();
+            _doc.Close();
             //ms.Dispose();
         }
 
@@ -200,14 +200,14 @@ namespace SeleniumWrapper
         /// <param name="newpage">Create the page in a new page. Default is true</param>
         public void addBookmark(string bookmark, [Optional][DefaultParameterValue(true)]bool newpage){
             if(newpage)
-                this.AddPage();
-            bookmark = ++this.bookmarkCount + " " + bookmark;
+                this.addPage();
+            bookmark = ++_bookmarkCount + " " + bookmark;
             PdfSharp.Drawing.XFont font = new PdfSharp.Drawing.XFont("Verdana", 12);
-            this.verticalPosition += font.Height;
-            this.graphics.DrawString(bookmark, font, PdfSharp.Drawing.XBrushes.Black,this.horizontalePosition + 10, this.verticalPosition);
-            this.verticalPosition += font.Height / 2;
-            this.doc.Outlines.Add(bookmark, this.page, true);
-            this.IsPageEmpty = false;
+            _verticalPosition += font.Height;
+            _graphics.DrawString(bookmark, font, PdfSharp.Drawing.XBrushes.Black,_horizontalePosition + 10, _verticalPosition);
+            _verticalPosition += font.Height / 2;
+            _doc.Outlines.Add(bookmark, _page, true);
+            _isPageEmpty = false;
         }
 
         /// <summary>Add text</summary>
@@ -245,10 +245,10 @@ namespace SeleniumWrapper
             }
 
             if (center){
-                PdfSharp.Drawing.XSize strSize = this.graphics.MeasureString(text, xfont);
-                double minWidth = Math.Min(strSize.Width, this.area.Width);
+                PdfSharp.Drawing.XSize strSize = _graphics.MeasureString(text, xfont);
+                double minWidth = Math.Min(strSize.Width, _area.Width);
                 PdfSharp.Drawing.XRect rect = new PdfSharp.Drawing.XRect{
-                    X = (this.area.Width / 2) - (minWidth / 2),
+                    X = (_area.Width / 2) - (minWidth / 2),
                     Y =  + 2,
                     Width = minWidth,
                     Height = strSize.Height
@@ -259,24 +259,24 @@ namespace SeleniumWrapper
                 while(true){
                     int lenToAdd;
                     string textToAdd;
-                    PdfSharp.Drawing.XSize textSize = this.graphics.MeasureString(leftText, xfont, PdfSharp.Drawing.XStringFormats.Default);
+                    PdfSharp.Drawing.XSize textSize = _graphics.MeasureString(leftText, xfont, PdfSharp.Drawing.XStringFormats.Default);
                     double textHeight;
-                    if (textSize.Width < this.area.Width)
+                    if (textSize.Width < _area.Width)
                         textHeight = textSize.Height;
                     else
-                        textHeight = textSize.Height * 1.2 * (textSize.Width / this.area.Width);
+                        textHeight = textSize.Height * 1.2 * (textSize.Width / _area.Width);
 
                     if( textHeight < this.AvailableHeigth){
                         PdfSharp.Drawing.XRect rect = new PdfSharp.Drawing.XRect{
                             X = 0,
                             Y = 2,
-                            Width = this.area.Width,
+                            Width = _area.Width,
                             Height = textHeight
                         };
                         this.AddTextToPdf(leftText, xfont, xBrush, rect);
                         break;
                     }else{
-                        if (textSize.Width < this.area.Width){
+                        if (textSize.Width < _area.Width){
                             lenToAdd = leftText.Length;
                             textToAdd = leftText.Substring(0, lenToAdd);
                         }else{
@@ -284,8 +284,8 @@ namespace SeleniumWrapper
                             while(true){
                                 lenToAdd = leftText.LastIndexOf(' ', lenToAdd -1);
                                 string str = leftText.Substring(0, lenToAdd);
-                                textSize = this.graphics.MeasureString(str, xfont);
-                                textHeight = textSize.Height * 1.2 * textSize.Width / this.area.Width;
+                                textSize = _graphics.MeasureString(str, xfont);
+                                textHeight = textSize.Height * 1.2 * textSize.Width / _area.Width;
                                 if ( textHeight < this.AvailableHeigth ) break;
                             }
                             textToAdd = leftText.Substring(0, lenToAdd);
@@ -295,11 +295,11 @@ namespace SeleniumWrapper
                         PdfSharp.Drawing.XRect rect = new PdfSharp.Drawing.XRect{
                             X = 0,
                             Y = 2,
-                            Width = this.area.Width,
+                            Width = _area.Width,
                             Height = textHeight
                         };
                         this.AddTextToPdf(textToAdd, xfont, xBrush, rect);
-                        this.AddPage();
+                        this.addPage();
                         if (leftText.Length == 0) break;
                         leftText = leftText.Substring(lenToAdd);
                     }
@@ -309,11 +309,11 @@ namespace SeleniumWrapper
 
         private void AddTextToPdf(string text, PdfSharp.Drawing.XFont xfont, PdfSharp.Drawing.XBrush xBrush, PdfSharp.Drawing.XRect rect )
         {
-            rect.X = this.horizontalePosition + rect.X;
-            rect.Y = this.verticalPosition + rect.Y;
-            this.textformater.DrawString(text, xfont, xBrush, rect, PdfSharp.Drawing.XStringFormats.TopLeft);
-            this.verticalPosition = rect.Y + rect.Height;
-            this.IsPageEmpty = false;
+            rect.X = _horizontalePosition + rect.X;
+            rect.Y = _verticalPosition + rect.Y;
+            _textformater.DrawString(text, xfont, xBrush, rect, PdfSharp.Drawing.XStringFormats.TopLeft);
+            _verticalPosition = rect.Y + rect.Height;
+            _isPageEmpty = false;
         }
 
         private PdfSharp.Drawing.XSize GetImageSize(System.Drawing.Bitmap bitmap)
@@ -339,18 +339,18 @@ namespace SeleniumWrapper
                         PdfSharp.Drawing.XSize imgSize = GetImageSize(bitmap);
                         double scale = 1;
 
-                        if(imgSize.Width>this.area.Width){
-                            scale = this.area.Width / imgSize.Width;
+                        if(imgSize.Width>_area.Width){
+                            scale = _area.Width / imgSize.Width;
                             imgSize.Width *= scale;
                             imgSize.Height *= scale;
                         }
 
                         if (newpage)
-                            this.AddPage();
+                            this.addPage();
                         if( !String.IsNullOrEmpty(bookmark))
                             this.addBookmark(bookmark, false);
                         if (this.AvailableHeigth < 20)
-                            this.AddPage();
+                            this.addPage();
                         if( imgSize.Height < this.AvailableHeigth )
                             this.AddImageToPdf(bitmap, imgSize.Width, imgSize.Height);
                         else{
@@ -359,7 +359,7 @@ namespace SeleniumWrapper
                             double leftHeightPt = imgSize.Height;
                             while(true){
                                 if (leftHeightPt < 1) break;
-                                if (this.AvailableHeigth < 20) this.AddPage();
+                                if (this.AvailableHeigth < 20) this.addPage();
                                 double insertHeightPt;
                                 if(leftHeightPt>this.AvailableHeigth)
                                     insertHeightPt = this.AvailableHeigth;
@@ -394,17 +394,17 @@ namespace SeleniumWrapper
         private void AddImageToPdf(System.Drawing.Image image, double width_pt, double heigth_pt )
         {
             System.Drawing.RectangleF rect = new System.Drawing.RectangleF(){
-                X = (float)this.horizontalePosition,
-                Y = (float)this.verticalPosition,
+                X = (float)_horizontalePosition,
+                Y = (float)_verticalPosition,
                 Width = (float)width_pt,
                 Height = (float)heigth_pt
             };
             PdfSharp.Drawing.XImage xImage = PdfSharp.Drawing.XImage.FromGdiPlusImage(image);
             PdfSharp.Drawing.XPen pen = new PdfSharp.Drawing.XPen(PdfSharp.Drawing.XColors.Black, 1f);
-            this.graphics.DrawImage(xImage, rect);
-            this.graphics.DrawRectangle(pen, rect);
-            this.verticalPosition += heigth_pt;
-            this.IsPageEmpty = false;
+            _graphics.DrawImage(xImage, rect);
+            _graphics.DrawRectangle(pen, rect);
+            _verticalPosition += heigth_pt;
+            _isPageEmpty = false;
         }
 
 

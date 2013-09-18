@@ -89,13 +89,17 @@ write-host " 0-Edit the version number :"
 write-host " 1-Create package :"
 	$ZipInclude_list= @("chrome\*.*","chrome.manifest","install.rdf")
 	$ZipExclude_list= @()
-	$OutputZip = $Project_name + "-" + $f_get_version + ".xpi"
+	#$OutputZip = $Project_name + "-" + $f_get_version + ".xpi"
+	$OutputZip = "vb-format.xpi"
     write-host "   ** Create the package $OutputZip ..."
     	if(test-path($OutputZip)){ Remove-Item $OutputZip; }
     	cmd-7zip a $OutputZip  -tzip -r ($ZipInclude_list|ForEach{$_}) ($ZipExclude_list|ForEach{"-x!"+$_}) |  out-Null
         if($LASTEXITCODE -eq 1) { write-host("  Package creation failed ! ") -ForegroundColor red; break; }
         
     write-host ""
+    
+$input = read-host "   Press enter to quit "
+exit
 
 write-host " 2-Edit update.rdf :"
 	write-host "   ** Calculate the sha1 of $OutputZip..."
@@ -116,6 +120,3 @@ write-host " 2-Edit update.rdf :"
     $xmldoc.save("update.rdf")
     
     write-host ""
-    
-$input = read-host "   Press enter to quit "
-exit

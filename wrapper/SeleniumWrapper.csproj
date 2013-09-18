@@ -30,7 +30,7 @@
     <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>none</DebugType>
+    <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>
@@ -43,6 +43,7 @@
     <NoWarn>1591</NoWarn>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     <NoStdLib>false</NoStdLib>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>false</SignAssembly>
@@ -73,6 +74,9 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Generate|AnyCPU'">
     <OutputPath>bin\Generate\</OutputPath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'test|AnyCPU'">
+    <OutputPath>bin\test\</OutputPath>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Include="Actions.cs" />
     <Compile Include="Alert.cs" />
@@ -80,6 +84,7 @@
     <Compile Include="By.cs" />
     <Compile Include="IWebDriver.cs" />
     <Compile Include="IWebDriverGen.cs" />
+    <Compile Include="IWebElement.cs" />
     <Compile Include="Keys.cs" />
     <Compile Include="PdfFile.cs" />
     <Compile Include="ISelect.cs" />
