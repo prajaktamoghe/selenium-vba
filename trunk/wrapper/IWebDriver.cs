@@ -15,6 +15,10 @@ namespace SeleniumWrapper
     [ComVisible(true), InterfaceType(ComInterfaceType.InterfaceIsDual)]
     public partial interface IWebDriver
     {
+
+        [Description("Get the Actions class")]
+        Actions Actions{get;}
+
         [Description("Specifies the amount of time the driver should wait when searching for an element if it is not immediately present.")]
         void setImplicitWait(int timeoutms);
 
@@ -82,7 +86,7 @@ namespace SeleniumWrapper
         String PageSource { get; }
 
         [Description("Find the first WebElement using the given method.")]
-        WebElement findElement(ref Object by, [Optional][DefaultParameterValue(0)]int timeoutms);
+        WebElement findElement(Object by, [Optional][DefaultParameterValue(0)]int timeoutms);
 
         [Description("Finds the first element matching the specified name.")]
         WebElement findElementByName(String name, [Optional][DefaultParameterValue(0)]int timeoutms);
@@ -112,7 +116,7 @@ namespace SeleniumWrapper
         bool isElementPresent(object locator);
 
         [Description("Find all elements within the current context using the given mechanism.")]
-        WebElement[] findElements(ref object by, int timeoutms);
+        WebElement[] findElements(object by, int timeoutms);
 
         [Description("Finds elements matching the specified name.")]
         WebElement[] findElementsByName(String name, [Optional][DefaultParameterValue(0)]int timeoutms);
@@ -154,7 +158,7 @@ namespace SeleniumWrapper
         void get(String url);
 
         [Description("Sends a sequence of keystrokes to the browser.")]
-        void sendKeys(string keysToSend);
+        void sendKeys(string keysOrModifier, [Optional][DefaultParameterValue("")]string keys);
 
         [Description("Returns the current Url.")]
         string Url{get;}
