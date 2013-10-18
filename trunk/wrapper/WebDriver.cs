@@ -13,6 +13,7 @@ using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium.IE;
 using OpenQA.Selenium.PhantomJS;
 using OpenQA.Selenium.Remote;
+using System.Text;
 
 namespace SeleniumWrapper
 {
@@ -164,23 +165,31 @@ namespace SeleniumWrapper
         private void InvokeWdWaitFor(ActionResult action, Object expected, bool match) {
             object result = null;
             _error = null;
-            _thread = new System.Threading.Thread((System.Threading.ThreadStart)delegate {
-                try {
-                    result = action();
-                    while (!_canceled && (match ^ Utils.ObjectEquals(result, expected))) {
-                        Thread.Sleep(20);
+            _thread = new System.Threading.Thread((System.Threading.ThreadStart)delegate{
+                while (!_canceled && (match ^ Utils.ObjectEquals(result, expected))) {
+                    try {
                         result = action();
+                    }catch (Exception ex) {
+                        if (ex is ThreadAbortException) break;
+                        _error = ex.Message;
                     }
-                } catch (System.Exception ex) {
-                    if (!(ex is ThreadAbortException)) _error = ex.Message;
+                    Thread.Sleep(100);
                 }
             });
             _thread.Start();
             bool succed = _thread.Join(_timeout + 1000);
             this.CheckCanceled();
-            if (!succed) throw new ApplicationException(GetErrorPrifix(action.Method.Name) + "\nexpected" + (match ? "=" : "!=") + "<" + expected.ToString() + ">\nresult=<" + result.ToString() + ">\nTimed out running command after " + _timeout + " milliseconds");
-            if (_error != null) throw new ApplicationException(GetErrorPrifix(action.Method.Name) + " expected" + (match ? "=" : "!=") + "<" + expected.ToString() + "> result=<" + result.ToString() + ">\n" + _error);
-            //if (EndOfCommand != null) EndOfCommand();
+            if(!succed || _error != null){
+                var sb = new StringBuilder();
+                sb.Append(GetErrorPrifix(action.Method.Name));
+                if(expected!=null)
+                    sb.Append(" Expected" + (match ? "=" : "!=") + "<" + expected.ToString() + "> result=<" + (result ?? "null").ToString() + ">.");
+                if(!succed)
+                    sb.Append(" Timed out after " + _timeout + " ms.");
+                if(_error != null)
+                    sb.Append(_error);
+                throw new ApplicationException(sb.ToString());
+            }
         }
 
         private void InvokeWdAssert(ActionResult action, Object expected, bool match) {
@@ -210,8 +219,6 @@ namespace SeleniumWrapper
             var endTime = DateTime.Now.AddMilliseconds(timeoutms);
 			string errorMsg = String.Empty;
             while (true) {
-                if (DateTime.Now > endTime)
-                    throw new TimeoutException("The operation has timed out! " + errorMsg);
                 try {
 					errorMsg = String.Empty;
                     var result = function();
@@ -220,6 +227,8 @@ namespace SeleniumWrapper
 					errorMsg = ex.Message;
 				}
                 this.CheckCanceled();
+                if (DateTime.Now > endTime)
+                    throw new TimeoutException("The operation has timed out! " + errorMsg);
                 Thread.Sleep(30);
             }
         }
@@ -357,14 +366,30 @@ namespace SeleniumWrapper
             set { this.setTimeout(value); }
         }
 
+        /// <summary>Get the actions class</summary>
+        /// <example>
+        /// <code lang="vbs">	
+        ///     WebDriver driver = New WebDriver()
+        ///     driver.start "firefox", "http://www.google.com"
+        ///     driver.open "/"
+        ///     driver.Actions.keyDown(Keys.Control).sendKeys("a").perform
+        /// </code>
+        /// </example>
+        public Actions Actions
+        {
+            get { return new Actions(_webDriver); }
+        }
+
         /// <summary>Starts a new Selenium testing session</summary>
         /// <param name="browser">Name of the browser : firefox, ie, chrome, phantomjs</param>
         /// <param name="baseUrl">The base URL</param>
         /// <param name="directory">Optional - Directory path for drivers or binaries</param>
         /// <example>
+        /// <code lang="vbs">	
         ///     WebDriver driver = New WebDriver()
         ///     driver.start "firefox", "http://www.google.com"
         ///     driver.open "/"
+        /// </code>
         /// </example>
         public void start(string browser, String baseUrl, [Optional][DefaultParameterValue("")]String directory) {
             _isStartedRemotely = false;
@@ -680,16 +705,34 @@ namespace SeleniumWrapper
         /// </code>
         /// </example>
         public Object executeScript(String script, [Optional][DefaultParameterValue(null)]Object arguments) {
-            Object result = ((OpenQA.Selenium.IJavaScriptExecutor)_webDriver).ExecuteScript("try{" + script + "}catch(e){return 'error:'+e.message;}", arguments);
-            if (result != null && result.ToString().StartsWith("error:")) throw new ApplicationException("JavaScript " + result.ToString());
-            return result;
+            //Object result = ((OpenQA.Selenium.IJavaScriptExecutor)_webDriver).ExecuteScript("try{" + script + "}catch(e){return 'error:'+e.message;}", arguments);
+            //if (result != null && result.ToString().StartsWith("error:")) throw new ApplicationException("JavaScript " + result.ToString());
+            if (arguments is WebElement)
+                arguments = ((WebElement)arguments)._webElement;
+            else if (arguments.GetType().IsArray){
+                var argArray = new object[((object[])arguments).Length];
+                for(int i=0; i<argArray.Length; i++)
+                    argArray[i] = ((object[])arguments)[i] is WebElement ? ((WebElement)((object[])arguments)[i])._webElement : ((object[])arguments)[i];
+                arguments = argArray;
+            }
+            var ret = ((OpenQA.Selenium.IJavaScriptExecutor)_webDriver).ExecuteScript(script, arguments);
+            if (ret is OpenQA.Selenium.IWebElement)
+                return new WebElement(this, (OpenQA.Selenium.IWebElement)ret );
+            else if (ret.GetType().IsArray){
+                var retArray = new object[ ((object[])ret).Length];
+                for(int i=0; i<retArray.Length; i++)
+                    retArray[i] = ((object[])ret)[i] is OpenQA.Selenium.IWebElement ? new WebElement(this, (OpenQA.Selenium.IWebElement)((object[])ret)[i]) : ((object[])ret)[i];
+                return retArray;
+            }else if(ret is ReadOnlyCollection<OpenQA.Selenium.IWebElement>)
+                return WebElement.GetWebElements(this, (ReadOnlyCollection<OpenQA.Selenium.IWebElement>)ret);
+            return null;
         }
 
         /// <summary>Find the first WebElement using the given method.</summary>
         /// <param name="by">Methode</param>
         /// <param name="timeoutms">Optional timeout</param>
         /// <returns>WebElement</returns>
-        public WebElement findElement(ref Object by, [Optional][DefaultParameterValue(0)]int timeoutms) {
+        public WebElement findElement(Object by, [Optional][DefaultParameterValue(0)]int timeoutms) {
             if (((By)by).base_ == null) throw new NullReferenceException("The locating mechanism is null!");
             return findElement(((By)by).base_, timeoutms);
         }
@@ -787,7 +830,7 @@ namespace SeleniumWrapper
         /// <param name="by">The locating mechanism to use</param>
         /// <param name="timeoutms">Optional timeout</param>
         /// <returns>A list of all WebElements, or an empty list if nothing matches</returns>
-        public WebElement[] findElements(ref object by, int timeoutms) {
+        public WebElement[] findElements(object by, [Optional][DefaultParameterValue(0)]int timeoutms) {
             if (((By)by).base_ == null) throw new NullReferenceException("The locating mechanism is null!");
             return findElements(((By)by).base_, timeoutms);
         }
@@ -873,9 +916,25 @@ namespace SeleniumWrapper
         }
 
         /// <summary>Sends a sequence of keystrokes to the browser.</summary>
-        /// <param name="keysToSend">Sequence of keys</param>
-        public void sendKeys(string keysToSend) {
-            new OpenQA.Selenium.Interactions.Actions(_webDriver).SendKeys(keysToSend).Perform(); ;
+        /// <param name="keysOrModifier">Sequence of keys or a modifier key(Control,Shift...) if the sequence is in keysToSendEx</param>
+        /// <param name="keys">Optional - Sequence of keys if keysToSend contains modifier key(Control,Shift...)</param>
+        /// <example>
+        /// To send mobile to the window :
+        /// <code lang="vbs">
+        ///     driver.sendKeys "mobile"
+        /// </code>
+        /// To send ctrl+a to the window :
+        /// <code lang="vbs">
+        ///     driver.sendKeys Keys.Control, "a"
+        /// </code>
+        /// </example>
+        public void sendKeys(string keysOrModifier, [Optional][DefaultParameterValue("")]string keys)
+        {
+            if(string.IsNullOrEmpty(keys))
+                new OpenQA.Selenium.Interactions.Actions(_webDriver).SendKeys(keysOrModifier).Perform();
+            else
+                new OpenQA.Selenium.Interactions.Actions(_webDriver).KeyDown(keysOrModifier).SendKeys(keys).KeyUp(keysOrModifier).Build().Perform();
+
         }
 
         public Cookie getCookie(string name) {
