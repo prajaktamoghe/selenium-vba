@@ -77,19 +77,47 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'test|AnyCPU'">
     <OutputPath>bin\test\</OutputPath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'VS_Tests|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\VS_Tests\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+    <DocumentationFile>bin\Debug\SeleniumWrapper.xml</DocumentationFile>
+    <RegisterForComInterop>true</RegisterForComInterop>
+    <NoWarn>1591</NoWarn>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <CodeAnalysisLogFile>bin\Debug\SeleniumWrapper.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;C:\Program Files\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisRuleDirectories>;C:\Program Files\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Include="Actions.cs" />
     <Compile Include="Alert.cs" />
     <Compile Include="Assert.cs" />
+    <Compile Include="Automation\Application.cs" />
+    <Compile Include="Automation\ElementFinder.cs" />
     <Compile Include="By.cs" />
+    <Compile Include="IActions.cs" />
     <Compile Include="IWebDriver.cs" />
     <Compile Include="IWebDriverGen.cs" />
     <Compile Include="IWebElement.cs" />
+    <Compile Include="Automation\NatHelper.cs" />
+    <Compile Include="Automation\IWindow.cs" />
+    <Compile Include="Automation\Keyboard.cs" />
     <Compile Include="Keys.cs" />
+    <Compile Include="Automation\Mouse.cs" />
     <Compile Include="PdfFile.cs" />
     <Compile Include="ISelect.cs" />
     <Compile Include="Image.cs" />
     <Compile Include="RemoteWebDriverCust.cs" />
+    <Compile Include="Automation\Win32.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="Verify.cs" />
     <Compile Include="Waiter.cs" />
@@ -97,6 +125,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WebDriverGen.cs" />
     <Compile Include="WebElement.cs" />
+    <Compile Include="Automation\Window.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SeleniumWrapper.snk" />
@@ -116,12 +145,15 @@
     <Reference Include="ThoughtWorks.Selenium.Core">
       <HintPath>References\ThoughtWorks.Selenium.Core.dll</HintPath>
     </Reference>
+    <Reference Include="UIAutomationClient" />
+    <Reference Include="UIAutomationTypes" />
     <Reference Include="WebDriver">
       <HintPath>References\WebDriver.dll</HintPath>
     </Reference>
     <Reference Include="WebDriver.Support">
       <HintPath>References\WebDriver.Support.dll</HintPath>
     </Reference>
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

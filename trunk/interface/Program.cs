@@ -71,11 +71,9 @@ namespace InterfaceGeneration
                 string[] lRet = new string[lMethods.Length];
                 for (int i = 0; i < lMethods.Length; i++)
                 {
-                    if (lMethods[i].DeclaringType.Name == "DefaultSelenium")
-                    {
+                    if (lMethods[i].DeclaringType.Name == "DefaultSelenium"){
                         string intMethodsName = lMethods[i].Name;
-                        if ( !Array.Exists(exclusionList, p => lMethods[i].Name.Equals(p)) )
-                        {
+                        if ( !Array.Exists(exclusionList, p => lMethods[i].Name.Equals(p)) ){
                             XmlElement xmlElement = XMLFromMember(lMethods[i]);
                             string comment = Regex.Replace(xmlElement.InnerText.Replace("\\\"", "\"").Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\r\n", " "), @"[ ]{2,}", " ");
                             sbInterface.AppendLine("\t\t[Description(\"" + comment + "\")]");
@@ -83,8 +81,7 @@ namespace InterfaceGeneration
                             string argsInt = string.Empty;
                             string argsMeth = string.Empty;
                             System.Reflection.ParameterInfo[] lParameters = lMethods[i].GetParameters();
-                            for (int j = 0; j < lParameters.Length; j++)
-                            {
+                            for (int j = 0; j < lParameters.Length; j++){
                                 if (argsInt != string.Empty) { argsInt += ", "; }
                                 if (argsMeth != string.Empty) { argsMeth += ", "; }
                                 if(lParameters[j].Name=="timeout"){
@@ -103,13 +100,11 @@ namespace InterfaceGeneration
                                 expected = "Convert.ToDecimal(" + expected + ")";
                                 retType = "Double";
                             }
-                            if (retType == "void")
-                            {
+                            if (retType == "void"){
                                 WriteLine( retType + " " + Char.ToLower(lMethods[i].Name[0]) + lMethods[i].Name.Substring(1) + "(" + argsInt + ")",
                                         "InvokeWd(()=>_webDriverBacked." + lMethods[i].Name + "(" + argsMeth + "))");
 
-                                if (!Array.Exists(noWaitActionsList, p => lMethods[i].Name.StartsWith(p)))
-                                {
+                                if (!Array.Exists(noWaitActionsList, p => lMethods[i].Name.StartsWith(p))){
                                     WriteLine( retType + " " + Char.ToLower(lMethods[i].Name[0]) + lMethods[i].Name.Substring(1) + "AndWait(" + argsInt + ")",
                                             "InvokeWdAndWait(()=>_webDriverBacked." + lMethods[i].Name + "(" + argsMeth + "))");
                                 }
@@ -153,8 +148,7 @@ namespace InterfaceGeneration
                                     WriteLine( "void " + lMethods[i].Name.Replace("Is", "waitFor") + "(" + argsInt + ")",
                                             "InvokeWdWaitFor(()=>_webDriverBacked." + lMethods[i].Name + "(" + argsMeth + "),true,true)");
 
-                                    if (lMethods[i].Name.EndsWith("Present"))
-                                    {
+                                    if (lMethods[i].Name.EndsWith("Present")){
                                         WriteLine( "void " + lMethods[i].Name.Replace("Is", "assert").Replace("Present", "NotPresent") + "(" + argsInt + ")",
                                                 "InvokeWdAssert(()=>_webDriverBacked." + lMethods[i].Name + "(" + argsMeth + "),false,true)");
 
@@ -164,8 +158,7 @@ namespace InterfaceGeneration
                                         WriteLine( "void " + lMethods[i].Name.Replace("Is", "waitFor").Replace("Present", "NotPresent") + "(" + argsInt + ")",
                                                 "InvokeWdWaitFor(()=>_webDriverBacked." + lMethods[i].Name + "(" + argsMeth + "),false,true)");
                                     }
-                                    else
-                                    {
+                                    else{
                                         WriteLine( "void " + lMethods[i].Name.Replace("Is", "assertNot") + "(" + argsInt + ")",
                                                 "InvokeWdAssert(()=>_webDriverBacked." + lMethods[i].Name + "(" + argsMeth + "),false,true)");
 
@@ -183,9 +176,12 @@ namespace InterfaceGeneration
 
                 sbClass.Replace("CSSCount(String", "CssCount(String");
                 sbInterface.Replace("CSSCount(String", "CssCount(String");
+
+                sbClass.Replace("public Boolean isElementPresent", "//public Boolean isElementPresent");
+                sbInterface.Replace("Boolean isElementPresent", "//Boolean isElementPresent");
+
             //    sbInterface.Replace("\tDecimal ", "\t[return: MarshalAs(UnmanagedType.Currency)]Decimal ");
             //    sbInterface.Replace("Decimal expected", "[MarshalAs(UnmanagedType.Currency)]Decimal expected");
-                sbInterface.Replace("CSSCount(String", "CssCount(String");
 
                 TextWriter fclasse = new StreamWriter("..\\..\\..\\wrapper\\WebDriverGen.cs");
                 fclasse.WriteLine("using System;");
