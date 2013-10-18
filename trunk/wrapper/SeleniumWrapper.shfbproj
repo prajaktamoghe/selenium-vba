@@ -37,7 +37,17 @@
         <Filter entryType="Class" fullName="SeleniumWrapper.Waiter" filterName="Waiter" isExposed="True" />
         <Filter entryType="Class" fullName="SeleniumWrapper.WebDriver" filterName="WebDriver" isExposed="True" />
         <Filter entryType="Class" fullName="SeleniumWrapper.WebElement" filterName="WebElement" isExposed="True" />
+        <Filter entryType="Class" fullName="SeleniumWrapper.Application" filterName="Application" isExposed="True" />
+        <Filter entryType="Class" fullName="SeleniumWrapper.Keyboard" filterName="Keyboard" isExposed="True" />
+        <Filter entryType="Class" fullName="SeleniumWrapper.Mouse" filterName="Mouse" isExposed="True" />
+        <Filter entryType="Class" fullName="SeleniumWrapper.Window" filterName="Window" isExposed="True" />
         <Filter entryType="Interface" fullName="SeleniumWrapper.Select" filterName="Select" isExposed="True" />
+      </Filter>
+      <Filter entryType="Namespace" fullName="SeleniumWrapper.Automation" isExposed="False">
+        <Filter entryType="Class" fullName="SeleniumWrapper.Automation.Application" filterName="Application" isExposed="True" />
+        <Filter entryType="Class" fullName="SeleniumWrapper.Automation.Keyboard" filterName="Keyboard" isExposed="True" />
+        <Filter entryType="Class" fullName="SeleniumWrapper.Automation.Mouse" filterName="Mouse" isExposed="True" />
+        <Filter entryType="Class" fullName="SeleniumWrapper.Automation.Window" filterName="Window" isExposed="True" />
       </Filter>
     </ApiFilter>
     <MissingTags>None</MissingTags>
