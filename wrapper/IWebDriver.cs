@@ -2,22 +2,19 @@
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 
-namespace SeleniumWrapper
-{
+namespace SeleniumWrapper {
     [Guid("0CBCED71-4792-46BD-A527-8663BF7D9592")]
     [ComVisible(true), InterfaceType(ComInterfaceType.InterfaceIsIDispatch)]
-    public interface WebDriverEvents
-    {
+    public interface WebDriverEvents {
         //void EndOfCommand();
     }
 
     [Guid("24cd39f2-f552-4a61-82fe-cc6284398aa5")]
     [ComVisible(true), InterfaceType(ComInterfaceType.InterfaceIsDual)]
-    public partial interface IWebDriver
-    {
+    public partial interface IWebDriver {
 
         [Description("Get the Actions class")]
-        Actions Actions{get;}
+        Actions Actions { get; }
 
         [Description("Specifies the amount of time the driver should wait when searching for an element if it is not immediately present.")]
         void setImplicitWait(int timeoutms);
@@ -26,7 +23,7 @@ namespace SeleniumWrapper
         void setTimeout(int timeoutms);
 
         [Description("Specifies or get the amount of time that Selenium will wait for actions to complete. The default timeout is 30 seconds.")]
-        int Timeout{get;set;}
+        int Timeout { get; set; }
 
         [Description("Set a specific profile directory (Firefox and Chrome) or profile name (Firefox only)")]
         void setProfile(string directory);
@@ -71,7 +68,7 @@ namespace SeleniumWrapper
         Image getScreenshot();
 
         [Description("Execute JavaScrip on the page")]
-        Object executeScript(String script, [Optional][DefaultParameterValue(null)]Object arguments);
+        Object executeScript(String script, [Optional][DefaultParameterValue(null)]object arguments);
 
         [Description("Undo the effect of calling chooseCancelOnNextConfirmation. Note that Selenium's overridden window.confirm() function will normally automatically return true, as if the user had manually clicked OK, so you shouldn't need to use this command unless for some reason you need to change your mind prior to the next confirmation. After any confirmation, Selenium will resume using the default behavior for future confirmations, automatically returning true (OK) unless/until you explicitly call chooseCancelOnNextConfirmation for each confirmation.  Take note - every time a confirmation comes up, you must consume it with a corresponding getConfirmation, or else the next selenium operation will fail.")]
         void chooseOkOnNextConfirmation();
@@ -111,36 +108,36 @@ namespace SeleniumWrapper
 
         [Description("Finds the first element matching the specified tag name.")]
         WebElement findElementByTagName(String tagname, [Optional][DefaultParameterValue(0)]int timeoutms);
-        
+
         [Description("Indicates whether a WebElement is present using the given method.")]
         bool isElementPresent(object locator);
 
         [Description("Find all elements within the current context using the given mechanism.")]
-        WebElement[] findElements(object by, int timeoutms);
+        object findElements(object by, [Optional][DefaultParameterValue(0)]int timeoutms);
 
         [Description("Finds elements matching the specified name.")]
-        WebElement[] findElementsByName(String name, [Optional][DefaultParameterValue(0)]int timeoutms);
+        object findElementsByName(String name, [Optional][DefaultParameterValue(0)]int timeoutms);
 
         [Description("Finds elements matching the specified XPath query.")]
-        WebElement[] findElementsByXPath(String xpath, [Optional][DefaultParameterValue(0)]int timeoutms);
+        object findElementsByXPath(String xpath, [Optional][DefaultParameterValue(0)]int timeoutms);
 
         [Description("Finds elements matching the specified id.")]
-        WebElement[] findElementsById(String id, [Optional][DefaultParameterValue(0)]int timeoutms);
+        object findElementsById(String id, [Optional][DefaultParameterValue(0)]int timeoutms);
 
         [Description("Finds elements matching the specified CSS class.")]
-        WebElement[] findElementsByClassName(String classname, [Optional][DefaultParameterValue(0)]int timeoutms);
+        object findElementsByClassName(String classname, [Optional][DefaultParameterValue(0)]int timeoutms);
 
         [Description("Finds elements matching the specified CSS selector.")]
-        WebElement[] findElementsByCssSelector(String cssselector, [Optional][DefaultParameterValue(0)]int timeoutms);
+        object findElementsByCssSelector(String cssselector, [Optional][DefaultParameterValue(0)]int timeoutms);
 
         [Description("Finds elements matching the specified link text.")]
-        WebElement[] findElementsByLinkText(String linktext, [Optional][DefaultParameterValue(0)]int timeoutms);
+        object findElementsByLinkText(String linktext, [Optional][DefaultParameterValue(0)]int timeoutms);
 
         [Description("Finds the first of elements that match the part of the link text supplied")]
-        WebElement[] findElementsByPartialLinkText(String partiallinktext, [Optional][DefaultParameterValue(0)]int timeoutms);
+        object findElementsByPartialLinkText(String partiallinktext, [Optional][DefaultParameterValue(0)]int timeoutms);
 
         [Description("Finds elements matching the specified tag name.")]
-        WebElement[] findElementsByTagName(String tagname, [Optional][DefaultParameterValue(0)]int timeoutms);
+        object findElementsByTagName(String tagname, [Optional][DefaultParameterValue(0)]int timeoutms);
 
         [Description("Switches focus to the specified window.")]
         WebDriver switchToWindow(string windowName, [Optional][DefaultParameterValue(0)]int timeoutms);
@@ -152,7 +149,7 @@ namespace SeleniumWrapper
         Alert switchToAlert([Optional][DefaultParameterValue(0)]int timeoutms);
 
         [Description("Returns the page tile")]
-        string Title{get;}
+        string Title { get; }
 
         [Description("Load a new web page in the current browser window.")]
         void get(String url);
@@ -161,7 +158,25 @@ namespace SeleniumWrapper
         void sendKeys(string keysOrModifier, [Optional][DefaultParameterValue("")]string keys);
 
         [Description("Returns the current Url.")]
-        string Url{get;}
+        string Url { get; }
+
+        [Description("Goes one step backward in the browser history.")]
+        void back();
+
+        [Description("Goes one step forward in the browser history.")]
+        void forward();
+
+        [Description("Closes the current window.")]
+        void close();
+
+        [Description("Returns the handle of the current window.")]
+        string WindowHandle { get; }
+
+        [Description("Returns the handles of all windows within the current session.")]
+        string[] WindowHandles { get; }
+
+        [Description("Returns the element with focus, or BODY if nothing has focus.")]
+        WebElement ActiveElement { get; }
 
         [Description("Indicates whether the regular expression finds a match in the input string")]
         bool isMatch(string pattern);

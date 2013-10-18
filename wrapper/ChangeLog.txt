@@ -5,14 +5,18 @@ Website : http://code.google.com/p/selenium-vba
 
 v1.0.15.0
 ===============================================================================
+ * Added methods back, forward, close, WindowHandle, WindowHandles, ActiveElement
+
+v1.0.15.0 (2013/10/18)
+===============================================================================
  * Updated Selenium libraries to 2.36.0
  * Updated IEDriverServer to 2.36.0
  * Updated Chrome driver to 2.4
  * Updated PhantomJs to 1.9.2
  * Updated selenium IDE to 2.4.0
- * Added native automation methods to control a window, the mouse and the keyboard
+ * Added native methods to control a window, the mouse and the keyboard
  * Issue 28 : CaptureEntirePageScreenshot is not working
- * Issue 31 : executeScript can now have WebElements in argument and in return
+ * Issue 31 : executeScript can now take and return WebElements
  * Refactored the action class
 
 v1.0.14.0 (2013/08/07)

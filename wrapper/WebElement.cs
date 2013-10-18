@@ -26,8 +26,8 @@ namespace SeleniumWrapper
             _webElement = webElement;
         }
 
-        internal static WebElement[] GetWebElements(WebDriver webDriver, ReadOnlyCollection<OpenQA.Selenium.IWebElement> webElements){
-            WebElement[] elements = new WebElement[webElements.Count];
+        internal static object[] GetWebElements(WebDriver webDriver, ReadOnlyCollection<OpenQA.Selenium.IWebElement> webElements){
+            var elements = new object[webElements.Count];
             for(int i=0;i<webElements.Count;i++)
                 elements[i] = new WebElement(webDriver, webElements[i]);
             return elements;
@@ -333,12 +333,11 @@ namespace SeleniumWrapper
         /// <param name="by">Methode</param>
         /// <param name="timeoutms">Optional timeout</param>
         /// <returns>WebElement</returns>
-        public WebElement findElement(ref object by, [Optional][DefaultParameterValue(0)]int timeoutms)
+        public WebElement findElement(object by, [Optional][DefaultParameterValue(0)]int timeoutms)
         {
             if (((By)by).base_ == null) throw new NullReferenceException("The locating mechanism is null!");
             return this.findElement(((By)by).base_, timeoutms);
         }
-
 
         /// <summary>Finds the first element matching the specified name.</summary>
         /// <param name="name">Name</param>
@@ -417,7 +416,7 @@ namespace SeleniumWrapper
         /// <param name="by">The locating mechanism to use</param>
         /// <param name="timeoutms">Optional timeout</param>
         /// <returns>A list of all WebElements, or an empty list if nothing matches</returns>
-        public WebElement[] findElements(ref object by, int timeoutms)
+        public object findElements(object by, [Optional][DefaultParameterValue(0)]int timeoutms)
         {
             if (((By)by).base_ == null) throw new NullReferenceException("The locating mechanism is null!");
             return findElements(((By)by).base_, timeoutms);
@@ -427,7 +426,7 @@ namespace SeleniumWrapper
         /// <param name="name">Name</param>
         /// <param name="timeoutms">Optional timeout in millisecond</param>
         /// <returns>Array of WebElement(s)</returns>
-        public WebElement[] findElementsByName(String name, [Optional][DefaultParameterValue(0)]int timeoutms){
+        public object findElementsByName(String name, [Optional][DefaultParameterValue(0)]int timeoutms){
 			return this.findElements(OpenQA.Selenium.By.Name(name), timeoutms);
         }
 
@@ -435,7 +434,7 @@ namespace SeleniumWrapper
         /// <param name="xpath">XPath</param>
         /// <param name="timeoutms">Optional timeout in millisecond</param>
         /// <returns>Array of WebElement(s)</returns>
-        public WebElement[] findElementsByXPath(String xpath, [Optional][DefaultParameterValue(0)]int timeoutms){
+        public object findElementsByXPath(String xpath, [Optional][DefaultParameterValue(0)]int timeoutms){
 			return this.findElements(OpenQA.Selenium.By.XPath(xpath), timeoutms);
         }
 
@@ -443,7 +442,7 @@ namespace SeleniumWrapper
         /// <param name="id">Id</param>
         /// <param name="timeoutms">Optional timeout in millisecond</param>
         /// <returns>Array of WebElement(s)</returns>
-        public WebElement[] findElementsById(String id, [Optional][DefaultParameterValue(0)]int timeoutms){
+        public object findElementsById(String id, [Optional][DefaultParameterValue(0)]int timeoutms){
 			return this.findElements(OpenQA.Selenium.By.Id(id), timeoutms);
         }
 
@@ -451,7 +450,7 @@ namespace SeleniumWrapper
         /// <param name="classname">Class name</param>
         /// <param name="timeoutms">Optional timeout in millisecond</param>
         /// <returns>Array of WebElement(s)</returns>
-        public WebElement[] findElementsByClassName(String classname, [Optional][DefaultParameterValue(0)]int timeoutms){
+        public object findElementsByClassName(String classname, [Optional][DefaultParameterValue(0)]int timeoutms){
 			return this.findElements(OpenQA.Selenium.By.ClassName(classname), timeoutms);
         }
 
@@ -459,7 +458,7 @@ namespace SeleniumWrapper
         /// <param name="cssselector">CSS selector</param>
         /// <param name="timeoutms">Optional timeout in millisecond</param>
         /// <returns>Array of WebElement(s)</returns>
-        public WebElement[] findElementsByCssSelector(String cssselector, [Optional][DefaultParameterValue(0)]int timeoutms){
+        public object findElementsByCssSelector(String cssselector, [Optional][DefaultParameterValue(0)]int timeoutms){
             return this.findElements(OpenQA.Selenium.By.CssSelector(cssselector), timeoutms);
         }
 
@@ -467,7 +466,7 @@ namespace SeleniumWrapper
         /// <param name="linktext">Link text</param>
         /// <param name="timeoutms">Optional timeout in millisecond</param>
         /// <returns>Array of WebElement(s)</returns>
-        public WebElement[] findElementsByLinkText(String linktext, [Optional][DefaultParameterValue(0)]int timeoutms){
+        public object findElementsByLinkText(String linktext, [Optional][DefaultParameterValue(0)]int timeoutms){
             return this.findElements(OpenQA.Selenium.By.LinkText(linktext), timeoutms);
         }
 
@@ -475,7 +474,7 @@ namespace SeleniumWrapper
         /// <param name="partiallinktext">Partial link text</param>
         /// <param name="timeoutms">Optional timeout in millisecond</param>
         /// <returns>Array of WebElement(s)</returns>
-        public WebElement[] findElementsByPartialLinkText(String partiallinktext, [Optional][DefaultParameterValue(0)]int timeoutms){
+        public object findElementsByPartialLinkText(String partiallinktext, [Optional][DefaultParameterValue(0)]int timeoutms){
             return this.findElements(OpenQA.Selenium.By.PartialLinkText(partiallinktext), timeoutms);
         }
 
@@ -483,11 +482,11 @@ namespace SeleniumWrapper
         /// <param name="tagname">Tag name</param>
         /// <param name="timeoutms">Optional timeout in millisecond</param>
         /// <returns>Array of WebElement(s)</returns>
-        public WebElement[] findElementsByTagName(String tagname, [Optional][DefaultParameterValue(0)]int timeoutms){
+        public object findElementsByTagName(String tagname, [Optional][DefaultParameterValue(0)]int timeoutms){
             return this.findElements(OpenQA.Selenium.By.TagName(tagname), timeoutms);
         }
 
-	    private WebElement[] findElements(OpenQA.Selenium.By by, int timeoutms){
+	    private object[] findElements(OpenQA.Selenium.By by, int timeoutms){
 			if(timeoutms>0){
                 Object ret = this._wd.WaitUntilObject(delegate(){
                     return _webElement.FindElements(by);
@@ -502,10 +501,10 @@ namespace SeleniumWrapper
      #region Select WebElement
 
         /// <summary>Gets all of the selected options within the select element.</summary>
-        public IWebElement[] AllSelectedOptions{
+        public object AllSelectedOptions{
             get {  
                 System.Collections.Generic.IList<OpenQA.Selenium.IWebElement> elements = new OpenQA.Selenium.Support.UI.SelectElement(_webElement).AllSelectedOptions; 
-                IWebElement[] ret = new IWebElement[elements.Count];
+                var ret = new object[elements.Count];
                 for(int i=0; i<elements.Count; i++)
                     ret[i] = new WebElement( this._wd, elements[i]);
                 return ret;
@@ -518,10 +517,10 @@ namespace SeleniumWrapper
         }
 
         /// <summary>Returns a list of all options belonging to this select tag</summary>
-        public IWebElement[] Options{
+        public object Options{
             get {  
                 System.Collections.Generic.IList<OpenQA.Selenium.IWebElement> elements = new OpenQA.Selenium.Support.UI.SelectElement(_webElement).Options; 
-                IWebElement[] ret = new IWebElement[elements.Count];
+                var ret = new object[elements.Count];
                 for(int i=0; i<elements.Count; i++)
                     ret[i] = new WebElement( this._wd, elements[i]);
                 return ret;
