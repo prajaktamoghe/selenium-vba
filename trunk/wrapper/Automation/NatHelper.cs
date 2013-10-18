@@ -9,6 +9,14 @@ using System.Windows.Automation.Text;
 namespace SeleniumWrapper.Automation {
     public static class NatHelper {
 
+        /// <summary>Truncate a string</summary>
+        /// <param name="text">Text</param>
+        /// <param name="maxLength">Max length</param>
+        /// <returns>Truncated text</returns>
+        public static string Truncate(this string text, int maxLength) {
+            return text.Length <= maxLength ? text : text.Substring(0, maxLength) + "...";
+        }
+
         /// <summary>Wait for the action function to return the value</summary>
         /// <param name="action">Action to execute. (T)=>... </param>
         /// <param name="value">Value that will be tested</param>
