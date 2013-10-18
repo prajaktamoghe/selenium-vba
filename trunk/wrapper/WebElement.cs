@@ -16,52 +16,51 @@ namespace SeleniumWrapper
     [ComVisible(true), ComDefaultInterface(typeof(IWebElement)), ClassInterface(ClassInterfaceType.None)]
     public class WebElement : IWebElement, Select
     {
-        internal OpenQA.Selenium.IWebElement webElement;
-        internal OpenQA.Selenium.IWebDriver webDriver;
-        internal WebDriver wd;
+        internal OpenQA.Selenium.IWebElement _webElement;
+        internal OpenQA.Selenium.IWebDriver _webDriver;
+        internal WebDriver _wd;
 
         internal WebElement(WebDriver webDriver, OpenQA.Selenium.IWebElement webElement) {
-            this.wd = webDriver;
-            this.webDriver = wd._webDriver;
-            this.webElement = webElement;
+            this._wd = webDriver;
+            _webDriver = _wd._webDriver;
+            _webElement = webElement;
         }
 
         internal static WebElement[] GetWebElements(WebDriver webDriver, ReadOnlyCollection<OpenQA.Selenium.IWebElement> webElements){
             WebElement[] elements = new WebElement[webElements.Count];
-            for(int i=0;i<webElements.Count;i++){
+            for(int i=0;i<webElements.Count;i++)
                 elements[i] = new WebElement(webDriver, webElements[i]);
-            }
             return elements;
         }
 
         /// <summary>Whether the element would be visible to a user</summary>
         public bool Displayed { 
-            get { return this.webElement.Displayed; }
+            get { return _webElement.Displayed; }
         }
 
         /// <summary>Whether the element is enabled.</summary>
         public bool Enabled {
-            get { return this.webElement.Enabled; }
+            get { return _webElement.Enabled; }
         }
 
         /// <summary>Returns the location of the element in the renderable canvas</summary>
         public int[] Location {
-            get { return new int[] { this.webElement.Location.X, this.webElement.Location.Y }; }
+            get { return new int[] { _webElement.Location.X, _webElement.Location.Y }; }
         }
 
         /// <summary>Whether the element is selected.</summary>
         public bool Selected {
-            get { return this.webElement.Selected; }
+            get { return _webElement.Selected; }
         }
 
         /// <summary>Returns the size of the element</summary>
         public int[] Size {
-            get { return new int[] { this.webElement.Size.Width, this.webElement.Size.Height }; }
+            get { return new int[] { _webElement.Size.Width, _webElement.Size.Height }; }
         }
 
         /// <summary>Gets this element’s tagName property.</summary>
         public string TagName {
-            get { return this.webElement.TagName; }
+            get { return _webElement.TagName; }
         }
 
         /// <summary>Cast the WebElement to a Select element</summary>
@@ -71,20 +70,20 @@ namespace SeleniumWrapper
 
         /// <summary>Gets the text of the element.</summary>
         public string Text { 
-            get { return this.webElement.Text; } 
+            get { return _webElement.Text; } 
         }
 
         /// <summary>Assert the text of an element is equal to the expected</summary>
         /// <param name="expected">Expected text</param>
         public void assertText(string expected){
-            string current = this.webElement.Text;
+            string current = _webElement.Text;
             if (!Equals(current, expected)) throw new ApplicationException("KO, assertText failed ! expected=<" + expected.ToString() + "> result=<" + current.ToString() + "> "); 
         }
 
         /// <summary>Assert the text of an element is not equal to the expected</summary>
         /// <param name="expected">Expected text</param>
         public void assertNotText(string expected){
-            string current = this.webElement.Text;
+            string current = _webElement.Text;
             if (Equals(current, expected)) throw new ApplicationException("KO, assertNotText failed ! not expected=<" + expected.ToString() + "> result=<" + current.ToString() + "> "); 
         }
 
@@ -92,7 +91,7 @@ namespace SeleniumWrapper
         /// <param name="text">Expected text</param>
         /// <returns>Result of the verification</returns>
         public string verifyText(string text){
-            string current = this.webElement.Text;
+            string current = _webElement.Text;
             if (!Equals(current, text)) return "KO, verifyText failed ! expected=<" + text.ToString() + "> result=<" + current.ToString() + "> "; 
             return null;
         }
@@ -101,7 +100,7 @@ namespace SeleniumWrapper
         /// <param name="text">Different text</param>
         /// <returns>Result of the verification</returns>
         public string verifyNotText(string text){
-            string current = this.webElement.Text;
+            string current = _webElement.Text;
             if (Equals(current, text)) return "KO, verifyNotText failed ! not expected=<" + text.ToString() + "> result=<" + current.ToString() + "> "; 
             return null;
         }
@@ -110,14 +109,14 @@ namespace SeleniumWrapper
         /// <param name="attributeName">Attribute name</param>
         /// <returns>Attribute</returns>
         public String getAttribute(string attributeName) { 
-            return this.webElement.GetAttribute(attributeName); 
+            return _webElement.GetAttribute(attributeName); 
         }
 
         /// <summary>Assert an attribute value</summary>
         /// <param name="attributeName">Attribute name</param>
         /// <param name="expected">Expected attribute</param>
         public void assertAttribute(string attributeName, string expected){
-            string current = this.webElement.GetAttribute(attributeName);
+            string current = _webElement.GetAttribute(attributeName);
             if (!Equals(current, expected)) throw new ApplicationException("KO, assertAttribute failed ! expected=<" + expected.ToString() + "> result=<" + current.ToString() + "> "); 
         }
 
@@ -126,7 +125,7 @@ namespace SeleniumWrapper
         /// <param name="expected">Expected attribute</param>
         /// <returns>Result of the verification</returns>
         public string verifyAttribute(string attributeName, string expected){
-            string current = this.webElement.GetAttribute(attributeName);
+            string current = _webElement.GetAttribute(attributeName);
             if (!Equals(current, expected)) return "KO, verifyAttribute failed ! expected=<" + expected.ToString() + "> result=<" + current.ToString() + "> "; 
             return null;
         }
@@ -135,14 +134,14 @@ namespace SeleniumWrapper
         /// <param name="propertyName">Property name</param>
         /// <returns>CSS value</returns>
         public String getCssValue(string propertyName) { 
-            return this.webElement.GetCssValue(propertyName);
+            return _webElement.GetCssValue(propertyName);
         }
 
         /// <summary>Assert a CSS property</summary>
         /// <param name="propertyName">Property name</param>
         /// <param name="expected">Expected CSS value</param>
         public void assertCssValue(string propertyName, string expected){
-            string current = this.webElement.GetCssValue(propertyName);
+            string current = _webElement.GetCssValue(propertyName);
             if (!Equals(current, expected)) throw new ApplicationException("KO, assertAttribute failed ! expected=<" + expected.ToString() + "> result=<" + current.ToString() + "> "); 
         }
 
@@ -151,83 +150,98 @@ namespace SeleniumWrapper
         /// <param name="expected">Expected CSS value</param>
         /// <returns>Result of the verification</returns>
         public string verifyCssValue(string propertyName, string expected){
-            string current = this.webElement.GetCssValue(propertyName);
+            string current = _webElement.GetCssValue(propertyName);
             if (!Equals(current, expected)) return "KO, verifyAttribute failed ! expected=<" + expected.ToString() + "> result=<" + current.ToString() + "> "; 
             return null;
         }
         
         /// <summary>Clears the text if it’s a text entry element.</summary>
         public WebElement clear() { 
-            this.webElement.Clear();
+            _webElement.Clear();
             return this;
         }
 
         /// <summary>Clicks the element.</summary>
         public void click() {
-            this.webElement.Click();
+            _webElement.Click();
         }
 
         /// <summary>Clicks at the element offset.</summary>
         /// <param name="offset_x">Offset X</param>
         /// <param name="offset_y">Offset Y</param>
         public void clickByOffset(int offset_x, int offset_y) {
-            new OpenQA.Selenium.Interactions.Actions(this.webDriver).MoveToElement(this.webElement).MoveByOffset(offset_x, offset_y).Perform();
+            new OpenQA.Selenium.Interactions.Actions(_webDriver).MoveToElement(_webElement).MoveByOffset(offset_x, offset_y).Perform();
         }
 
         /// <summary>Simulates typing into the element.</summary>
-        /// <param name="text">Text</param>
-        public void sendKeys(string text) { 
-            this.webElement.SendKeys(text); 
+        /// <param name="keysOrModifier">Sequence of keys or a modifier key(Control,Shift...) if the sequence is in keysToSendEx</param>
+        /// <param name="keys">Optional - Sequence of keys if keysToSend contains modifier key(Control,Shift...)</param>
+        /// <example>
+        /// To send mobile to an element :
+        /// <code lang="vbs">
+        ///     driver.findElementsById("id").sendKeys "mobile"
+        /// </code>
+        /// To send ctrl+a to an element :
+        /// <code lang="vbs">
+        ///     driver.findElementsById("id").sendKeys Keys.Control, "a"
+        /// </code>
+        /// </example>
+        public void sendKeys(string keysOrModifier, [Optional][DefaultParameterValue("")]string keys)
+        {
+            if (string.IsNullOrEmpty(keys))
+                _webElement.SendKeys(keysOrModifier);
+            else
+                new OpenQA.Selenium.Interactions.Actions(_webDriver).KeyDown(keysOrModifier).SendKeys(keys).KeyUp(keysOrModifier).Build().Perform();
         }
 
         /// <summary>Submits a form.</summary>
         public void submit() { 
-            this.webElement.Submit();
+            _webElement.Submit();
         }
 
         /// <summary>Clicks the element and hold.</summary>
         public void clickAndHold(){
-            new OpenQA.Selenium.Interactions.Actions(this.webDriver).ClickAndHold(this.webElement).Perform();
+            new OpenQA.Selenium.Interactions.Actions(_webDriver).ClickAndHold(_webElement).Perform();
         }
 
         /// <summary>Release a click</summary>
         public void releaseClick() {
-            new OpenQA.Selenium.Interactions.Actions(this.webDriver).Release(this.webElement).Perform();
+            new OpenQA.Selenium.Interactions.Actions(_webDriver).Release(_webElement).Perform();
         }
 
         /// <summary>Rigth clicks the element</summary>
         public void contextClick(){
-            new OpenQA.Selenium.Interactions.Actions(this.webDriver).ContextClick(this.webElement).Perform();
+            new OpenQA.Selenium.Interactions.Actions(_webDriver).ContextClick(_webElement).Perform();
         }
 
         /// <summary>Double clicks the element.</summary>
         public void doubleClick(){
-            new OpenQA.Selenium.Interactions.Actions(this.webDriver).DoubleClick(this.webElement).Perform();
+            new OpenQA.Selenium.Interactions.Actions(_webDriver).DoubleClick(_webElement).Perform();
         }
 
         /// <summary>Drag and drop the element to another element</summary>
         /// <param name="target">Target WebElement</param>
         public void dragAndDropToWebElement(IWebElement target){
-            new OpenQA.Selenium.Interactions.Actions(this.webDriver).DragAndDrop(this.webElement, ((WebElement)target).webElement).Perform();
+            new OpenQA.Selenium.Interactions.Actions(_webDriver).DragAndDrop(_webElement, ((WebElement)target)._webElement).Perform();
         }
 
         /// <summary>Drag and drop the element to an offset</summary>
         /// <param name="offsetX">Offset X</param>
         /// <param name="offsetY">Offset Y</param>
         public void dragAndDropToOffset(int offsetX, int offsetY){
-            new OpenQA.Selenium.Interactions.Actions(this.webDriver).DragAndDropToOffset(this.webElement, offsetX, offsetY).Perform();
+            new OpenQA.Selenium.Interactions.Actions(_webDriver).DragAndDropToOffset(_webElement, offsetX, offsetY).Perform();
         }
 
         /// <summary>Press a key and hold</summary>
         /// <param name="theKey">Key</param>
         public void keyDown(string theKey){
-            new OpenQA.Selenium.Interactions.Actions(this.webDriver).KeyDown(this.webElement, theKey).Perform();
+            new OpenQA.Selenium.Interactions.Actions(_webDriver).KeyDown(_webElement, theKey).Perform();
         }
 
         /// <summary>Release a key</summary>
         /// <param name="theKey">Key</param>
         public void keyUp(string theKey){
-            new OpenQA.Selenium.Interactions.Actions(this.webDriver).KeyUp(this.webElement, theKey).Perform();
+            new OpenQA.Selenium.Interactions.Actions(_webDriver).KeyUp(_webElement, theKey).Perform();
         }
 
         /// <summary>Waits for an attribute</summary>
@@ -235,7 +249,7 @@ namespace SeleniumWrapper
         /// <param name="value">Value</param>
         public void waitForAttribute(string attribute, string value)
         {
-            waitFor(delegate(){ return this.webElement.GetAttribute(attribute) == value; });
+            waitFor(delegate(){ return _webElement.GetAttribute(attribute) == value; });
         }
 
         /// <summary>Waits for a different attribute</summary>
@@ -243,7 +257,7 @@ namespace SeleniumWrapper
         /// <param name="value">Value</param>
         public void waitForNotAttribute(string attribute, string value)
         {
-            waitFor(delegate() { return this.webElement.GetAttribute(attribute) != value; });
+            waitFor(delegate() { return _webElement.GetAttribute(attribute) != value; });
         }
 
         /// <summary>Waits for a CSS property</summary>
@@ -251,7 +265,7 @@ namespace SeleniumWrapper
         /// <param name="value">Value</param>
         public void waitForCssValue(string propertyName, string value)
         {
-            waitFor(delegate() { return this.webElement.GetCssValue(propertyName) == value; });            
+            waitFor(delegate() { return _webElement.GetCssValue(propertyName) == value; });            
         }
 
         /// <summary>Waits for a different CSS property</summary>
@@ -259,32 +273,32 @@ namespace SeleniumWrapper
         /// <param name="value">Value</param>
         public void waitForNotCssValue(string propertyName, string value)
         {
-            waitFor(delegate() { return this.webElement.GetCssValue(propertyName) != value; });
+            waitFor(delegate() { return _webElement.GetCssValue(propertyName) != value; });
         }
 
         /// <summary>Waits for text</summary>
         /// <param name="value">Value</param>
         public void waitForText(string value)
         {
-            waitFor(delegate() { return this.webElement.Text == value; });
+            waitFor(delegate() { return _webElement.Text == value; });
         }
 
         /// <summary>Waits for a different text</summary>
         /// <param name="value">Value</param>
         public void waitForNotText(string value)
         {
-            waitFor(delegate() { return this.webElement.Text != value; });
+            waitFor(delegate() { return _webElement.Text != value; });
         }
 
         private void waitFor(Func<bool> condition)
         {
-            DateTime end = DateTime.Now.AddMilliseconds(this.wd._timeout);
-            while(!this.wd._canceled && !condition()){
+            DateTime end = DateTime.Now.AddMilliseconds(this._wd._timeout);
+            while(!this._wd._canceled && !condition()){
                 if( DateTime.Now > end )
                     throw new Exception("Timeout reached!");
                 Thread.Sleep(15);
             }
-            this.wd.CheckCanceled();
+            this._wd.CheckCanceled();
         }
 
         /// <summary>Gets the screenshot of the current element</summary>
@@ -297,8 +311,8 @@ namespace SeleniumWrapper
             return new Image(ret.AsByteArray);
             */
 
-            System.Drawing.Rectangle cropRect = new System.Drawing.Rectangle(this.webElement.Location, this.webElement.Size);
-            byte[] imageBytes = ((OpenQA.Selenium.ITakesScreenshot)webDriver).GetScreenshot().AsByteArray;
+            System.Drawing.Rectangle cropRect = new System.Drawing.Rectangle(_webElement.Location, _webElement.Size);
+            byte[] imageBytes = ((OpenQA.Selenium.ITakesScreenshot)_webDriver).GetScreenshot().AsByteArray;
             if (imageBytes == null) throw new ApplicationException("Method <captureScreenshotToPdf> failed !\nReturned value is empty");
 
             System.Drawing.Image srcImage;
@@ -391,10 +405,12 @@ namespace SeleniumWrapper
         }
 		
 	    private WebElement findElement(OpenQA.Selenium.By by, int timeoutms){
-            object ret = timeoutms > 0 ?
-                this.wd.WaitUntilObject(() => this.webElement.FindElement(by), timeoutms)
-                : this.webElement.FindElement(by);
-            return new WebElement(this.wd, (OpenQA.Selenium.IWebElement)ret);
+            object ret;
+            if(timeoutms > 0)
+                ret = this._wd.WaitUntilObject(() => _webElement.FindElement(by), timeoutms);
+            else
+                ret = _webElement.FindElement(by);
+            return new WebElement(this._wd, (OpenQA.Selenium.IWebElement)ret);
         }
 
         /// <summary>Find all elements within the current context using the given mechanism.</summary>
@@ -473,12 +489,12 @@ namespace SeleniumWrapper
 
 	    private WebElement[] findElements(OpenQA.Selenium.By by, int timeoutms){
 			if(timeoutms>0){
-                Object ret = this.wd.WaitUntilObject(delegate(){
-                    return this.webElement.FindElements(by);
+                Object ret = this._wd.WaitUntilObject(delegate(){
+                    return _webElement.FindElements(by);
                 }, timeoutms);
-                return WebElement.GetWebElements(this.wd, (ReadOnlyCollection<OpenQA.Selenium.IWebElement>)ret);
+                return WebElement.GetWebElements(this._wd, (ReadOnlyCollection<OpenQA.Selenium.IWebElement>)ret);
 			}
-            return WebElement.GetWebElements(this.wd, this.webElement.FindElements(by));
+            return WebElement.GetWebElements(this._wd, _webElement.FindElements(by));
         }
 
      #endregion Find Elements
@@ -488,74 +504,74 @@ namespace SeleniumWrapper
         /// <summary>Gets all of the selected options within the select element.</summary>
         public IWebElement[] AllSelectedOptions{
             get {  
-                System.Collections.Generic.IList<OpenQA.Selenium.IWebElement> elements = new OpenQA.Selenium.Support.UI.SelectElement(this.webElement).AllSelectedOptions; 
+                System.Collections.Generic.IList<OpenQA.Selenium.IWebElement> elements = new OpenQA.Selenium.Support.UI.SelectElement(_webElement).AllSelectedOptions; 
                 IWebElement[] ret = new IWebElement[elements.Count];
                 for(int i=0; i<elements.Count; i++)
-                    ret[i] = new WebElement( this.wd, elements[i]);
+                    ret[i] = new WebElement( this._wd, elements[i]);
                 return ret;
             }
         }
 
         /// <summary></summary>
         public bool IsMultiple{
-            get { return new OpenQA.Selenium.Support.UI.SelectElement(this.webElement).IsMultiple; }
+            get { return new OpenQA.Selenium.Support.UI.SelectElement(_webElement).IsMultiple; }
         }
 
         /// <summary>Returns a list of all options belonging to this select tag</summary>
         public IWebElement[] Options{
             get {  
-                System.Collections.Generic.IList<OpenQA.Selenium.IWebElement> elements = new OpenQA.Selenium.Support.UI.SelectElement(this.webElement).Options; 
+                System.Collections.Generic.IList<OpenQA.Selenium.IWebElement> elements = new OpenQA.Selenium.Support.UI.SelectElement(_webElement).Options; 
                 IWebElement[] ret = new IWebElement[elements.Count];
                 for(int i=0; i<elements.Count; i++)
-                    ret[i] = new WebElement( this.wd, elements[i]);
+                    ret[i] = new WebElement( this._wd, elements[i]);
                 return ret;
             }
         }
 
         /// <summary>The first selected option in this select tag (or the currently selected option in a normal select)</summary>
         public IWebElement SelectedOption{
-            get { return new WebElement( this.wd, new OpenQA.Selenium.Support.UI.SelectElement(this.webElement).SelectedOption); }
+            get { return new WebElement( this._wd, new OpenQA.Selenium.Support.UI.SelectElement(_webElement).SelectedOption); }
         }
 
         /// <summary>Select the option at the given index. This is done by examing the “index” attribute of an element, and not merely by counting.</summary>
         /// <param name="index">Index</param>
         public void selectByIndex(int index){
-            new OpenQA.Selenium.Support.UI.SelectElement(this.webElement).SelectByIndex(index);
+            new OpenQA.Selenium.Support.UI.SelectElement(_webElement).SelectByIndex(index);
         }
 
         /// <summary>Select all options that display text matching the argument.</summary>
         /// <param name="text"></param>
         public void selectByText(string text){
-            new OpenQA.Selenium.Support.UI.SelectElement(this.webElement).SelectByText(text);
+            new OpenQA.Selenium.Support.UI.SelectElement(_webElement).SelectByText(text);
         }
 
         /// <summary>Select all options that have a value matching the argument.</summary>
         /// <param name="value">Value</param>
         public void selectByValue(string value){
-            new OpenQA.Selenium.Support.UI.SelectElement(this.webElement).SelectByValue(value);
+            new OpenQA.Selenium.Support.UI.SelectElement(_webElement).SelectByValue(value);
         }
 
         /// <summary>Clear all selected entries. This is only valid when the SELECT supports multiple selections. throws NotImplementedError If the SELECT does not support multiple selections</summary>
         public void deselectAll(){
-            new OpenQA.Selenium.Support.UI.SelectElement(this.webElement).DeselectAll();
+            new OpenQA.Selenium.Support.UI.SelectElement(_webElement).DeselectAll();
         }
 
         /// <summary>Deselect the option at the given index. This is done by examing the “index” attribute of an element, and not merely by counting.</summary>
         /// <param name="index"></param>
         public void deselectByIndex(int index){
-            new OpenQA.Selenium.Support.UI.SelectElement(this.webElement).DeselectByIndex(index);
+            new OpenQA.Selenium.Support.UI.SelectElement(_webElement).DeselectByIndex(index);
         }
 
         /// <summary>Deselect all options that display text matching the argument.</summary>
         /// <param name="text"></param>
         public void deselectByText(string text){
-            new OpenQA.Selenium.Support.UI.SelectElement(this.webElement).DeselectByText(text);
+            new OpenQA.Selenium.Support.UI.SelectElement(_webElement).DeselectByText(text);
         }
 
         /// <summary>Deselect all options that have a value matching the argument. That is, when given “foo” this would deselect an option like:</summary>
         /// <param name="value"></param>
         public void deselectByValue(string value){
-            new OpenQA.Selenium.Support.UI.SelectElement(this.webElement).DeselectByValue(value);
+            new OpenQA.Selenium.Support.UI.SelectElement(_webElement).DeselectByValue(value);
         }
 
      #endregion Select WebElement
@@ -566,14 +582,14 @@ namespace SeleniumWrapper
         /// <param name="pattern">The regular expression pattern to match.</param>
         /// <returns>true if the regular expression finds a match; otherwise, false.</returns>
         public bool isMatch(string pattern){
-            return Regex.IsMatch(this.webElement.Text, pattern);
+            return Regex.IsMatch(_webElement.Text, pattern);
         }
 
         /// <summary>Searches the specified input string for an occurrence of the regular expression supplied in the pattern parameter.</summary>
         /// <param name="pattern">The regular expression pattern to match.</param>
         /// <returns>Matching strings</returns>
         public object match(string pattern){
-            Match match = Regex.Match(this.webElement.Text, pattern);
+            Match match = Regex.Match(_webElement.Text, pattern);
             if(match.Groups != null){
                 string[] lst = new string[match.Groups.Count];
                 for(int i=0;i<match.Groups.Count;i++)
@@ -589,7 +605,7 @@ namespace SeleniumWrapper
         /// <param name="replacement">The replacement string.</param>
         /// <returns>A new string that is identical to the input string, except that a replacement string takes the place of each matched string.</returns>
         public string replace(string pattern, string replacement ){
-            return Regex.Replace(this.webElement.Text, pattern, replacement);
+            return Regex.Replace(_webElement.Text, pattern, replacement);
         }
 
      #endregion Regex
@@ -610,9 +626,9 @@ namespace SeleniumWrapper
         /// </example>
         public string[,] getArrayByCssSelector([Optional][DefaultParameterValue(null)]String rowsCssSelector, [Optional][DefaultParameterValue(null)]String columnsCssSelector){
             if(columnsCssSelector==null)
-                return getArrayBy(this.webElement, OpenQA.Selenium.By.CssSelector(rowsCssSelector));
+                return getArrayBy(_webElement, OpenQA.Selenium.By.CssSelector(rowsCssSelector));
             else
-                return getArrayBy(this.webElement, OpenQA.Selenium.By.CssSelector(rowsCssSelector), OpenQA.Selenium.By.CssSelector(columnsCssSelector));
+                return getArrayBy(_webElement, OpenQA.Selenium.By.CssSelector(rowsCssSelector), OpenQA.Selenium.By.CssSelector(columnsCssSelector));
         }
 
         /// <summary>Return an array filled with datas from an XPath query.</summary>
@@ -629,9 +645,9 @@ namespace SeleniumWrapper
         /// </example>
         public string[,] getArrayByXPath([Optional][DefaultParameterValue(null)]String rowXPath, [Optional][DefaultParameterValue(null)]String columnXPath){
             if(columnXPath==null)
-                return getArrayBy(this.webElement, OpenQA.Selenium.By.XPath(rowXPath));
+                return getArrayBy(_webElement, OpenQA.Selenium.By.XPath(rowXPath));
             else
-                return getArrayBy(this.webElement, OpenQA.Selenium.By.XPath(rowXPath), OpenQA.Selenium.By.XPath(columnXPath));
+                return getArrayBy(_webElement, OpenQA.Selenium.By.XPath(rowXPath), OpenQA.Selenium.By.XPath(columnXPath));
         }
 
         private static string[,] getArrayBy(OpenQA.Selenium.IWebElement webElement, OpenQA.Selenium.By rowsBy){
