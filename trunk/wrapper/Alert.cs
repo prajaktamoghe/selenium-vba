@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 namespace SeleniumWrapper
 {
     [Guid("EF8F7E6E-CADB-498F-9AE9-B51CB7C5A694")]
-    [ComVisible(true)]
+    [ComVisible(true), InterfaceType(ComInterfaceType.InterfaceIsDual)]
     public interface IAlert
     {
         [Description("Dismisses the alert.")]

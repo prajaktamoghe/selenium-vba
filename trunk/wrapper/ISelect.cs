@@ -7,7 +7,7 @@ namespace SeleniumWrapper
 
     [Description("Commands for the Select web element")]
     [Guid("D1A1CC9D-5CE0-41CE-B16B-4CE442A16502")]
-    [ComVisible(true)]
+    [ComVisible(true), InterfaceType(ComInterfaceType.InterfaceIsDual)]
     public interface Select
     {
         [Description("")]

@@ -6,7 +6,7 @@ using System.ComponentModel;
 namespace SeleniumWrapper
 {
     [Guid("3349C16B-9DB7-4A54-BAA4-637431245D48")]
-    [ComVisible(true), InterfaceType(ComInterfaceType.InterfaceIsIDispatch)]
+    [ComVisible(true), InterfaceType(ComInterfaceType.InterfaceIsDual)]
     public interface IKeys
     {
         string Add { get; }

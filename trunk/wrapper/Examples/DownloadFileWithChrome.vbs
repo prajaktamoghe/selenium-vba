@@ -1,23 +1,22 @@
 
-' Date: 27/01/2013
+' Date: 04/11/2013
 ' Author: Florent BREHERET
-' Description: Automatically download a file with Chrome (Doesn't work as it's not implemented in the .Net driver!)
+' Description: Example of command line argument and preference for chrome
 
 currentFolder = Replace(WScript.ScriptFullName,WScript.ScriptName,"")
 
-Set selenium = CreateObject("SeleniumWrapper.WebDriver")
+Set driver = CreateObject("SeleniumWrapper.WebDriver")
 
-Set options = CreateObject("System.Collections.Hashtable")
-options.Add "default_directory", "C:\temp"
-options.Add "directory_upgrade", true
-options.Add "extensions_to_open", ""
-options.Add "prompt_for_download", false
+'To start chrome maximized
+driver.addArgument "--start-maximized"
 
-Set download = CreateObject("System.Collections.Hashtable")
-download.Add "download", options
+'To automatically download  files to a directory
+driver.setPreference "download.default_directory", currentFolder & "chrome_download"
+driver.setPreference "download.directory_upgrade", true
+driver.setPreference "download.extensions_to_open", ""
+driver.setPreference "download.prompt_for_download", false
 
-selenium.setCapability "chrome.prefs", download
-selenium.start "chrome", "http://www.google.com"
-selenium.open "http://selenium-vba.googlecode.com/svn/trunk/wrapper/Examples/TestsWithExcel.xls"
-selenium.wait 2000
-selenium.stop
+driver.start "chrome", "http://selenium-vba.googlecode.com"
+driver.open "/svn/trunk/wrapper/Examples/TestsWithExcel.xls"
+driver.wait 2000
+driver.stop

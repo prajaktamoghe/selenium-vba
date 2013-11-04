@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 namespace SeleniumWrapper
 {
     [Guid("159495B0-A903-4FA5-873E-384C7E50EFA8")]
-    [ComVisible(true)]
+    [ComVisible(true), InterfaceType(ComInterfaceType.InterfaceIsDual)]
     public interface IWaiter{
 
         [Description("Returns a boolean to continue waiting and throws an exception if the timeout is reached")]

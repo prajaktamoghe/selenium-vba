@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 namespace SeleniumWrapper
 {
     [Guid("D743541A-CDB7-447E-B8EF-F2A56C3A68D4")]
-    [ComVisible(true)]
+    [ComVisible(true), InterfaceType(ComInterfaceType.InterfaceIsDual)]
     public interface IPdfFile
     {
         [Description("Set page size in millimeter")]

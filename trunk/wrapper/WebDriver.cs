@@ -6,14 +6,11 @@ using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Timers;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
-using OpenQA.Selenium.Firefox;
-using OpenQA.Selenium.IE;
 using OpenQA.Selenium.PhantomJS;
 using OpenQA.Selenium.Remote;
-using System.Text;
+using System.Windows.Forms;
 
 namespace SeleniumWrapper
 {
@@ -53,313 +50,10 @@ namespace SeleniumWrapper
     [Description("Defines the interface through which the user controls the browser using WebDriver (Selenium 2) and Selenium RC (Selenium 1) commands.")]
     [Guid("432b62a5-6f09-45ce-b10e-e3ccffab4234")]
     [ComVisible(true), ComDefaultInterface(typeof(IWebDriver)), ComSourceInterfaces(typeof(WebDriverEvents)), ClassInterface(ClassInterfaceType.None)]
-    public partial class WebDriver : IDisposable, IWebDriver
+    public partial class WebDriver : WebDriverCore, IWebDriver
     {
         //public delegate void EndOfCommandDelegate();
         //public event EndOfCommandDelegate EndOfCommand;
-
-        public delegate Object ActionResult();
-        public delegate void ActionVoid();
-
-        internal static OpenQA.Selenium.IWebDriver CurrentWebDriver;
-
-        internal OpenQA.Selenium.IWebDriver _webDriver;
-        internal int _timeout;
-        internal bool _canceled;
-        Selenium.WebDriverBackedSelenium _webDriverBacked;
-        Dictionary<string, object> _capabilities;
-        Dictionary<string, object> _preferences;
-        List<string> _extensions;
-        string _profile;
-        Proxy _proxy { get; set; }
-        bool _isStartedRemotely;
-        Thread _thread;
-        String _error;
-        System.Timers.Timer _timerhotkey;
-        String _baseUrl;
-
-        public WebDriver() {
-            _timeout = 30000;
-            _timerhotkey = new System.Timers.Timer(200);
-            _timerhotkey.Elapsed += new System.Timers.ElapsedEventHandler(TimerCheckHotKey);
-            _capabilities = new Dictionary<string, object>();
-            if (this.delegate_function != null) this.delegate_function();
-            AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(AppDomain_UnhandledException);
-            AppDomain.CurrentDomain.ProcessExit += (sender, e) => Utils.runShellCommand(@"FOR /D %A IN (%TEMP%\anonymous*) DO RD /S /Q ""%A"" & FOR /D %A IN (%TEMP%\scoped_dir*) DO RD /S /Q ""%A"" & DEL /q /f %TEMP%\IE*.tmp");
-        }
-
-        private void AppDomain_UnhandledException(Object sender, UnhandledExceptionEventArgs e) {
-            Exception exception = (Exception)e.ExceptionObject;
-            if (!(exception is ThreadAbortException)) {
-                _error = exception.GetType().Name + ": " + exception.Message;
-                _thread.Abort();
-            }
-        }
-
-        ~WebDriver() {
-            Dispose(true);
-        }
-
-        public void Dispose() {
-            Dispose(true);
-        }
-
-        protected virtual void Dispose(bool disposing) {
-            _timerhotkey.Stop();
-            if (_thread != null) _thread.Abort();
-        }
-
-        private void TimerCheckHotKey(object source, ElapsedEventArgs e) {
-            if (Utils.isEscapeKeyPressed()) {
-                _canceled = true;
-                _thread.Abort();
-            }
-        }
-
-        System.Action delegate_function;
-
-        public void RegisterFunction([MarshalAs(UnmanagedType.FunctionPtr)] System.Action doevents_function) {
-            this.delegate_function = doevents_function;
-        }
-
-        private string GetErrorPrifix(string methodeName) {
-            string lMethodname = Regex.Match(methodeName, "<([^>]+)>").Groups[0].Value;
-            return "Method " + lMethodname + " failed !";
-        }
-
-        private void InvokeWd(ActionVoid action) {
-            _error = null;
-            _thread = new System.Threading.Thread((System.Threading.ThreadStart)delegate {
-                try {
-                    action();
-                } catch (System.Exception ex) {
-                    if (!(ex is ThreadAbortException)) _error = ex.GetType().ToString() + ": " + ex.Message;
-                }
-            });
-            _thread.Start();
-            bool succeed = _thread.Join(_timeout + 1000);
-            this.CheckCanceled();
-            if (!succeed) throw new ApplicationException(GetErrorPrifix(action.Method.Name) + "\nTimed out running command after " + _timeout + " milliseconds");
-            if (_error != null) throw new ApplicationException(GetErrorPrifix(action.Method.Name) + "\n" + _error);
-        }
-
-        private Object InvokeWd(ActionResult action) {
-            object result = null;
-            _error = null;
-            _thread = new System.Threading.Thread((System.Threading.ThreadStart)delegate {
-                try {
-                    result = action();
-                } catch (System.Exception ex) {
-                    if (!(ex is ThreadAbortException)) _error = ex.Message;
-                }
-            });
-            _thread.Start();
-            bool succeed = _thread.Join(_timeout + 1000);
-            this.CheckCanceled();
-            if (!succeed) throw new ApplicationException(GetErrorPrifix(action.Method.Name) + "\nTimed out running command after " + _timeout + " milliseconds");
-            if (_error != null) throw new ApplicationException(GetErrorPrifix(action.Method.Name) + "\n" + _error);
-            //if (EndOfCommand != null) EndOfCommand();
-            return result;
-        }
-
-        private void InvokeWdWaitFor(ActionResult action, Object expected, bool match) {
-            object result = null;
-            _error = null;
-            _thread = new System.Threading.Thread((System.Threading.ThreadStart)delegate{
-                while (!_canceled && (match ^ Utils.ObjectEquals(result, expected))) {
-                    try {
-                        result = action();
-                    }catch (Exception ex) {
-                        if (ex is ThreadAbortException) break;
-                        _error = ex.Message;
-                    }
-                    Thread.Sleep(100);
-                }
-            });
-            _thread.Start();
-            bool succed = _thread.Join(_timeout + 1000);
-            this.CheckCanceled();
-            if(!succed || _error != null){
-                var sb = new StringBuilder();
-                sb.Append(GetErrorPrifix(action.Method.Name));
-                if(expected!=null)
-                    sb.Append(" Expected" + (match ? "=" : "!=") + "<" + expected.ToString() + "> result=<" + (result ?? "null").ToString() + ">.");
-                if(!succed)
-                    sb.Append(" Timed out after " + _timeout + " ms.");
-                if(_error != null)
-                    sb.Append(_error);
-                throw new ApplicationException(sb.ToString());
-            }
-        }
-
-        private void InvokeWdAssert(ActionResult action, Object expected, bool match) {
-            Object result = InvokeWd(action);
-            if (match ^ Utils.ObjectEquals(result, expected)) throw new ApplicationException(GetErrorPrifix(action.Method.Name) + "\nexpected" + (match ? "=" : "!=") + "<" + expected.ToString() + ">\nresult=<" + result.ToString() + "> ");
-        }
-
-        private String InvokeWdVerify(ActionResult action, Object expected, bool match) {
-            Object result = InvokeWd(action);
-            if (match ^ Utils.ObjectEquals(result, expected)) {
-                return "KO, " + GetErrorPrifix(action.Method.Name) + " expected" + (match ? "=" : "!=") + "<" + expected.ToString() + "> result=<" + result.ToString() + "> ";
-            } else {
-                return "OK";
-            }
-        }
-
-        private void InvokeWdAndWait(ActionVoid action) {
-            InvokeWd(action);
-            waitForPageToLoad(_timeout);
-        }
-
-        /// <summary>Repeatedly applies this instance's input value to the given function until one of the following</summary>
-        /// <param name="function"></param>
-        /// <param name="timeoutms"></param>
-        /// <returns></returns>
-        internal object WaitUntilObject(ActionResult function, int timeoutms) {
-            var endTime = DateTime.Now.AddMilliseconds(timeoutms);
-			string errorMsg = String.Empty;
-            while (true) {
-                try {
-					errorMsg = String.Empty;
-                    var result = function();
-                    if (result != null) return result;
-                } catch (Exception ex) { 
-					errorMsg = ex.Message;
-				}
-                this.CheckCanceled();
-                if (DateTime.Now > endTime)
-                    throw new TimeoutException("The operation has timed out! " + errorMsg);
-                Thread.Sleep(30);
-            }
-        }
-
-        internal void CheckCanceled() {
-            if (_canceled) {
-                _canceled = false;
-                throw new ApplicationException("Code execution has been interrupted");
-            }
-        }
-
-        // http://code.google.com/p/selenium/wiki/DesiredCapabilities#Proxy_JSON_Object
-
-        private FirefoxProfile getFirefoxOptions() {
-            FirefoxProfile firefoxProfile;
-            if (_profile != null) {
-                if (System.IO.Directory.Exists(_profile)) {
-                    firefoxProfile = new FirefoxProfile(_profile);
-                } else {
-                    FirefoxProfileManager profilManager = new FirefoxProfileManager();
-                    firefoxProfile = profilManager.GetProfile(_profile);
-                }
-            } else {
-                firefoxProfile = new FirefoxProfile();
-            }
-            if (_preferences != null) {
-                foreach (KeyValuePair<string, object> pref in _preferences) {
-                    if (pref.Value is string)
-                        firefoxProfile.SetPreference(pref.Key, (string)pref.Value);
-                    else if (pref.Value is short)
-                        firefoxProfile.SetPreference(pref.Key, Convert.ToInt32(pref.Value));
-                    else if (pref.Value is bool)
-                        firefoxProfile.SetPreference(pref.Key, (bool)pref.Value);
-                }
-            }
-            if (_extensions != null) {
-                foreach (string ext in _extensions)
-                    firefoxProfile.AddExtension(ext);
-            }
-            if (_proxy != null)
-                firefoxProfile.SetProxyPreferences(_proxy);
-            firefoxProfile.AcceptUntrustedCertificates = true;
-            return firefoxProfile;
-        }
-
-        private DesiredCapabilities getFirefoxCapabilities() {
-            DesiredCapabilities lCapability = DesiredCapabilities.Firefox();
-            lCapability.SetCapability("firefox_profile", getFirefoxOptions());
-            return lCapability;
-        }
-
-        private ChromeOptions getChromeOptions() {
-            ChromeOptions chromeOptions = new ChromeOptions();
-            if (_profile != null)
-                chromeOptions.AddArgument("user-data-dir=" + _profile);
-            if (_preferences != null)
-                chromeOptions.AddAdditionalCapability("chrome.prefs", _preferences);
-            if (_extensions != null)
-                chromeOptions.AddExtensions(_extensions);
-            if (_proxy != null)
-                chromeOptions.AddArgument("--proxy-server=" + _proxy.HttpProxy);
-            //chromeOptions.AddAdditionalCapability("proxy", proxy);
-            foreach (KeyValuePair<string, object> capability in _capabilities) {
-                switch (capability.Key) {
-                    case "chrome.binary":
-                        chromeOptions.BinaryLocation = (string)capability.Value;
-                        break;
-                    case "chrome.extensions":
-                        chromeOptions.AddExtensions(Utils.CastToString((IEnumerable)capability.Value));
-                        break;
-                    case "chrome.switches":
-                        chromeOptions.AddArguments(Utils.CastToString((IEnumerable)capability.Value));
-                        break;
-                    default:
-                        chromeOptions.AddAdditionalCapability(capability.Key, capability.Value);
-                        break;
-                }
-            }
-            return chromeOptions;
-        }
-
-        private DesiredCapabilities getChromeCapabilities() {
-            DesiredCapabilities chromeCapabilities = DesiredCapabilities.Chrome();
-            ArrayList switches = new ArrayList();
-            if (_profile != null)
-                switches.Add("--user-data-dir=" + _profile);
-            if (_preferences != null)
-                chromeCapabilities.SetCapability("chrome.prefs", _preferences);
-            if (_extensions != null)
-                chromeCapabilities.SetCapability("chrome.extensions", _extensions);
-            if (_proxy != null)
-                switches.Add("--proxy-server=" + _proxy.HttpProxy);
-            foreach (KeyValuePair<string, object> capability in _capabilities) {
-                if (capability.Key == "chrome.switches")
-                    switches.AddRange((IList)capability.Value);
-                else
-                    chromeCapabilities.SetCapability(capability.Key, capability.Value);
-            }
-            chromeCapabilities.SetCapability("chrome.switches", switches);
-            return chromeCapabilities;
-        }
-
-        private InternetExplorerOptions getInternetExplorerOptions() {
-            InternetExplorerOptions ieoptions = new InternetExplorerOptions();
-            if (_preferences != null) throw new Exception("Preference configuration is not available for InternetExplorerDriver!");
-            if (_extensions != null) throw new Exception("Preference configuration is not available for InternetExplorerDriver!");
-            if (_proxy != null) throw new Exception("Proxy configuration is not available for InternetExplorerDriver!");
-            foreach (KeyValuePair<string, object> capability in _capabilities) {
-                switch (capability.Key) {
-                    case "ignoreProtectedModeSettings": ieoptions.IntroduceInstabilityByIgnoringProtectedModeSettings = (bool)capability.Value; break;
-                    case "ignoreZoomSetting": ieoptions.IgnoreZoomLevel = (bool)capability.Value; break;
-                    case "initialBrowserUrl": ieoptions.InitialBrowserUrl = (string)capability.Value; break;
-                    case "elementScrollBehavior": ieoptions.ElementScrollBehavior = (InternetExplorerElementScrollBehavior)capability.Value; break;
-                    case "unexpectedAlertBehaviour": ieoptions.UnexpectedAlertBehavior = (InternetExplorerUnexpectedAlertBehavior)capability.Value; break;
-                    case "nativeEvents": ieoptions.EnableNativeEvents = (bool)capability.Value; break;
-                    default: ieoptions.AddAdditionalCapability(capability.Key, capability.Value); break;
-                }
-            }
-            return ieoptions;
-        }
-
-        private PhantomJSOptions getPhantomJSOptions() {
-            var phantomjsOptions = new PhantomJSOptions();
-            if (_profile != null) throw new Exception("Profile configuration is not available for PhantomJS driver!");
-            if (_preferences != null) throw new Exception("Preference configuration is not available for PhantomJS!");
-            if (_extensions != null) throw new Exception("Extension configuration is not available for PhantomJS!");
-            if (_proxy != null) throw new Exception("Proxy configuration is not available for InternetExplorerDriver!");
-            foreach (var capability in _capabilities)
-                phantomjsOptions.AddAdditionalCapability(capability.Key, capability.Value);
-            return phantomjsOptions;
-        }
 
         public int Timeout {
             get { return _timeout; }
@@ -401,37 +95,24 @@ namespace SeleniumWrapper
             }
             DesiredCapabilities capa = new DesiredCapabilities(_capabilities);
             switch (browser.ToLower().Replace("*", "")) {
-                case "firefox":
-                case "ff":
+                case "firefox": case "ff":
                     _webDriver = new OpenQA.Selenium.Firefox.FirefoxDriver(getFirefoxOptions());
                     break;
-                case "cr":
-                case "chrome":
+                case "cr": case "chrome":
                     ChromeDriverService crService = ChromeDriverService.CreateDefaultService(directory);
                     _webDriver = new OpenQA.Selenium.Chrome.ChromeDriver(crService, getChromeOptions());
                     //_webDriver = new OpenQA.Selenium.Chrome.ChromeDriver(directory, getChromeOptions());
                     break;
-                case "phantomjs":
-                case "pjs":
+                case "phantomjs": case "pjs":
                     var pjsService = PhantomJSDriverService.CreateDefaultService(directory);
                     _webDriver = new OpenQA.Selenium.PhantomJS.PhantomJSDriver(pjsService, getPhantomJSOptions());
                     //_webDriver = new OpenQA.Selenium.PhantomJS.PhantomJSDriver(directory, getPhantomJSOptions());
                     break;
-                case "internetexplorer":
-                case "iexplore":
-                case "ie":
-                case "internetexplorer64":
-                case "iexplore64":
-                case "ie64":
-                    if (browser.EndsWith("64")) directory += @"\ie64";
-                    if (_profile != null) throw new Exception("Profile configuration is not available for InternetExplorerDriver!");
-                    if (_preferences != null) throw new Exception("Preference configuration is not available for InternetExplorerDriver!");
-                    if (_extensions != null) throw new Exception("Extension configuration is not available for InternetExplorerDriver!");
-                    if (_proxy != null) throw new Exception("Proxy configuration is not available for InternetExplorerDriver!");
+                case "internetexplorer": case "iexplore": case "ie":
+                case "internetexplorer64": case "iexplore64": case "ie64":
                     _webDriver = new OpenQA.Selenium.IE.InternetExplorerDriver(directory, getInternetExplorerOptions());
                     break;
-                case "safari":
-                case "sa":
+                case "safari": case "sa":
                     throw new Exception("SafariDriver is not yet implemented. Use remote driver insted.");
                 default:
                     throw new ApplicationException("Browser <" + browser + "> is not available !  \nAvailable are Firefox, IE, Chrome and PhantomJS");
@@ -450,21 +131,21 @@ namespace SeleniumWrapper
         /// <param name="baseUrl">Base URL</param>
         public void startRemotely(string browser, String remoteAddress, String baseUrl) {
             _isStartedRemotely = true;
-            DesiredCapabilities lCapability;
+            ICapabilities lCapability;
             browser = browser.ToLower().Replace("*", "");
             switch (browser) {
                 case "ff":
                 case "firefox":
                     lCapability = DesiredCapabilities.Firefox();
-                    lCapability.SetCapability("firefox_profile", getFirefoxOptions());
+                    (lCapability as DesiredCapabilities).SetCapability("firefox_profile", getFirefoxOptions());
                     break;
                 case "cr":
                 case "chrome":
-                    lCapability = getChromeCapabilities();
+                    lCapability = getChromeOptions().ToCapabilities();
                     break;
                 case "phantomjs":
                 case "pjs":
-                    lCapability = (DesiredCapabilities)getPhantomJSOptions().ToCapabilities();
+                    lCapability = getPhantomJSOptions().ToCapabilities();
                     break;
                 default:
                     switch (browser) {
@@ -480,7 +161,7 @@ namespace SeleniumWrapper
                     }
                     if (_capabilities != null) {
                         foreach (KeyValuePair<string, object> capability in _capabilities)
-                            lCapability.SetCapability(capability.Key, capability.Value);
+                            (lCapability as DesiredCapabilities).SetCapability(capability.Key, capability.Value);
                     }
                     break;
             }
@@ -541,6 +222,14 @@ namespace SeleniumWrapper
             if (_extensions == null)
                 _extensions = new List<string>();
             _extensions.Add(extensionPath);
+        }
+
+        /// <summary>Add an argument to be appended to the command line to launch the browser.</summary>
+        /// <param name="argument">Argument</param>
+        public void addArgument(string argument) {
+            if (_arguments == null)
+                _arguments = new List<string>();
+            _arguments.Add(argument);
         }
 
         /// <summary>Set a specific proxy for the webdriver</summary>
@@ -705,47 +394,35 @@ namespace SeleniumWrapper
         /// </code>
         /// </example>
         public Object executeScript(String script, [Optional][DefaultParameterValue(null)]object arguments) {
-            object[] argArray;
-            if (arguments == null) {
-                argArray = new object[] { };
-            } else {
-                if (arguments.GetType().IsArray) {
-                    argArray = new object[((object[])arguments).Length];
-                    for (int i = 0; i < argArray.Length; i++)
-                        argArray[i] = ((object[])arguments)[i] is WebElement ? ((WebElement)((object[])arguments)[i])._webElement : ((object[])arguments)[i];
-                } else {
-                    argArray = new object[1];
-                    if (arguments is WebElement)
-                        argArray[0] = ((WebElement)arguments)._webElement;
-                    else
-                        argArray[0] = arguments;
-                }
-            }
+            object[] argArray = null;
+            if (arguments is ICollection) {
+                argArray = new object[(arguments as ICollection).Count];
+                int i = 0;
+                foreach(object ele in (arguments as ICollection))
+                    argArray[i++] = ele is WebElement ? ((WebElement)ele)._webElement : ele;
+            } else if (arguments != null)
+                argArray = new object[]{ arguments is WebElement ? ((WebElement)arguments)._webElement : arguments };
+
             var ret = ((OpenQA.Selenium.IJavaScriptExecutor)_webDriver).ExecuteScript(script, argArray);
-            if (ret is OpenQA.Selenium.IWebElement)
-                return new WebElement(this, (OpenQA.Selenium.IWebElement)ret );
-            else if (ret.GetType().IsArray){
-                var retArray = new object[ ((object[])ret).Length];
-                for(int i=0; i<retArray.Length; i++)
-                    retArray[i] = ((object[])ret)[i] is OpenQA.Selenium.IWebElement ? new WebElement(this, (OpenQA.Selenium.IWebElement)((object[])ret)[i]) : ((object[])ret)[i];
+
+            if (ret is ReadOnlyCollection<OpenQA.Selenium.IWebElement>)
+                return new WebElementCollection(this, (ReadOnlyCollection<OpenQA.Selenium.IWebElement>)ret);
+            if (ret is ICollection) {
+                var retArray = new ArrayList((ret as ICollection).Count);
+                foreach (object ele in (ret as ICollection))
+                    retArray.Add( ele is OpenQA.Selenium.IWebElement ? new WebElement(this, (OpenQA.Selenium.IWebElement)ele) : ele);
                 return retArray;
-            } else if (ret is ReadOnlyCollection<OpenQA.Selenium.IWebElement>) {
-                return WebElement.GetWebElements(this, (ReadOnlyCollection<OpenQA.Selenium.IWebElement>)ret);
-            } else if (ret is ICollection) {
-                var retArray = new object[((ICollection)ret).Count];
-                ((ICollection)ret).CopyTo(retArray, 0);
-                return retArray;
-            }
-            return ret;
+            }else
+                return ret is OpenQA.Selenium.IWebElement ? new WebElement(this, (OpenQA.Selenium.IWebElement)ret) : ret;
         }
 
         /// <summary>Find the first WebElement using the given method.</summary>
         /// <param name="by">Methode</param>
         /// <param name="timeoutms">Optional timeout</param>
         /// <returns>WebElement</returns>
-        public WebElement findElement(Object by, [Optional][DefaultParameterValue(0)]int timeoutms) {
-            if (((By)by).base_ == null) throw new NullReferenceException("The locating mechanism is null!");
-            return findElement(((By)by).base_, timeoutms);
+        public WebElement findElement(By by, [Optional][DefaultParameterValue(0)]int timeoutms) {
+            if (by.base_ == null) throw new NullReferenceException("The locating mechanism is null!");
+            return findElement(by.base_, timeoutms);
         }
 
         /// <summary>Finds an element by name.</summary>
@@ -841,16 +518,16 @@ namespace SeleniumWrapper
         /// <param name="by">The locating mechanism to use</param>
         /// <param name="timeoutms">Optional timeout</param>
         /// <returns>A list of all WebElements, or an empty list if nothing matches</returns>
-        public object findElements(object by, [Optional][DefaultParameterValue(0)]int timeoutms) {
-            if (((By)by).base_ == null) throw new NullReferenceException("The locating mechanism is null!");
-            return findElements(((By)by).base_, timeoutms);
+        public WebElementCollection findElements(By by, [Optional][DefaultParameterValue(0)]int timeoutms) {
+            if (by.base_ == null) throw new NullReferenceException("The locating mechanism is null!");
+            return findElements(by.base_, timeoutms);
         }
 
         /// <summary>Finds elements by name.</summary>
         /// <param name="name">The name of the elements to find.</param>
         /// <param name="timeoutms">Optional timeout</param>
         /// <returns>Array of WebElements</returns>
-        public object findElementsByName(String name, [Optional][DefaultParameterValue(0)]int timeoutms) {
+        public WebElementCollection findElementsByName(String name, [Optional][DefaultParameterValue(0)]int timeoutms) {
             return this.findElements(OpenQA.Selenium.By.Name(name), timeoutms);
         }
 
@@ -858,7 +535,7 @@ namespace SeleniumWrapper
         /// <param name="xpath">The xpath locator of the elements to be found.</param>
         /// <param name="timeoutms">Optional timeout</param>
         /// <returns>Array of WebElements</returns>
-        public object findElementsByXPath(String xpath, [Optional][DefaultParameterValue(0)]int timeoutms) {
+        public WebElementCollection findElementsByXPath(String xpath, [Optional][DefaultParameterValue(0)]int timeoutms) {
             return this.findElements(OpenQA.Selenium.By.XPath(xpath), timeoutms);
         }
 
@@ -866,7 +543,7 @@ namespace SeleniumWrapper
         /// <param name="id">The id of the elements to be found.</param>
         /// <param name="timeoutms">Optional timeout</param>
         /// <returns>Array of WebElements</returns>
-        public object findElementsById(String id, [Optional][DefaultParameterValue(0)]int timeoutms) {
+        public WebElementCollection findElementsById(String id, [Optional][DefaultParameterValue(0)]int timeoutms) {
             return this.findElements(OpenQA.Selenium.By.Id(id), timeoutms);
         }
 
@@ -874,7 +551,7 @@ namespace SeleniumWrapper
         /// <param name="classname">The class name of the elements to find.</param>
         /// <param name="timeoutms">Optional timeout</param>
         /// <returns>Array of WebElements</returns>
-        public object findElementsByClassName(String classname, [Optional][DefaultParameterValue(0)]int timeoutms) {
+        public WebElementCollection findElementsByClassName(String classname, [Optional][DefaultParameterValue(0)]int timeoutms) {
             return this.findElements(OpenQA.Selenium.By.ClassName(classname), timeoutms);
         }
 
@@ -882,7 +559,7 @@ namespace SeleniumWrapper
         /// <param name="cssselector">The css selector to use when finding elements.</param>
         /// <param name="timeoutms">Optional timeout</param>
         /// <returns>Array of WebElements</returns>
-        public object findElementsByCssSelector(String cssselector, [Optional][DefaultParameterValue(0)]int timeoutms) {
+        public WebElementCollection findElementsByCssSelector(String cssselector, [Optional][DefaultParameterValue(0)]int timeoutms) {
             return this.findElements(OpenQA.Selenium.By.CssSelector(cssselector), timeoutms);
         }
 
@@ -890,7 +567,7 @@ namespace SeleniumWrapper
         /// <param name="linktext">The text of the elements to be found.</param>
         /// <param name="timeoutms">Optional timeout</param>
         /// <returns>Array of WebElements</returns>
-        public object findElementsByLinkText(String linktext, [Optional][DefaultParameterValue(0)]int timeoutms) {
+        public WebElementCollection findElementsByLinkText(String linktext, [Optional][DefaultParameterValue(0)]int timeoutms) {
             return this.findElements(OpenQA.Selenium.By.LinkText(linktext), timeoutms);
         }
 
@@ -898,7 +575,7 @@ namespace SeleniumWrapper
         /// <param name="partiallinktext">The text of the element to partial match on.</param>
         /// <param name="timeoutms">Optional timeout</param>
         /// <returns>Array of WebElements</returns>
-        public object findElementsByPartialLinkText(String partiallinktext, [Optional][DefaultParameterValue(0)]int timeoutms) {
+        public WebElementCollection findElementsByPartialLinkText(String partiallinktext, [Optional][DefaultParameterValue(0)]int timeoutms) {
             return this.findElements(OpenQA.Selenium.By.PartialLinkText(partiallinktext), timeoutms);
         }
 
@@ -906,16 +583,16 @@ namespace SeleniumWrapper
         /// <param name="tagname">The tag name the use when finding elements.</param>
         /// <param name="timeoutms">Optional timeout</param>
         /// <returns>Array of WebElements</returns>
-        public object findElementsByTagName(String tagname, [Optional][DefaultParameterValue(0)]int timeoutms) {
+        public WebElementCollection findElementsByTagName(String tagname, [Optional][DefaultParameterValue(0)]int timeoutms) {
             return this.findElements(OpenQA.Selenium.By.TagName(tagname), timeoutms);
         }
 
-        private object[] findElements(OpenQA.Selenium.By by, [Optional][DefaultParameterValue(0)]int timeoutms) {
+        private WebElementCollection findElements(OpenQA.Selenium.By by, [Optional][DefaultParameterValue(0)]int timeoutms) {
             if (timeoutms > 0) {
                 var ret = this.WaitUntilObject(() => _webDriver.FindElements(by), timeoutms);
-                return WebElement.GetWebElements(this, (ReadOnlyCollection<OpenQA.Selenium.IWebElement>)ret);
+                return new WebElementCollection(this, (ReadOnlyCollection<OpenQA.Selenium.IWebElement>)ret);
             }
-            return WebElement.GetWebElements(this, _webDriver.FindElements(by));
+            return new WebElementCollection(this, _webDriver.FindElements(by));
         }
 
         /// <summary>Gets the screenshot of the current window</summary>
@@ -946,6 +623,12 @@ namespace SeleniumWrapper
             else
                 new OpenQA.Selenium.Interactions.Actions(_webDriver).KeyDown(keysOrModifier).SendKeys(keys).KeyUp(keysOrModifier).Build().Perform();
 
+        }
+
+        /// <summary>Sends keystrokes to the active application using the windows SendKeys methode.</summary>
+        /// <param name="keys">The string of keystrokes to send.</param>
+        public void sendKeysNat(string keys) {
+            System.Windows.Forms.SendKeys.Send(keys);
         }
 
         public Cookie getCookie(string name) {
@@ -1033,6 +716,13 @@ namespace SeleniumWrapper
                 lst[i] = match.Groups[i].Value;
             return lst;
         }
+
+        /// <summary>Adds text data to the Clipboard</summary>
+        /// <param name="text">Text</param>
+        public void toClipBoard(string text) {
+            Clipboard.SetText(text);
+        }
+
 
         #endregion Regex
 

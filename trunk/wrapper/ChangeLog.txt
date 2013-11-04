@@ -3,9 +3,17 @@ Contact : florentbr@gmail.com
 Website : http://code.google.com/p/selenium-vba
 
 
-v1.0.15.0
+v1.0.16.0  (2013/11/04)
 ===============================================================================
- * Added methods back, forward, close, WindowHandle, WindowHandles, ActiveElement
+ * Updated Selenium libraries to 2.37.0
+ * Updated IEDriverServer to 2.37.0
+ * Fixed setPreference for chrome
+ * findElementsBy now returns a WebElementCollection
+ * Fixed executeScript falling with WebElements collections
+ * Added sendKeysNat to send keystrokes to the active window
+ * Added toClipboard to send text to the clipboard
+ * Removed native methods (Will be included in a side library in a future release)
+ * Some code refactoring for interoperability
 
 v1.0.15.0 (2013/10/18)
 ===============================================================================

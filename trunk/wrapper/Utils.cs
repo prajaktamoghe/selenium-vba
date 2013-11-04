@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 namespace SeleniumWrapper
 {
     [Guid("7CC07D9C-3BBF-450C-B7E6-01D514FE0B1A")]
-    [ComVisible(true)]
+    [ComVisible(true), InterfaceType(ComInterfaceType.InterfaceIsDual)]
     public interface IUtils
     {
         [Description("Indicates whether the regular expression finds a match in the input string using the regular expression specified in the pattern parameter.")]

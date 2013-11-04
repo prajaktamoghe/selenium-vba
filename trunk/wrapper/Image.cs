@@ -6,7 +6,7 @@ namespace SeleniumWrapper
 {
 
     [Guid("72B52B1B-3D23-4272-B972-54BA7C175990")]
-    [ComVisible(true)]
+    [ComVisible(true), InterfaceType(ComInterfaceType.InterfaceIsDual)]
     public interface IImage
     {
         [Description("Save as a PNG image file")]
