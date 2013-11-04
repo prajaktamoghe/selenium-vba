@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
+using System.Collections;
 
 namespace SeleniumWrapper {
     [Guid("0CBCED71-4792-46BD-A527-8663BF7D9592")]
@@ -36,6 +37,9 @@ namespace SeleniumWrapper {
 
         [Description("Add an extension to the browser (For Firefox and Chrome only)")]
         void addExtension(string extensionPath);
+
+        [Description("Add an argument to be appended to the command line to launch the browser")]
+        void addArgument(string argument);
 
         [Description("Set a specific proxy")]
         void setProxy(string url, [Optional][DefaultParameterValue(false)]bool isAutoConfigURL);
@@ -83,7 +87,7 @@ namespace SeleniumWrapper {
         String PageSource { get; }
 
         [Description("Find the first WebElement using the given method.")]
-        WebElement findElement(Object by, [Optional][DefaultParameterValue(0)]int timeoutms);
+        WebElement findElement(By by, [Optional][DefaultParameterValue(0)]int timeoutms);
 
         [Description("Finds the first element matching the specified name.")]
         WebElement findElementByName(String name, [Optional][DefaultParameterValue(0)]int timeoutms);
@@ -113,31 +117,31 @@ namespace SeleniumWrapper {
         bool isElementPresent(object locator);
 
         [Description("Find all elements within the current context using the given mechanism.")]
-        object findElements(object by, [Optional][DefaultParameterValue(0)]int timeoutms);
+        WebElementCollection findElements(By by, [Optional][DefaultParameterValue(0)]int timeoutms);
 
         [Description("Finds elements matching the specified name.")]
-        object findElementsByName(String name, [Optional][DefaultParameterValue(0)]int timeoutms);
+        WebElementCollection findElementsByName(String name, [Optional][DefaultParameterValue(0)]int timeoutms);
 
         [Description("Finds elements matching the specified XPath query.")]
-        object findElementsByXPath(String xpath, [Optional][DefaultParameterValue(0)]int timeoutms);
+        WebElementCollection findElementsByXPath(String xpath, [Optional][DefaultParameterValue(0)]int timeoutms);
 
         [Description("Finds elements matching the specified id.")]
-        object findElementsById(String id, [Optional][DefaultParameterValue(0)]int timeoutms);
+        WebElementCollection findElementsById(String id, [Optional][DefaultParameterValue(0)]int timeoutms);
 
         [Description("Finds elements matching the specified CSS class.")]
-        object findElementsByClassName(String classname, [Optional][DefaultParameterValue(0)]int timeoutms);
+        WebElementCollection findElementsByClassName(String classname, [Optional][DefaultParameterValue(0)]int timeoutms);
 
         [Description("Finds elements matching the specified CSS selector.")]
-        object findElementsByCssSelector(String cssselector, [Optional][DefaultParameterValue(0)]int timeoutms);
+        WebElementCollection findElementsByCssSelector(String cssselector, [Optional][DefaultParameterValue(0)]int timeoutms);
 
         [Description("Finds elements matching the specified link text.")]
-        object findElementsByLinkText(String linktext, [Optional][DefaultParameterValue(0)]int timeoutms);
+        WebElementCollection findElementsByLinkText(String linktext, [Optional][DefaultParameterValue(0)]int timeoutms);
 
         [Description("Finds the first of elements that match the part of the link text supplied")]
-        object findElementsByPartialLinkText(String partiallinktext, [Optional][DefaultParameterValue(0)]int timeoutms);
+        WebElementCollection findElementsByPartialLinkText(String partiallinktext, [Optional][DefaultParameterValue(0)]int timeoutms);
 
         [Description("Finds elements matching the specified tag name.")]
-        object findElementsByTagName(String tagname, [Optional][DefaultParameterValue(0)]int timeoutms);
+        WebElementCollection findElementsByTagName(String tagname, [Optional][DefaultParameterValue(0)]int timeoutms);
 
         [Description("Switches focus to the specified window.")]
         WebDriver switchToWindow(string windowName, [Optional][DefaultParameterValue(0)]int timeoutms);
@@ -156,6 +160,9 @@ namespace SeleniumWrapper {
 
         [Description("Sends a sequence of keystrokes to the browser.")]
         void sendKeys(string keysOrModifier, [Optional][DefaultParameterValue("")]string keys);
+
+        [Description("Sends keystrokes to the active application using the windows SendKeys methode.")]
+        void sendKeysNat(string keys);
 
         [Description("Returns the current Url.")]
         string Url { get; }
@@ -183,5 +190,8 @@ namespace SeleniumWrapper {
 
         [Description("Searches the input string for an occurrence of a regular expression with a specified input string")]
         object match(string pattern);
+
+        [Description("Adds text data to the Clipboard")]
+        void toClipBoard(string text);
     }
 }

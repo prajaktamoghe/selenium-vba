@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 namespace SeleniumWrapper
 {
     [Guid("DAF1B336-87D4-4C10-8316-BBE48A6D09DB")]
-    [ComVisible(true)]
+    [ComVisible(true), InterfaceType(ComInterfaceType.InterfaceIsDual)]
     public interface IActions
     {
         [Description("Clicks an element.")]

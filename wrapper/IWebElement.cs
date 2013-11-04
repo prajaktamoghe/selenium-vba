@@ -1,11 +1,12 @@
 ﻿using System.Runtime.InteropServices;
 using System.ComponentModel;
 using System;
+using System.Collections;
 
 namespace SeleniumWrapper
 {
     [Guid("DB0ACE39-3B49-49CA-9CDF-8B145197B76C")]
-    [ComVisible(true)]
+    [ComVisible(true), InterfaceType(ComInterfaceType.InterfaceIsDual)]
     public interface IWebElement
     {
 
@@ -70,7 +71,7 @@ namespace SeleniumWrapper
         void keyUp(string theKey);
 
         [Description("Returns the location of the element in the renderable canvas")]
-        int[] Location { get; }
+        Point Location { get; }
 
         [Description("Whether the element is selected.")]
         bool Selected { get; }
@@ -79,7 +80,7 @@ namespace SeleniumWrapper
         void sendKeys(string keysOrModifier, [Optional][DefaultParameterValue("")]string keys);
 
         [Description("Returns the size of the element")]
-        int[] Size { get; }
+        Size Size { get; }
 
         [Description("Submits a form.")]
         void submit();
@@ -118,7 +119,7 @@ namespace SeleniumWrapper
         string[,] getArrayByXPath([Optional][DefaultParameterValue(null)]string rowXPath, [Optional][DefaultParameterValue(null)]string columnXPath);
 
         [Description("Find the first WebElement using the given method.")]
-        WebElement findElement(object by, [Optional][DefaultParameterValue(0)]int timeoutms);
+        WebElement findElement(By by, [Optional][DefaultParameterValue(0)]int timeoutms);
 
         [Description("Finds the first element matching the specified name.")]
         WebElement findElementByName(String name, [Optional][DefaultParameterValue(0)]int timeoutms);
@@ -145,31 +146,31 @@ namespace SeleniumWrapper
         WebElement findElementByTagName(String tagname, [Optional][DefaultParameterValue(0)]int timeoutms);
 
         [Description("Find all elements within the current context using the given mechanism.")]
-        object findElements(object by, [Optional][DefaultParameterValue(0)]int timeoutms);
+        WebElementCollection findElements(By by, [Optional][DefaultParameterValue(0)]int timeoutms);
 
         [Description("Finds elements matching the specified name.")]
-        object findElementsByName(String name, [Optional][DefaultParameterValue(0)]int timeoutms);
+        WebElementCollection findElementsByName(String name, [Optional][DefaultParameterValue(0)]int timeoutms);
 
         [Description("Finds elements matching the specified XPath query.")]
-        object findElementsByXPath(String xpath, [Optional][DefaultParameterValue(0)]int timeoutms);
+        WebElementCollection findElementsByXPath(String xpath, [Optional][DefaultParameterValue(0)]int timeoutms);
 
         [Description("Finds elements matching the specified id.")]
-        object findElementsById(String id, [Optional][DefaultParameterValue(0)]int timeoutms);
+        WebElementCollection findElementsById(String id, [Optional][DefaultParameterValue(0)]int timeoutms);
 
         [Description("Finds elements matching the specified CSS class.")]
-        object findElementsByClassName(String classname, [Optional][DefaultParameterValue(0)]int timeoutms);
+        WebElementCollection findElementsByClassName(String classname, [Optional][DefaultParameterValue(0)]int timeoutms);
 
         [Description("Finds elements matching the specified CSS selector.")]
-        object findElementsByCssSelector(String cssselector, [Optional][DefaultParameterValue(0)]int timeoutms);
+        WebElementCollection findElementsByCssSelector(String cssselector, [Optional][DefaultParameterValue(0)]int timeoutms);
 
         [Description("Finds elements matching the specified link text.")]
-        object findElementsByLinkText(String linktext, [Optional][DefaultParameterValue(0)]int timeoutms);
+        WebElementCollection findElementsByLinkText(String linktext, [Optional][DefaultParameterValue(0)]int timeoutms);
 
         [Description("Finds the first of elements that match the part of the link text supplied")]
-        object findElementsByPartialLinkText(String partiallinktext, [Optional][DefaultParameterValue(0)]int timeoutms);
+        WebElementCollection findElementsByPartialLinkText(String partiallinktext, [Optional][DefaultParameterValue(0)]int timeoutms);
 
         [Description("Finds elements matching the specified tag name.")]
-        object findElementsByTagName(String tagname, [Optional][DefaultParameterValue(0)]int timeoutms);
+        WebElementCollection findElementsByTagName(String tagname, [Optional][DefaultParameterValue(0)]int timeoutms);
 
         [Description("Wait for an attribute")]
         void waitForAttribute(string attribute, string value);

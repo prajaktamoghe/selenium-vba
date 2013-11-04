@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 namespace SeleniumWrapper
 {
     [Guid("1F96D1DD-EF65-4D27-A7FF-0EA52ACB97D1")]
-    [ComVisible(true)]
+    [ComVisible(true), InterfaceType(ComInterfaceType.InterfaceIsDual)]
     public interface IAssert
     {
         [Description("")]

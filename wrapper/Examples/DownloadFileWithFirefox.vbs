@@ -8,7 +8,8 @@ currentFolder = Replace(WScript.ScriptFullName,WScript.ScriptName,"")
 Set selenium = CreateObject("SeleniumWrapper.WebDriver")
 selenium.setPreference "browser.download.folderList", 2
 selenium.setPreference "browser.download.manager.showWhenStarting", false
-selenium.setPreference "browser.download.dir", currentFolder & "Download"
+selenium.setPreference "pref.downloads.disable_button.edit_actions", 2
+selenium.setPreference "browser.download.dir", currentFolder & "firefox_download"
 selenium.setPreference "browser.helperApps.neverAsk.saveToDisk", "application/octet-stream,application/pdf"
 
 selenium.start "firefox", "http://www.google.com"

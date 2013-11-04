@@ -6,7 +6,7 @@ namespace SeleniumWrapper
 {
     internal class RemoteWebDriverCust : RemoteWebDriver, ITakesScreenshot 
     {
-        public RemoteWebDriverCust(Uri uri, DesiredCapabilities lCapability) : base(uri,lCapability)
+        public RemoteWebDriverCust(Uri uri, ICapabilities lCapability) : base(uri,lCapability)
         {
 
         }

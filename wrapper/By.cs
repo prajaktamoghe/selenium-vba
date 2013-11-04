@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 namespace SeleniumWrapper
 {
     [Guid("D1AF1FB8-A183-464A-95FC-A3DE5685A27E")]
-    [ComVisible(true)]
+    [ComVisible(true), InterfaceType(ComInterfaceType.InterfaceIsDual)]
     public interface IBy{
 
         [Description("")]
