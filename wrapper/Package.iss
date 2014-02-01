@@ -44,6 +44,7 @@ Source: ".\References\chromedriver.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\References\IEDriverServer.exe"; DestDir: "{app}"; DestName: "IEDriverServer.exe" ; Flags: ignoreversion;
 Source: ".\References\IEDriverServer64.exe"; DestDir: "{app}\ie64" ;DestName: "IEDriverServer.exe" ; Flags: ignoreversion; Check: IsWin64;
 Source: ".\References\selenium-ide.xpi"; DestDir: "{app}"; Flags: ignoreversion
+Source: ".\References\SafariDriver.safariextz"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\License.txt"; DestDir: "{app}"; Flags: ignoreversion overwritereadonly ; Attribs:readonly
 Source: ".\Readme.txt"; DestDir: "{app}"; Flags: ignoreversion overwritereadonly ; Attribs:readonly
 Source: ".\ChangeLog.txt"; DestDir: "{app}"; Flags: ignoreversion overwritereadonly ; Attribs:readonly
