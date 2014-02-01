@@ -3,7 +3,7 @@
 ' Author: Florent BREHERET
 ' Description: Search for "Eiffel tower", create a Pdf and insert a screen capture of the page result.
 
-currentFolder = Replace(WScript.ScriptFullName,WScript.ScriptName,"")
+currentFolder = Replace(WScript.ScriptFullName, WScript.ScriptName,"")
 
 Set driver = CreateObject("SeleniumWrapper.WebDriver")
 Set Keys = CreateObject("SeleniumWrapper.Keys")
@@ -27,8 +27,10 @@ pdf.addText "Base url = " & driver.Url ,9 , "Blue"
 text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam sit amet libero arcu, et molestie purus. Ut in sem lacus, sit amet rhoncus erat. In aliquet arcu at nunc porta sollicitudin. Cras ante nisl, hendrerit quis bibendum quis, egestas vitae mi. Donec ac felis at eros placerat iaculis. Nam quam sapien, scelerisque vel bibendum et, mollis sit amet augue. Nullam egestas, lectus ut laoreet vulputate, neque quam vestibulum sapien, ut vehicula nunc metus et nulla. Curabitur ac lorem augue. Nullam quis justo eu arcu volutpat ultrices ac at orci."
 pdf.addText text, 10
 
+Set img = driver.getScreenshot()
+
 'Take a screenschot and add it to the PDF file
-pdf.addImage driver.getScreenshot(), "Search page"
+pdf.addImage img, "Search page"
 
 'Search for Eiffel tower, take a screenschot and add it to the PDF file
 Set textbox = driver.findElementByName("q")

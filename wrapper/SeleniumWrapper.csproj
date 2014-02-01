@@ -29,6 +29,7 @@
     <NoWarn>1591</NoWarn>
     <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -42,7 +43,7 @@
     <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
     <DocumentationFile>bin\Release\SeleniumWrapper.xml</DocumentationFile>
     <NoWarn>1591</NoWarn>
-    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <NoStdLib>false</NoStdLib>
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
@@ -102,13 +103,17 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Windriver-Tests|AnyCPU'">
     <OutputPath>bin\Windriver-Tests\</OutputPath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Console|AnyCPU'">
+    <OutputPath>bin\Console\</OutputPath>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Include="Actions.cs" />
     <Compile Include="Alert.cs" />
     <Compile Include="Assert.cs" />
     <Compile Include="By.cs" />
+    <Compile Include="Dictionary.cs" />
     <Compile Include="IActions.cs" />
-    <Compile Include="NativeElement.cs" />
+    <Compile Include="ITable.cs" />
     <Compile Include="Point.cs" />
     <Compile Include="Size.cs" />
     <Compile Include="WebDriverCore.cs" />
@@ -120,7 +125,6 @@
     <Compile Include="PdfFile.cs" />
     <Compile Include="ISelect.cs" />
     <Compile Include="Image.cs" />
-    <Compile Include="RemoteWebDriverCust.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="Verify.cs" />
     <Compile Include="Waiter.cs" />
@@ -156,6 +160,9 @@
       <HintPath>References\WebDriver.Support.dll</HintPath>
     </Reference>
     <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="ChangeLog.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

@@ -1,26 +1,24 @@
 ﻿using System.ComponentModel;
 using System.Runtime.InteropServices;
 
-namespace SeleniumWrapper
-{
+namespace SeleniumWrapper {
     /// <summary>Commands for the Select web element</summary>
 
     [Description("Commands for the Select web element")]
     [Guid("D1A1CC9D-5CE0-41CE-B16B-4CE442A16502")]
-    [ComVisible(true), InterfaceType(ComInterfaceType.InterfaceIsDual)]
-    public interface Select
-    {
+    [ComVisible(true), InterfaceType(ComInterfaceType.InterfaceIsIDispatch)]
+    public interface Select {
         [Description("")]
         bool IsMultiple { get; }
 
         [Description("Returns a list of all options belonging to this select tag")]
-        object Options { get; }
+        WebElementCollection Options { get; }
 
         [Description("The first selected option in this select tag (or the currently selected option in a normal select)")]
         IWebElement SelectedOption { get; }
 
         [Description("Gets all of the selected options within the select element.")]
-        object AllSelectedOptions { get; }
+        WebElementCollection AllSelectedOptions { get; }
 
         [Description("Select the option at the given index. This is done by examing the “index” attribute of an element, and not merely by counting.")]
         void selectByIndex(int index);
@@ -44,8 +42,5 @@ namespace SeleniumWrapper
         void deselectByValue(string value);
 
     }
-
-
-
 
 }

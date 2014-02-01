@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
-using System.Collections;
+using System.Collections.ObjectModel;
 
 namespace SeleniumWrapper {
     [Guid("0CBCED71-4792-46BD-A527-8663BF7D9592")]
@@ -11,7 +11,7 @@ namespace SeleniumWrapper {
     }
 
     [Guid("24cd39f2-f552-4a61-82fe-cc6284398aa5")]
-    [ComVisible(true), InterfaceType(ComInterfaceType.InterfaceIsDual)]
+    [ComVisible(true), InterfaceType(ComInterfaceType.InterfaceIsIDispatch)]
     public partial interface IWebDriver {
 
         [Description("Get the Actions class")]
@@ -42,13 +42,13 @@ namespace SeleniumWrapper {
         void addArgument(string argument);
 
         [Description("Set a specific proxy")]
-        void setProxy(string url, [Optional][DefaultParameterValue(false)]bool isAutoConfigURL);
+        void setProxy(string url, bool isAutoConfigURL = false);
 
         [Description("Starts a new Selenium session")]
-        void start(String browser, String url, [Optional][DefaultParameterValue("")]String directory);
+        void start(String browser, String baseUrl = null, bool useLastSession = true);
 
         [Description("Starts remotely a new Selenium session")]
-        void startRemotely(String browser, String remoteAddress, String url);
+        void startRemotely(String browser, String remoteAddress, String baseUrl = null);
 
         [Description("Ends the current Selenium testing session (normally killing the browser)")]
         void stop();
@@ -66,13 +66,13 @@ namespace SeleniumWrapper {
         void sleep(int timems);
 
         [Description("Saves the entire contents of the current window canvas to a PNG file. Contrast this with the captureScreenshot command, which captures the contents of the OS viewport (i.e. whatever is currently being displayed on the monitor), and is implemented in the RC only. Currently this only works in Firefox when running in chrome mode, and in IE non-HTA using the EXPERIMENTAL \"Snapsie\" utility. The Firefox implementation is mostly borrowed from the Screengrab! Firefox extension. Please see http://www.screengrab.org and http://snapsie.sourceforge.net/ for details. the path to the file to persist the screenshot as. No filename extension will be appended by default. Directories will not be created if they do not exist, and an exception will be thrown, possibly by native code.a kwargs string that modifies the way the screenshot is captured. Example: \"background=#CCFFDD\" . Currently valid options: backgroundthe background CSS for the HTML document. This may be useful to set for capturing screenshots of less-than-ideal layouts, for example where absolute positioning causes the calculation of the canvas dimension to fail and a black background is exposed (possibly obscuring black text).")]
-        void captureEntirePageScreenshot(String filename, [Optional][DefaultParameterValue("")]String kwargs);
+        void captureEntirePageScreenshot(String filename, String kwargs = null);
 
         [Description("Capture a screenshot")]
-        Image getScreenshot();
+        Image getScreenshot(int delayms = 0);
 
         [Description("Execute JavaScrip on the page")]
-        Object executeScript(String script, [Optional][DefaultParameterValue(null)]object arguments);
+        Object executeScript(String script, object arguments = null);
 
         [Description("Undo the effect of calling chooseCancelOnNextConfirmation. Note that Selenium's overridden window.confirm() function will normally automatically return true, as if the user had manually clicked OK, so you shouldn't need to use this command unless for some reason you need to change your mind prior to the next confirmation. After any confirmation, Selenium will resume using the default behavior for future confirmations, automatically returning true (OK) unless/until you explicitly call chooseCancelOnNextConfirmation for each confirmation.  Take note - every time a confirmation comes up, you must consume it with a corresponding getConfirmation, or else the next selenium operation will fail.")]
         void chooseOkOnNextConfirmation();
@@ -87,79 +87,88 @@ namespace SeleniumWrapper {
         String PageSource { get; }
 
         [Description("Find the first WebElement using the given method.")]
-        WebElement findElement(By by, [Optional][DefaultParameterValue(0)]int timeoutms);
+        WebElement findElement([MarshalAs(UnmanagedType.IDispatch)]By by, int timeoutms = 0);
 
         [Description("Finds the first element matching the specified name.")]
-        WebElement findElementByName(String name, [Optional][DefaultParameterValue(0)]int timeoutms);
+        WebElement findElementByName(String name, int timeoutms = 0);
 
         [Description("Finds the first element matching the specified XPath query.")]
-        WebElement findElementByXPath(String xpath, [Optional][DefaultParameterValue(0)]int timeoutms);
+        WebElement findElementByXPath(String xpath, int timeoutms = 0);
 
         [Description("Finds the first element matching the specified id.")]
-        WebElement findElementById(String id, [Optional][DefaultParameterValue(0)]int timeoutms);
+        WebElement findElementById(String id, int timeoutms = 0);
 
         [Description("Finds the first element matching the specified CSS class.")]
-        WebElement findElementByClassName(String classname, [Optional][DefaultParameterValue(0)]int timeoutms);
+        WebElement findElementByClassName(String classname, int timeoutms = 0);
 
         [Description("Finds the first element matching the specified CSS selector.")]
-        WebElement findElementByCssSelector(String cssselector, [Optional][DefaultParameterValue(0)]int timeoutms);
+        WebElement findElementByCssSelector(String cssselector, int timeoutms = 0);
 
         [Description("Finds the first element matching the specified link text.")]
-        WebElement findElementByLinkText(String linktext, [Optional][DefaultParameterValue(0)]int timeoutms);
+        WebElement findElementByLinkText(String linktext, int timeoutms = 0);
 
         [Description("Finds the first of elements that match the part of the link text supplied")]
-        WebElement findElementByPartialLinkText(String partiallinktext, [Optional][DefaultParameterValue(0)]int timeoutms);
+        WebElement findElementByPartialLinkText(String partiallinktext, int timeoutms = 0);
 
         [Description("Finds the first element matching the specified tag name.")]
-        WebElement findElementByTagName(String tagname, [Optional][DefaultParameterValue(0)]int timeoutms);
+        WebElement findElementByTagName(String tagname, int timeoutms = 0);
 
         [Description("Indicates whether a WebElement is present using the given method.")]
         bool isElementPresent(object locator);
 
         [Description("Find all elements within the current context using the given mechanism.")]
-        WebElementCollection findElements(By by, [Optional][DefaultParameterValue(0)]int timeoutms);
+        WebElementCollection findElements([MarshalAs(UnmanagedType.IDispatch)]By by, int timeoutms = 0);
 
         [Description("Finds elements matching the specified name.")]
-        WebElementCollection findElementsByName(String name, [Optional][DefaultParameterValue(0)]int timeoutms);
+        WebElementCollection findElementsByName(String name, int timeoutms = 0);
 
         [Description("Finds elements matching the specified XPath query.")]
-        WebElementCollection findElementsByXPath(String xpath, [Optional][DefaultParameterValue(0)]int timeoutms);
+        WebElementCollection findElementsByXPath(String xpath, int timeoutms = 0);
 
         [Description("Finds elements matching the specified id.")]
-        WebElementCollection findElementsById(String id, [Optional][DefaultParameterValue(0)]int timeoutms);
+        WebElementCollection findElementsById(String id, int timeoutms = 0);
 
         [Description("Finds elements matching the specified CSS class.")]
-        WebElementCollection findElementsByClassName(String classname, [Optional][DefaultParameterValue(0)]int timeoutms);
+        WebElementCollection findElementsByClassName(String classname, int timeoutms = 0);
 
         [Description("Finds elements matching the specified CSS selector.")]
-        WebElementCollection findElementsByCssSelector(String cssselector, [Optional][DefaultParameterValue(0)]int timeoutms);
+        WebElementCollection findElementsByCssSelector(String cssselector, int timeoutms = 0);
 
         [Description("Finds elements matching the specified link text.")]
-        WebElementCollection findElementsByLinkText(String linktext, [Optional][DefaultParameterValue(0)]int timeoutms);
+        WebElementCollection findElementsByLinkText(String linktext, int timeoutms = 0);
 
         [Description("Finds the first of elements that match the part of the link text supplied")]
-        WebElementCollection findElementsByPartialLinkText(String partiallinktext, [Optional][DefaultParameterValue(0)]int timeoutms);
+        WebElementCollection findElementsByPartialLinkText(String partiallinktext, int timeoutms = 0);
 
         [Description("Finds elements matching the specified tag name.")]
-        WebElementCollection findElementsByTagName(String tagname, [Optional][DefaultParameterValue(0)]int timeoutms);
+        WebElementCollection findElementsByTagName(String tagname, int timeoutms = 0);
 
         [Description("Switches focus to the specified window.")]
-        WebDriver switchToWindow(string windowName, [Optional][DefaultParameterValue(0)]int timeoutms);
+        WebDriver switchToWindow(string windowName, int timeoutms = 0);
 
         [Description("Switches focus to the specified frame, by index or name.")]
-        WebDriver switchToFrame(object index_or_name, [Optional][DefaultParameterValue(0)]int timeoutms);
+        WebDriver switchToFrame(object index_or_name, int timeoutms = 0);
 
         [Description("Switches focus to an alert on the page.")]
-        Alert switchToAlert([Optional][DefaultParameterValue(0)]int timeoutms);
+        Alert switchToAlert(int timeoutms = 0);
 
         [Description("Returns the page tile")]
         string Title { get; }
+
+        [Description("Sets the size of the outer browser window, including title bars and window borders.")]
+        void setWindowSize(int width, int height);
+
+        [Description("Sets the position of the browser window relative to the upper-left corner of the screen.")]
+        void setWindowPosition(int x, int y);
+
+        [Description("Maximizes the current window if it is not already maximized")]
+        void maximizeWindow();
 
         [Description("Load a new web page in the current browser window.")]
         void get(String url);
 
         [Description("Sends a sequence of keystrokes to the browser.")]
-        void sendKeys(string keysOrModifier, [Optional][DefaultParameterValue("")]string keys);
+        void sendKeys(string keysOrModifier, string keys = null);
 
         [Description("Sends keystrokes to the active application using the windows SendKeys methode.")]
         void sendKeysNat(string keys);
@@ -186,12 +195,18 @@ namespace SeleniumWrapper {
         WebElement ActiveElement { get; }
 
         [Description("Indicates whether the regular expression finds a match in the input string")]
-        bool isMatch(string pattern);
+        bool isMatchPageSource(string pattern);
 
         [Description("Searches the input string for an occurrence of a regular expression with a specified input string")]
-        object match(string pattern);
+        object matchPageSource(string pattern);
 
-        [Description("Adds text data to the Clipboard")]
-        void toClipBoard(string text);
+        [Description("Set text in the Clipboard")]
+        void setClipBoard(string text);
+
+        [Description("Get text from the Clipboard")]
+        string getClipBoard();
+
+        [Description("Get the page loading metrics in millisecond. [Page loading, Server waiting, Server receiving, DOM loading]")]
+        object[,] getPerformanceTiming();
     }
 }
