@@ -5,12 +5,10 @@ using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 
-namespace SeleniumWrapper
-{
+namespace SeleniumWrapper {
     [Guid("7CC07D9C-3BBF-450C-B7E6-01D514FE0B1A")]
-    [ComVisible(true), InterfaceType(ComInterfaceType.InterfaceIsDual)]
-    public interface IUtils
-    {
+    [ComVisible(true), InterfaceType(ComInterfaceType.InterfaceIsIDispatch)]
+    public interface IUtils {
         [Description("Indicates whether the regular expression finds a match in the input string using the regular expression specified in the pattern parameter.")]
         bool isMatch(string input, string pattern);
 
@@ -18,7 +16,10 @@ namespace SeleniumWrapper
         object match(string input, string pattern);
 
         [Description("Searches the specified input string for an occurrence of the regular expression supplied in the pattern parameter and replace it.")]
-        string replace(string input, string pattern, string replacement );
+        string replace(string input, string pattern, string replacement);
+
+        [Description("Get a screenshot")]
+        Image getScreenShot();
     }
 
     /// <summary>
@@ -28,8 +29,7 @@ namespace SeleniumWrapper
     [Description("")]
     [Guid("C9A3B3ED-EE5F-43BD-A47B-A34FCBA29598")]
     [ComVisible(true), ComDefaultInterface(typeof(IUtils)), ClassInterface(ClassInterfaceType.None)]
-    public class Utils : IUtils
-    {
+    public class Utils : IUtils {
 
         [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
         private static extern short GetKeyState(int virtualKeyCode);
@@ -43,15 +43,15 @@ namespace SeleniumWrapper
         [DllImport("user32.dll")]
         private static extern int GetForegroundWindow();
 
-        internal static void maximizeForegroundWindow(){
+        internal static void maximizeForegroundWindow() {
             ShowWindow(GetForegroundWindow(), 3 /*SW_SHOWMAXIMIZED*/);
         }
 
-        internal static bool isEscapeKeyPressed(){
+        internal static bool isEscapeKeyPressed() {
             return (GetKeyState(0x1b) & 0x8000) != 0;
         }
 
-        internal static bool runShellCommand(string command){
+        internal static bool runShellCommand(string command) {
             System.Diagnostics.Process p = new System.Diagnostics.Process {
                 StartInfo = new System.Diagnostics.ProcessStartInfo {
                     WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden,
@@ -61,11 +61,11 @@ namespace SeleniumWrapper
             };
             p.Start();
             p.WaitForExit(5000);
-            if (p.HasExited == false){ //Check to see if the process is still running.
-                if (p.Responding){//Test to see if the process is hung up.
+            if (p.HasExited == false) { //Check to see if the process is still running.
+                if (p.Responding) {//Test to see if the process is hung up.
                     p.CloseMainWindow();//Process was responding; close the main window.
                     return false;
-                }else{
+                } else {
                     p.Kill(); //Process was not responding; force the process to close.
                     return false;
                 }
@@ -73,20 +73,19 @@ namespace SeleniumWrapper
             return true;
         }
 
-        internal static IEnumerable<string> CastToString<T>(IEnumerable<T> enumerable){
-            foreach (T obj in enumerable)
-                yield return obj.ToString();
+        public Image getScreenShot() {
+            var bounds = System.Windows.Forms.Screen.GetBounds(System.Drawing.Point.Empty);
+            var bitmap = new System.Drawing.Bitmap(bounds.Width, bounds.Height);
+            using (var g = System.Drawing.Graphics.FromImage(bitmap))
+                g.CopyFromScreen(System.Drawing.Point.Empty, System.Drawing.Point.Empty, bounds.Size);
+            return new Image(bitmap);
         }
 
-        internal static IEnumerable<string> CastToString(IEnumerable enumerable){
-            foreach (object obj in enumerable)
-                yield return (string)obj;
-        }
-                /// <summary>Indicates whether the regular expression finds a match in the input string using the regular expression specified in the pattern parameter.</summary>
+        /// <summary>Indicates whether the regular expression finds a match in the input string using the regular expression specified in the pattern parameter.</summary>
         /// <param name="input">The string to search for a match.</param>
         /// <param name="pattern">The regular expression pattern to match.</param>
         /// <returns>true if the regular expression finds a match; otherwise, false.</returns>
-        public bool isMatch(string input, string pattern){
+        public bool isMatch(string input, string pattern) {
             return Regex.IsMatch(input, pattern);
         }
 
@@ -94,14 +93,14 @@ namespace SeleniumWrapper
         /// <param name="input">The string to search for a match.</param>
         /// <param name="pattern">The regular expression pattern to match.</param>
         /// <returns>Matching strings</returns>
-        public object match(string input, string pattern){
+        public object match(string input, string pattern) {
             Match match = Regex.Match(input, pattern);
-            if(match.Groups != null){
+            if (match.Groups != null) {
                 string[] lst = new string[match.Groups.Count];
-                for(int i=0;i<match.Groups.Count;i++)
+                for (int i = 0; i < match.Groups.Count; i++)
                     lst[i] = match.Groups[i].Value;
                 return lst;
-            }else{
+            } else {
                 return match.Value;
             }
         }
@@ -111,35 +110,34 @@ namespace SeleniumWrapper
         /// <param name="pattern">The regular expression pattern to match.</param>
         /// <param name="replacement">The replacement string.</param>
         /// <returns>A new string that is identical to the input string, except that a replacement string takes the place of each matched string.</returns>
-        public string replace(string input, string pattern, string replacement ){
+        public string replace(string input, string pattern, string replacement) {
             return Regex.Replace(input, pattern, replacement);
         }
 
         public static bool ObjectEquals(Object A, Object B) {
-            if(A==null || A.GetType().IsArray==false)
+            if (A == null || A.GetType().IsArray == false)
                 return object.Equals(A, B);
             if (!B.GetType().IsArray) return false;
             var a1 = (String[])A;
             var a2 = (String[])B;
             if (a1.Length != a2.Length) return false;
             for (int i = 0; i < a1.Length; i++) {
-                if ( ! object.Equals( a1[i], a2[i] )) return false;
+                if (!object.Equals(a1[i], a2[i]))
+                    return false;
             }
             return true;
         }
-    
+
         /// <summary>Get a substring of the first N characters.</summary>
-        public static string Truncate(string source)
-        {
-	        return Utils.Truncate(source, 100);
+        public static string Truncate(string source) {
+            return Utils.Truncate(source, 100);
         }
 
         /// <summary>Get a substring of the first N characters.</summary>
-        public static string Truncate(string source, int length)
-        {
-	        if (source.Length > length)
-	            source = source.Substring(0, length) + "...";
-	        return source;
+        public static string Truncate(string source, int length) {
+            if (source.Length > length)
+                source = source.Substring(0, length) + "...";
+            return source;
         }
     }
 }
