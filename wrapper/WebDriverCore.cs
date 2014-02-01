@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -10,21 +11,24 @@ using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium.IE;
 using OpenQA.Selenium.PhantomJS;
+using OpenQA.Selenium.Safari;
+using OpenQA.Selenium.Remote;
 
 namespace SeleniumWrapper {
 
-    public abstract class WebDriverCore : IDisposable {
+    public abstract class WebDriverCore : MarshalByRefObject, IDisposable {
 
         public delegate Object ActionResult();
         public delegate void ActionVoid();
 
-        internal static OpenQA.Selenium.IWebDriver CurrentWebDriver;
-        internal OpenQA.Selenium.IWebDriver _webDriver;
+        protected static WebDriverCore _webDriverCoreStatic;
+
+        protected OpenQA.Selenium.IWebDriver _webDriver;
+        protected Selenium.WebDriverBackedSelenium _webDriverBacked;
         internal int _timeout;
         internal bool _canceled;
 
         protected String _baseUrl;
-        protected Selenium.WebDriverBackedSelenium _webDriverBacked;
         protected Dictionary<string, object> _capabilities;
         protected Dictionary<string, object> _preferences;
         protected List<string> _extensions;
@@ -38,9 +42,6 @@ namespace SeleniumWrapper {
         Thread _thread;
         System.Action delegate_function;
 
-
-
-
         public WebDriverCore() {
             _timeout = 30000;
             _timerhotkey = new System.Timers.Timer(200);
@@ -48,7 +49,7 @@ namespace SeleniumWrapper {
             _capabilities = new Dictionary<string, object>();
             if (this.delegate_function != null) this.delegate_function();
             AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(AppDomain_UnhandledException);
-            AppDomain.CurrentDomain.ProcessExit += (sender, e) => Utils.runShellCommand(@"FOR /D %A IN (%TEMP%\anonymous*) DO RD /S /Q ""%A"" & FOR /D %A IN (%TEMP%\scoped_dir*) DO RD /S /Q ""%A"" & DEL /q /f %TEMP%\IE*.tmp");
+            //AppDomain.CurrentDomain.ProcessExit += (sender, e) => Utils.runShellCommand(@"FOR /D %A IN (%TEMP%\anonymous*) DO RD /S /Q ""%A"" & FOR /D %A IN (%TEMP%\scoped_dir*) DO RD /S /Q ""%A"" & DEL /q /f %TEMP%\IE*.tmp");
         }
 
         ~WebDriverCore() {
@@ -64,6 +65,49 @@ namespace SeleniumWrapper {
             if (_thread != null) _thread.Abort();
         }
 
+        public bool CopyStaticDriver(string baseUrl = null) {
+            if (_webDriverCoreStatic == null)
+                return false;
+            _webDriver = _webDriverCoreStatic._webDriver;
+            _webDriverBacked = _webDriverCoreStatic._webDriverBacked;
+            _timeout = _webDriverCoreStatic._timeout;
+            _canceled = false;
+            _baseUrl = string.IsNullOrEmpty(baseUrl) ? _webDriverCoreStatic._baseUrl : baseUrl;
+            _capabilities = _webDriverCoreStatic._capabilities;
+            _preferences = _webDriverCoreStatic._preferences;
+            _extensions = _webDriverCoreStatic._extensions;
+            _arguments = _webDriverCoreStatic._arguments;
+            _profile = _webDriverCoreStatic._profile;
+            _proxy = _webDriverCoreStatic._proxy;
+            _isStartedRemotely = _webDriverCoreStatic._isStartedRemotely;
+            return true;
+        }
+
+        public OpenQA.Selenium.IWebDriver WebDriver {
+            get {
+                if (_webDriver == null && !CopyStaticDriver())
+                    throw new ApplicationException("Browser not started. Use the command start or startRemotely.");
+                return _webDriver; 
+            }
+            set {
+                _webDriverCoreStatic = this;
+                _webDriver = value;
+            }
+        }
+
+        public Selenium.WebDriverBackedSelenium WebDriverBacked {
+            get {
+                if (_webDriverBacked == null) {
+                    if (_webDriver == null && !CopyStaticDriver(_baseUrl))
+                        throw new ApplicationException("Browser not started. Use the command start or startRemotely.");
+                    if (_webDriverBacked == null) {
+                        _webDriverBacked = new Selenium.WebDriverBackedSelenium(_webDriver, _baseUrl);
+                        _webDriverBacked.Start();
+                    }
+                }
+                return _webDriverBacked; 
+            }
+        }
 
         private void AppDomain_UnhandledException(Object sender, UnhandledExceptionEventArgs e) {
             Exception exception = (Exception)e.ExceptionObject;
@@ -84,7 +128,7 @@ namespace SeleniumWrapper {
             this.delegate_function = doevents_function;
         }
 
-        private string GetErrorPrifix(string methodeName) {
+        private string GetErrorPrefix(string methodeName) {
             string lMethodname = Regex.Match(methodeName, "<([^>]+)>").Groups[0].Value;
             return "Method " + lMethodname + " failed !";
         }
@@ -102,8 +146,8 @@ namespace SeleniumWrapper {
             _thread.Start();
             bool succeed = _thread.Join(_timeout + 1000);
             this.CheckCanceled();
-            if (!succeed) throw new ApplicationException(GetErrorPrifix(action.Method.Name) + "\nTimed out running command after " + _timeout + " milliseconds");
-            if (_error != null) throw new ApplicationException(GetErrorPrifix(action.Method.Name) + "\n" + _error);
+            if (!succeed) throw new ApplicationException(GetErrorPrefix(action.Method.Name) + "\nTimed out running command after " + _timeout + " milliseconds");
+            if (_error != null) throw new ApplicationException(GetErrorPrefix(action.Method.Name) + "\n" + _error);
         }
 
         protected Object InvokeWd(ActionResult action) {
@@ -119,8 +163,8 @@ namespace SeleniumWrapper {
             _thread.Start();
             bool succeed = _thread.Join(_timeout + 1000);
             this.CheckCanceled();
-            if (!succeed) throw new ApplicationException(GetErrorPrifix(action.Method.Name) + "\nTimed out running command after " + _timeout + " milliseconds");
-            if (_error != null) throw new ApplicationException(GetErrorPrifix(action.Method.Name) + "\n" + _error);
+            if (!succeed) throw new ApplicationException(GetErrorPrefix(action.Method.Name) + "\nTimed out running command after " + _timeout + " milliseconds");
+            if (_error != null) throw new ApplicationException(GetErrorPrefix(action.Method.Name) + "\n" + _error);
             //if (EndOfCommand != null) EndOfCommand();
             return result;
         }
@@ -144,7 +188,7 @@ namespace SeleniumWrapper {
             this.CheckCanceled();
             if (!succed || _error != null) {
                 var sb = new StringBuilder();
-                sb.Append(GetErrorPrifix(action.Method.Name));
+                sb.Append(GetErrorPrefix(action.Method.Name));
                 if (expected != null)
                     sb.Append(" Expected" + (match ? "=" : "!=") + "<" + expected.ToString() + "> result=<" + (result ?? "null").ToString() + ">.");
                 if (!succed)
@@ -157,13 +201,13 @@ namespace SeleniumWrapper {
 
         protected void InvokeWdAssert(ActionResult action, Object expected, bool match) {
             Object result = InvokeWd(action);
-            if (match ^ Utils.ObjectEquals(result, expected)) throw new ApplicationException(GetErrorPrifix(action.Method.Name) + "\nexpected" + (match ? "=" : "!=") + "<" + expected.ToString() + ">\nresult=<" + result.ToString() + "> ");
+            if (match ^ Utils.ObjectEquals(result, expected)) throw new ApplicationException(GetErrorPrefix(action.Method.Name) + "\nexpected" + (match ? "=" : "!=") + "<" + expected.ToString() + ">\nresult=<" + result.ToString() + "> ");
         }
 
         protected String InvokeWdVerify(ActionResult action, Object expected, bool match) {
             Object result = InvokeWd(action);
             if (match ^ Utils.ObjectEquals(result, expected)) {
-                return "KO, " + GetErrorPrifix(action.Method.Name) + " expected" + (match ? "=" : "!=") + "<" + expected.ToString() + "> result=<" + result.ToString() + "> ";
+                return "KO, " + GetErrorPrefix(action.Method.Name) + " expected" + (match ? "=" : "!=") + "<" + expected.ToString() + "> result=<" + result.ToString() + "> ";
             } else {
                 return "OK";
             }
@@ -171,7 +215,7 @@ namespace SeleniumWrapper {
 
         protected void InvokeWdAndWait(ActionVoid action) {
             InvokeWd(action);
-            _webDriverBacked.WaitForPageToLoad(_timeout.ToString());
+            WebDriverBacked.WaitForPageToLoad(_timeout.ToString());
         }
 
         /// <summary>Repeatedly applies this instance's input value to the given function until one of the following</summary>
@@ -211,8 +255,10 @@ namespace SeleniumWrapper {
                 if (System.IO.Directory.Exists(_profile)) {
                     firefoxProfile = new FirefoxProfile(_profile);
                 } else {
-                    FirefoxProfileManager profilManager = new FirefoxProfileManager();
-                    firefoxProfile = profilManager.GetProfile(_profile);
+                    firefoxProfile = new FirefoxProfileManager().GetProfile(_profile);
+                    if (firefoxProfile == null)
+                        Process.Start("firefox.exe", "-CreateProfile " + _profile).WaitForExit();
+                    firefoxProfile = new FirefoxProfileManager().GetProfile(_profile);
                 }
             } else {
                 firefoxProfile = new FirefoxProfile();
@@ -233,7 +279,9 @@ namespace SeleniumWrapper {
             }
             if (_proxy != null)
                 firefoxProfile.SetProxyPreferences(_proxy);
+            firefoxProfile.EnableNativeEvents = false;
             firefoxProfile.AcceptUntrustedCertificates = true;
+            firefoxProfile.Port = 9055;
             return firefoxProfile;
         }
 
@@ -294,6 +342,19 @@ namespace SeleniumWrapper {
             return phantomjsOptions;
         }
 
+        protected SafariOptions getSafariOptions() {
+            var safariOptions = new SafariOptions();
+            //if (!String.IsNullOrEmpty(directory))
+            //    safariOptions.SafariLocation = directory;
+            if (_profile != null) throw new Exception("Profile configuration is not available for Safari driver!");
+            if (_preferences != null) throw new Exception("Preference configuration is not available for Safari!");
+            if (_extensions != null && _extensions.Count != 0)
+                safariOptions.CustomExtensionPath = _extensions[0];
+            if (_proxy != null) throw new Exception("Proxy configuration is not available for Safari!");
+            foreach (var capability in _capabilities)
+                safariOptions.AddAdditionalCapability(capability.Key, capability.Value);
+            return safariOptions;
+        }
     }
 
 }
