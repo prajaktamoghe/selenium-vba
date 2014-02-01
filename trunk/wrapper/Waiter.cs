@@ -2,20 +2,19 @@
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 
-namespace SeleniumWrapper
-{
+namespace SeleniumWrapper {
     [Guid("159495B0-A903-4FA5-873E-384C7E50EFA8")]
-    [ComVisible(true), InterfaceType(ComInterfaceType.InterfaceIsDual)]
-    public interface IWaiter{
+    [ComVisible(true), InterfaceType(ComInterfaceType.InterfaceIsIDispatch)]
+    public interface IWaiter {
 
         [Description("Returns a boolean to continue waiting and throws an exception if the timeout is reached")]
-        bool Until(bool condition, [Optional][DefaultParameterValue("")]string timeoutmessage);
+        bool Until(bool condition, string timeoutmessage = null);
 
         [Description("Returns a boolean to continue waiting and throws an exception if the timeout is reached")]
-        bool UntilNot(bool condition, [Optional][DefaultParameterValue("")]string timeoutmessage);
+        bool UntilNot(bool condition, string timeoutmessage = null);
 
         [Description("Set the waiter timeout. Default is 30000 milliseconds")]
-        int Timeout{get; set;}
+        int Timeout { get; set; }
     }
 
 
@@ -39,16 +38,14 @@ namespace SeleniumWrapper
     [Description("Waiting functions to keep the visual basic editor from not responding")]
     [Guid("4A1829E7-800A-450E-86F9-7D30CBC3F6BB")]
     [ComVisible(true), ComDefaultInterface(typeof(IWaiter)), ClassInterface(ClassInterfaceType.None)]
-    public class Waiter : IWaiter
-    {
+    public class Waiter : IWaiter {
         private object end;
         private double timeout = 30000;
-        
+
         /// <summary>Waiter timeout in millisecond. Default is 30000 milliseconds</summary>
-        public int Timeout
-        {
-            get{ return (int)this.timeout; }
-            set{ this.timeout = value; }
+        public int Timeout {
+            get { return (int)this.timeout; }
+            set { this.timeout = value; }
         }
 
 
@@ -68,11 +65,11 @@ namespace SeleniumWrapper
         /// </code>
         /// 
         /// </example>
-        public bool Sleep(int timems){
-            if(this.end == null){
+        public bool Sleep(int timems) {
+            if (this.end == null) {
                 this.end = DateTime.Now.AddMilliseconds(timems);
-            }else{
-                if( DateTime.Now > (DateTime)this.end ){
+            } else {
+                if (DateTime.Now > (DateTime)this.end) {
                     this.end = null;
                     return false;
                 }
@@ -99,17 +96,17 @@ namespace SeleniumWrapper
         /// </code>
         /// 
         /// </example>
-        public bool Until(bool condition, [Optional][DefaultParameterValue(null)]string timeoutmessage){
-            if(this.end == null){
+        public bool Until(bool condition, string timeoutmessage = null) {
+            if (this.end == null) {
                 this.end = DateTime.Now.AddMilliseconds(this.timeout);
-            }else{
-                if( DateTime.Now > (DateTime)this.end ){
+            } else {
+                if (DateTime.Now > (DateTime)this.end) {
                     this.end = null;
                     throw new TimeoutException(String.IsNullOrEmpty(timeoutmessage) ? "The operation has timed out!" : timeoutmessage);
                 }
                 System.Threading.Thread.Sleep(25);
             }
-            if(!(bool)condition) return true;
+            if (!(bool)condition) return true;
             this.end = null;
             return false;
         }
@@ -118,8 +115,7 @@ namespace SeleniumWrapper
         /// <param name="condition">Condition</param>
         /// <param name="timeoutmessage">mesage in case of timeout</param>
         /// <returns>Returns false if the condition is not met</returns>
-        public bool UntilNot(bool condition, [Optional][DefaultParameterValue("")]string timeoutmessage)
-        {
+        public bool UntilNot(bool condition, string timeoutmessage = null) {
             return this.Until(!condition, timeoutmessage);
         }
     }
