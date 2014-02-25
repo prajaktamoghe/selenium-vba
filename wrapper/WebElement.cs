@@ -575,7 +575,7 @@ namespace SeleniumWrapper {
             }
         }
 
-        /// <summary>Within a specified input string, replaces all strings that match a specified regular expression with a specified replacement string.</summary>
+        /// <summary>Takes the web element text, replaces all strings that match a specified regular expression with a specified replacement string and return the result.</summary>
         /// <param name="pattern">The regular expression pattern to match.</param>
         /// <param name="replacement">The replacement string.</param>
         /// <returns>A new string that is identical to the input string, except that a replacement string takes the place of each matched string.</returns>
