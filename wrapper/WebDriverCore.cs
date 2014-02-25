@@ -110,18 +110,18 @@ namespace SeleniumWrapper {
         }
 
         private void AppDomain_UnhandledException(Object sender, UnhandledExceptionEventArgs e) {
-            Exception exception = (Exception)e.ExceptionObject;
-            if (!(exception is ThreadAbortException)) {
-                _error = exception.GetType().Name + ": " + exception.Message;
-                _thread.Abort();
-            }
+            var exception = (Exception)e.ExceptionObject;
+            if (exception is ThreadAbortException)
+                return;
+            _error = exception.GetType().Name + ": " + exception.Message;
+            _thread.Abort();
         }
 
         private void TimerCheckHotKey(object source, ElapsedEventArgs e) {
-            if (Utils.isEscapeKeyPressed()) {
-                _canceled = true;
-                _thread.Abort();
-            }
+            if (!Utils.isEscapeKeyPressed())
+                return;
+            _canceled = true;
+            _thread.Abort();
         }
 
         public void RegisterFunction([MarshalAs(UnmanagedType.FunctionPtr)] System.Action doevents_function) {
@@ -130,7 +130,7 @@ namespace SeleniumWrapper {
 
         private string GetErrorPrefix(string methodeName) {
             string lMethodname = Regex.Match(methodeName, "<([^>]+)>").Groups[0].Value;
-            return "Method " + lMethodname + " failed !";
+            return "Method " + lMethodname + " failed!";
         }
 
 
@@ -139,8 +139,12 @@ namespace SeleniumWrapper {
             _thread = new System.Threading.Thread((System.Threading.ThreadStart)delegate {
                 try {
                     action();
+                } catch (ThreadAbortException) {
+                    return;
+                } catch (NotSupportedException) {
+                    _error = "Method not supported by the Selenium .Net web driver";
                 } catch (System.Exception ex) {
-                    if (!(ex is ThreadAbortException)) _error = ex.GetType().ToString() + ": " + ex.Message;
+                    _error = ex.GetType().Name + ": " + ex.Message;
                 }
             });
             _thread.Start();
@@ -156,8 +160,12 @@ namespace SeleniumWrapper {
             _thread = new System.Threading.Thread((System.Threading.ThreadStart)delegate {
                 try {
                     result = action();
+                } catch (ThreadAbortException) {
+                    return;
+                } catch (NotSupportedException) {
+                    _error = "Method not supported by the Selenium .Net web driver";
                 } catch (System.Exception ex) {
-                    if (!(ex is ThreadAbortException)) _error = ex.Message;
+                    _error = ex.GetType().Name + ": " + ex.Message;
                 }
             });
             _thread.Start();
@@ -176,9 +184,12 @@ namespace SeleniumWrapper {
                 while (!_canceled && (match ^ Utils.ObjectEquals(result, expected))) {
                     try {
                         result = action();
-                    } catch (Exception ex) {
-                        if (ex is ThreadAbortException) break;
-                        _error = ex.Message;
+                    } catch (ThreadAbortException) {
+                        break;
+                    } catch (NotSupportedException) {
+                        _error = "Method not supported by the Selenium .Net web driver";
+                    } catch (System.Exception ex) {
+                        _error = ex.GetType().Name + ": " + ex.Message;
                     }
                     Thread.Sleep(100);
                 }
