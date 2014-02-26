@@ -31,8 +31,8 @@ namespace SeleniumWrapper {
         [Description("Image height")]
         int Height { get; }
 
-        [Description("Percentage of non matching pixels resulting of a comparison")]
-        double UnmatchedRatio { get; }
+        [Description("Number of unmatching pixels resulting of a comparison")]
+        double DiffCount { get; }
 
         [Description("Dispose the image resources")]
         void Dispose();
@@ -49,7 +49,7 @@ namespace SeleniumWrapper {
         private readonly MemoryStream _stream;
         private string signature = null;
         private System.Drawing.Bitmap _bitmap;
-        private double _unmatchedRatio = 0;
+        private double _diffCount = 0;
 
         internal Image() {
             _stream = null;
@@ -70,8 +70,12 @@ namespace SeleniumWrapper {
             get { return Bitmap.Height; }
         }
 
-        public double UnmatchedRatio {
-            get{return _unmatchedRatio;}
+
+        /// <summary>
+        /// Number of unmatching pixels resulting of a comparis
+        /// </summary>
+        public double DiffCount {
+            get{return _diffCount;}
         }
 
         internal Image(byte[] imageBytes) {
@@ -158,7 +162,7 @@ namespace SeleniumWrapper {
             using (var imgA = this.Bitmap) {
                 Bitmap imgDiff;
                 double error = CompareBitmaps(imgA, imgB, out imgDiff, center, offsetX, offsetY, scaleX, scaleY);
-                return new SeleniumWrapper.Image(imgDiff) { _unmatchedRatio = error };
+                return new SeleniumWrapper.Image(imgDiff) { _diffCount = error };
             }
         }
 
@@ -185,7 +189,7 @@ namespace SeleniumWrapper {
         /// <param name="scaleX">Resize image B horizontally.</param>
         /// <param name="scaleY">Resize image B vertically.</param>
         /// <returns>Ratio of non matching pixels between 0 and 1</returns>
-        public double CompareBitmaps(Bitmap imageA, Bitmap imageB, out Bitmap imageDiff, bool center = false, int offsetX = 0, int offsetY = 0, double scaleX = 1, double scaleY = 1) {
+        public static int CompareBitmaps(Bitmap imageA, Bitmap imageB, out Bitmap imageDiff, bool center = false, int offsetX = 0, int offsetY = 0, double scaleX = 1, double scaleY = 1) {
             if (scaleX != 1 || scaleY != 1)
                 imageB = new System.Drawing.Bitmap(imageB, (int)((double)imageB.Width * scaleX), (int)((double)imageB.Height * scaleY));
             if (center)
@@ -283,10 +287,10 @@ namespace SeleniumWrapper {
                     if (dataDiff != null) imageDiff.UnlockBits(dataDiff);
                 }
             }
-            return Math.Round((double)pixelDiffCount / (double)(imageDiff.Width * imageDiff.Height), 5);
+            return pixelDiffCount;
         }
 
-        unsafe private int ProcessImageData(byte* ptrR, int padR, byte* ptrW, int padW, int width, int height) {
+        unsafe static private int ProcessImageData(byte* ptrR, int padR, byte* ptrW, int padW, int width, int height) {
             int unmatchingPixels = 0;
             for (int y = 0; y < height; y++, ptrR += padR, ptrW += padW) {
                 for (int x = 0; x < width; x++, ptrR += 3, ptrW += 3) {
