@@ -40,6 +40,7 @@
 	  <Filter entryType="Delegate" fullName="SeleniumWrapper.WebDriver.ActionResult" filterName="WebDriver.ActionResult" isExposed="False" />
 	  <Filter entryType="Delegate" fullName="SeleniumWrapper.WebDriver.ActionVoid" filterName="WebDriver.ActionVoid" isExposed="False" />
 	  <Filter entryType="Class" fullName="SeleniumWrapper.WebElement" filterName="WebElement" isExposed="True" />
+	  <Filter entryType="Class" fullName="SeleniumWrapper.Table" filterName="Table" isExposed="True" />
 	</Filter>
 	</ApiFilter>
     <MissingTags>None</MissingTags>

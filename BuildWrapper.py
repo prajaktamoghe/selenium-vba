@@ -1,4 +1,4 @@
-import os, string, re, time, fileinput, sys, shutil
+import os, string, re, time, fileinput, sys, shutil, urllib
 from datetime import datetime
 from subprocess import Popen, PIPE
 
@@ -65,40 +65,44 @@ def GetVersion(version):
 def MsBuild(csproj):
 	return RunCommand([ msbuild_path,'/v:quiet', '/t:build', '/p:Configuration=Release;TargetFrameworkVersion=v3.5', csproj ]);
 
-CheckPaths();
-os.environ['DXROOT'] = DXROOT_dir;
-os.environ['SHFBROOT'] = SHFBROOT_dir;
-CurrentVersion = re.findall(r'AssemblyFileVersion\("([.\d]+)"\)', open(AssemblyInfo_path, 'r').read())[0];
-LastModified = datetime.fromtimestamp(os.path.getmtime(AssemblyInfo_path))
+if __name__ == '__main__':
+	CheckPaths();
+	os.environ['DXROOT'] = DXROOT_dir;
+	os.environ['SHFBROOT'] = SHFBROOT_dir;
+	CurrentVersion = re.findall(r'AssemblyFileVersion\("([.\d]+)"\)', open(AssemblyInfo_path, 'r').read())[0];
+	LastModified = datetime.fromtimestamp(os.path.getmtime(AssemblyInfo_path))
 
-print( "_______________________________________________________________________" )
-print( "" )
-print( "Project name     : " + Project_name )
-print( "Current Version  : " + CurrentVersion )
-print( "Last compilation : " + LastModified.strftime("%Y-%m-%d %H:%M:%S") )
-print( "_______________________________________________________________________\r\n" )
+	print( "_______________________________________________________________________" )
+	print( "" )
+	print( "Project name     : " + Project_name )
+	print( "Current Version  : " + CurrentVersion )
+	print( "Last compilation : " + LastModified.strftime("%Y-%m-%d %H:%M:%S") )
+	print( "_______________________________________________________________________\r\n" )
 
-NewVersion = GetVersion(CurrentVersion)
+	NewVersion = GetVersion(CurrentVersion)
 
-print( "New version : " + NewVersion + "\n")
-print( "** Update version number..." )
-ReplaceInFile( AssemblyInfo_path, r'AssemblyFileVersion\("[.\d]+"\)', r'AssemblyFileVersion("' + NewVersion + '")' )
+	print( "New version : " + NewVersion + "\n")
+	print( "** Update version number..." )
+	ReplaceInFile( AssemblyInfo_path, r'AssemblyFileVersion\("[.\d]+"\)', r'AssemblyFileVersion("' + NewVersion + '")' )
 
-print( "** Clear previous compilations ...")
-DeleteFolder(Current_dir + r'wrapper\bin' );
-DeleteFolder(Current_dir + r'wrapper\obj' );
+	print( "** Clear previous compilations ...")
+	DeleteFolder(Current_dir + r'wrapper\bin' );
+	DeleteFolder(Current_dir + r'wrapper\obj' );
 
-print( "** Compile main library ...")
-if( not MsBuild( Current_dir + r'wrapper\SeleniumWrapper.csproj' ) ): exit(1)
+	print( "** Compile main library ...")
+	if( not MsBuild( Current_dir + r'wrapper\SeleniumWrapper.csproj' ) ): exit(1)
 
-print( "** Include the formatters ...")
-if( not RunCommand([ sevenzip_path, 'a', '-tzip', seleniumIde_path, formaters_path ])) : exit(1)
+	print( "** Include the formatters ...")
+	if( not RunCommand([ sevenzip_path, 'a', '-tzip', seleniumIde_path, formaters_path ])) : exit(1)
 
-if(GetInput("Create the .chm help file [y/n] ? ") == 'y'):
-	print( "** Api documentation creation ...");
-	if( not RunCommand([ msbuild_path,'/v:quiet', '/p:Configuration=Release;CleanIntermediates=True', Current_dir + 'wrapper\SeleniumWrapper.shfbproj' ]) ): exit(1)
-	
-print( "** Build setup package ...")
-if( not RunCommand([ innosetup_path, '/q', '/O'+Current_dir, iss_path ])): exit(1)
+	print( "** Download the Safari extension...")
+	urllib.urlretrieve('https://selenium.googlecode.com/git/javascript/safari-driver/prebuilt/SafariDriver.safariextz', '.\wrapper\References\SafariDriver.safariextz')
 
-print( "\r\nEnd")
+	if(GetInput("Create the .chm help file [y/n] ? ") == 'y'):
+		print( "** Api documentation creation ...");
+		if( not RunCommand([ msbuild_path,'/v:quiet', '/p:Configuration=Release;CleanIntermediates=True', Current_dir + 'wrapper\SeleniumWrapper.shfbproj' ]) ): exit(1)
+		
+	print( "** Build setup package ...")
+	if( not RunCommand([ innosetup_path, '/q', '/O'+Current_dir, iss_path ])): exit(1)
+
+	print("\r\nEnd")
