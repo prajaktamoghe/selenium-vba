@@ -2,18 +2,21 @@ Author : Florent BREHERET
 Contact : florentbr@gmail.com
 Website : http://code.google.com/p/selenium-vba
 
-v1.0.18.0  (2014/02/)
+v1.0.18.0  (2014/02/25)
 ===============================================================================
+ * Updated Selenium libraries to 2.40.0
+ * Updated IEDriverServer to 2.40.0
+ * Updated Chrome driver to 2.9
  * Updated SeleniumIDE to v2.5.0
  * Updated PhantomJS to v1.9.7.0
  * Added image compare
- * Added import of performace data
+ * Added import of performance data
  * Added table and list web scraping
  * Added SetClipboard and GetClipboard method
  * Added Safari webdriver
  * Added the use of the previous session for Excel
- * Hided the window console when a driver other than Firefox is launched
- * Adde automatic profil creation for Firefox if it doesn't exist
+ * Added an option to hide the window console when a driver is launched (HideCommandPromptWindow)
+ * Added automatic profile creation for Firefox if it doesn't exist
  * Fixed some marshaling on arguments
  * Fixed unhandled types returned by executeScript
 
