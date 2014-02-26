@@ -51,6 +51,9 @@ namespace SeleniumWrapper {
     [Guid("432b62a5-6f09-45ce-b10e-e3ccffab4234")]
     [ComVisible(true), ComDefaultInterface(typeof(IWebDriver)), ComSourceInterfaces(typeof(WebDriverEvents)), ClassInterface(ClassInterfaceType.None)]
     public partial class WebDriver : WebDriverCore, IWebDriver {
+
+        private bool _hideCommandPromptWindow = false;
+
         //public delegate void EndOfCommandDelegate();
         //public event EndOfCommandDelegate EndOfCommand;
 
@@ -96,13 +99,13 @@ namespace SeleniumWrapper {
                     ChromeDriverService crService = ChromeDriverService.CreateDefaultService(dir);
                     crService.EnableVerboseLogging = false;
                     crService.SuppressInitialDiagnosticInformation = true;
-                    //crService.HideCommandPromptWindow = true;
+                    crService.HideCommandPromptWindow = this._hideCommandPromptWindow;
                     WebDriver = new OpenQA.Selenium.Chrome.ChromeDriver(crService, getChromeOptions());
                     break;
                 case "phantomjs": case "pjs":
                     var pjsService = PhantomJSDriverService.CreateDefaultService(dir);
                     pjsService.SuppressInitialDiagnosticInformation = true;
-                    //pjsService.HideCommandPromptWindow = true;
+                    pjsService.HideCommandPromptWindow = this._hideCommandPromptWindow;
                     WebDriver = new OpenQA.Selenium.PhantomJS.PhantomJSDriver(pjsService, getPhantomJSOptions());
                     break;
                 case "internetexplorer": case "iexplore": case "ie":
@@ -110,8 +113,8 @@ namespace SeleniumWrapper {
                     var ieService = OpenQA.Selenium.IE.InternetExplorerDriverService.CreateDefaultService(dir);
                     ieService.SuppressInitialDiagnosticInformation = true;
                     ieService.LoggingLevel = OpenQA.Selenium.IE.InternetExplorerDriverLogLevel.Error;
-                    //ieService.HideCommandPromptWindow = true;
-                    WebDriver = new OpenQA.Selenium.IE.InternetExplorerDriver(dir, getInternetExplorerOptions());
+                    ieService.HideCommandPromptWindow = this._hideCommandPromptWindow;
+                    WebDriver = new OpenQA.Selenium.IE.InternetExplorerDriver(ieService, getInternetExplorerOptions());
                     break;
                 case "safari": case "sa":
                     WebDriver = new OpenQA.Selenium.Safari.SafariDriver(getSafariOptions());
@@ -123,6 +126,12 @@ namespace SeleniumWrapper {
             if (!string.IsNullOrEmpty(baseUrl))
                 _baseUrl = baseUrl.TrimEnd('/');
             _timerhotkey.Start();
+        }
+
+        /// <summary>Gets or sets a value indicating whether the command prompt window of the service should be hidden.</summary>
+        public bool HideCommandPromptWindow {
+            get{ return this._hideCommandPromptWindow; }
+            set { this._hideCommandPromptWindow = value; }
         }
 
         /// <summary>Starts remotely a new Selenium testing session</summary>
@@ -176,7 +185,9 @@ namespace SeleniumWrapper {
         /// <summary>Ends the current Selenium testing session (normally killing the browser)</summary>
         public void stop() {
             _webDriverCoreStatic = null;
-            _webDriver.Quit();
+            try {
+                _webDriver.Quit();
+            } catch { }
             _timerhotkey.Stop();
         }
 

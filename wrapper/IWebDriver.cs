@@ -44,6 +44,9 @@ namespace SeleniumWrapper {
         [Description("Set a specific proxy")]
         void setProxy(string url, bool isAutoConfigURL = false);
 
+        [Description("Gets or sets a value indicating whether the command prompt window of the service should be hidden.")]
+        bool HideCommandPromptWindow { get; set; }
+
         [Description("Starts a new Selenium session")]
         void start(String browser, String baseUrl = null, bool useLastSession = true);
 
