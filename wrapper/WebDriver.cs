@@ -12,6 +12,7 @@ using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.PhantomJS;
 using OpenQA.Selenium.Remote;
 using System.Net;
+using System.Text;
 
 namespace SeleniumWrapper {
     /// <summary>Defines the interface through which the user controls the browser using WebDriver (Selenium 2) and Selenium RC (Selenium 1) commands.</summary>
@@ -434,6 +435,60 @@ namespace SeleniumWrapper {
             return Decapsulate(((OpenQA.Selenium.IJavaScriptExecutor)WebDriver).ExecuteScript(script, argsInArray));
         }
 
+        public void waitScriptCondition(String scriptCondition, object arguments = null, int timeoutms = 5000) {
+            var argsEncapsulated = Encapsulate(arguments);
+            object argsInArray = argsEncapsulated == null ? new object[0] : argsEncapsulated is object[] ? argsEncapsulated : new object[] { argsEncapsulated };
+            var endTime = DateTime.Now.AddMilliseconds(timeoutms);
+            string errorMsg = String.Empty;
+            if (!scriptCondition.TrimStart().StartsWith("return"))
+                scriptCondition = "return " + scriptCondition;
+
+            if (!scriptCondition.TrimEnd().EndsWith(";"))
+                scriptCondition = scriptCondition + ";";
+            while (true) {
+                try {
+                    errorMsg = String.Empty;
+                    var result = ((OpenQA.Selenium.IJavaScriptExecutor)WebDriver).ExecuteScript(scriptCondition, argsInArray);
+                    if (result != null && result is bool && (bool)result == true) return;
+                } catch (Exception ex) {
+                    errorMsg = ex.Message;
+                }
+                this.CheckCanceled();
+                if (DateTime.Now > endTime)
+                    throw new TimeoutException("The operation has timed out! " + errorMsg);
+                Thread.Sleep(30);
+            }
+        }
+
+        /// <summary>Wait for a script object(defined and not null)</summary>
+        /// <param name="objectName">Object name</param>
+        /// <param name="timeoutms">Optional timeout</param>
+        public void waitScriptObject(String objectName, int timeoutms = 5000) {
+            var endTime = DateTime.Now.AddMilliseconds(timeoutms);
+            string errorMsg = String.Empty;
+            var variable = new StringBuilder();
+            var objects = objectName.Split('.');
+            for (int i=0; i<objects.Length; i++) {
+                if (i != 0)
+                    variable.Append('.');
+                variable.Append(objects[i]);
+                var script = "return typeof " + variable + " != 'undefined' && " + variable + "  != null;";
+                while (true) {
+                    errorMsg = String.Empty;
+                    try {
+                        if ((bool)((OpenQA.Selenium.IJavaScriptExecutor)WebDriver).ExecuteScript(script))
+                            break;
+                    } catch (Exception ex) {
+                        errorMsg = ex.Message;
+                    }
+                    this.CheckCanceled();
+                    if (DateTime.Now > endTime)
+                        throw new TimeoutException("The operation has timed out! " + errorMsg);
+                    Thread.Sleep(30);
+                }
+            }
+        }
+
         private Object Encapsulate(Object value) {            
             if(value is WebElement)
                 return ((WebElement)value)._webElement;
@@ -746,6 +801,13 @@ namespace SeleniumWrapper {
                 }
             }
             return new Alert(this, (OpenQA.Selenium.IAlert)alert);
+        }
+
+        /// <summary>Selects either the first frame on the page or the main document when a page contains iFrames.</summary>
+        /// <returns>An WebDriver instance focused on the default frame.</returns>
+        public WebDriver switchToDefaultContent() {
+            WebDriver.SwitchTo().DefaultContent();
+            return this;
         }
 
         #endregion WebDriver Code

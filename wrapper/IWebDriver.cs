@@ -77,6 +77,12 @@ namespace SeleniumWrapper {
         [Description("Execute JavaScrip on the page")]
         Object executeScript(String script, object arguments = null);
 
+        [Description("Wait for a script condition to return true")]
+        void waitScriptCondition(String scriptCondition, object arguments = null, int timeoutms = 5000);
+
+        [Description("Wait for a script object(defined and not null)")]
+        void waitScriptObject(String objectName, int timeoutms = 5000);
+
         [Description("Undo the effect of calling chooseCancelOnNextConfirmation. Note that Selenium's overridden window.confirm() function will normally automatically return true, as if the user had manually clicked OK, so you shouldn't need to use this command unless for some reason you need to change your mind prior to the next confirmation. After any confirmation, Selenium will resume using the default behavior for future confirmations, automatically returning true (OK) unless/until you explicitly call chooseCancelOnNextConfirmation for each confirmation.  Take note - every time a confirmation comes up, you must consume it with a corresponding getConfirmation, or else the next selenium operation will fail.")]
         void chooseOkOnNextConfirmation();
 
@@ -154,6 +160,9 @@ namespace SeleniumWrapper {
 
         [Description("Switches focus to an alert on the page.")]
         Alert switchToAlert(int timeoutms = 0);
+
+        [Description("Selects either the first frame on the page or the main document when a page contains iFrames.")]
+        WebDriver switchToDefaultContent();
 
         [Description("Returns the page tile")]
         string Title { get; }
