@@ -1,20 +1,40 @@
-import os, httplib2, re, urllib2, urllib, json
+import os, httplib2, re, urllib2, urllib, json, sys, traceback, urllib2, hashlib
 from StringIO import StringIO
 from zipfile import ZipFile
 
 Project_name = 'SeleniumWrapper'
 Current_dir = os.getcwd() + '\\'
-#Ref_dir = '.\wrapper\References\'
 Ref_dir = r'.\wrapper\References\\'
-Log_path = r'.\wrapper\References\log.txt'
+Log_path = r'.\wrapper\References\versions.txt'
 
 def CheckPaths():
 	for path in dir():
 		if( path.endswith('_path') and not os.path.isfile(eval(path)) ) : print('Missing ' + path + '=' + eval(path));
 		elif( path.endswith('_dir') and not os.path.isdir(eval(path)) ) : print('Missing ' + path + '=' + eval(path));
 
-def GetEtag(url):
-	return httplib2.Http().request(url, "HEAD")['etag']
+def CopyFileFromZip(zip, file_pattern, file_path):
+	pattern = re.compile(file_pattern)
+	for name in zip.namelist():
+			if pattern.match(name):
+				file = open(file_path, 'wb')
+				file.write(zip.read(name))
+				file.close()
+				return
+				
+def ExtractFilesFromZip(zip, files_pattern, folder):
+	p = re.compile(files_pattern)
+	for name in zip.namelist():
+			if p.match(name):
+				file = open(folder.strip('\\') + '\\' + os.path.basename(name), 'wb')
+				file.write(zip.read(name))
+				file.close()		
+
+def DownloadZip(url):
+	return ZipFile(StringIO(urllib2.urlopen(url).read()))
+	
+def DownloadFile(url, dest_file):
+	urllib.urlretrieve(url, dest_file)
+		
 		
 if __name__ == '__main__':
 	CheckPaths();
@@ -24,101 +44,197 @@ if __name__ == '__main__':
 	print( "Project name     : " + Project_name )
 	print( "_______________________________________________________________________\r\n" )
 
+	#create folder if missing
+	if not os.path.isdir(Ref_dir):
+		os.makedirs(Ref_dir)
+	
 	#Load versions id from file or create if missing
-	if not os.path.isfile(Log_path):
-		logdata = {'Selenium':None, 'IE32':None, 'IE64':None, 'Chrome':None, 'PhantomJs':None, 'Safari':None}
-	else:
-		logstr = open(Log_path, 'r')
-		logdata = json.load(logstr)
-		logstr.close()
+	logdata = {'.NetLibraries':None, 'PDFsharp':None, 'SeleniumIDE':None, 'IE32':None, 'IE64':None, 'Chrome':None, 'PhantomJs':None, 'Safari':None}
+	if os.path.isfile(Log_path):
+		logfile = open(Log_path, 'r')
+		for key, value in json.load(logfile).iteritems():
+			if key in logdata :
+				logdata[key] = value
+		logfile.close()
 	
-	print(".Net libraries...")
-	rooturl = r"http://selenium-release.storage.googleapis.com/"
-	#Find last version
-	headers, body = httplib2.Http().request(rooturl + "?delimiter=/&prefix=")
-	version = re.findall(r'<Prefix>(\d+\.\d+/)', body)[-1]
-	#Get files list
-	headers, body = httplib2.Http().request(rooturl + "?delimiter=/&prefix=" + version)
-	node = '<Key>(' + version + '{0})</Key>'
-	
-	#download zip
-	url = rooturl + re.findall( node.format(r'selenium-dotnet-[\d\.]+.zip'), body)[0]
-	if logdata['Selenium'] == url and os.path.isfile(Ref_dir + 'WebDriver.dll'):
-		print(" No update!" )
-	else:
-		print(" Update to version " + re.findall( r'\d\.[\d\.]+', url)[0] )
-		zip = ZipFile(StringIO(  urllib2.urlopen(url).read()))
-		#extract zip
-		for name in zip.namelist():
-			if re.match('^net35/.', name):
-				file = open(Ref_dir + os.path.basename(name), 'wb')
-				file.write(zip.read(name))
-				file.close()
-		logdata['Selenium'] = url
-	
-	print("IEDriverServer 32 bits...")
-	url = rooturl + re.findall( node.format(r'IEDriverServer_Win32_[\d\.]+.zip') ,body)[0]
-	if logdata['IE32'] == url and os.path.isfile(Ref_dir + 'IEDriverServer.exe'):
-		print(" No update!" )
-	else:
-		print(" Update to version " + re.findall( r'\d\.[\d\.]+', url)[0] )
-		zip = ZipFile(StringIO(  urllib2.urlopen(url).read()))
-		open(Ref_dir + 'IEDriverServer.exe', 'wb').write(zip.read('IEDriverServer.exe'))
-		logdata['IE32'] = url
+	http = httplib2.Http()
 	
 	
-	print("IEDriverServer 64 bits...")
-	url = rooturl + re.findall( node.format(r'IEDriverServer_x64_[\d\.]+.zip') ,body)[0]
-	if logdata['IE64'] == url and os.path.isfile(Ref_dir + 'IEDriverServer64.exe'):
-		print(" No update!" )
-	else:
-		print(" Update to version " + re.findall( r'\d\.[\d\.]+', url)[0] )
-		zip = ZipFile(StringIO(  urllib2.urlopen(url).read()))
-		open(Ref_dir + 'IEDriverServer64.exe', 'wb').write(zip.read('IEDriverServer.exe'))
-		logdata['IE64'] = url
+	print("\nPDF Sharp...")
+	try:
+		appid = 'PDFsharp'
+		dest_file = Ref_dir + 'PdfSharp.dll'
+		url = r'http://sourceforge.net/projects/pdfsharp/files/pdfsharp/'
+		headers, body = http.request(url)
+		links = re.findall( r'href="/projects/pdfsharp/files/pdfsharp/(PDFsharp%20[^/]+/)', body)
+		links.sort()
+		url += links[-1]
+		version = re.findall( r'\d[\d\.]*\d', urllib2.unquote(url) )[-1]
+		headers, body = http.request( url )
+		url = r'http://sunet.dl.sourceforge.net/project/pdfsharp/pdfsharp/' + re.findall( r'([^/]+/[^/]*Assemblies[^/]*\.zip)/download', body )[0]
+		id = version + ' ' + url
+		if logdata[appid] == id and os.path.isfile(dest_file):
+			print(" No update!" )
+		else:
+			print(" Update to version " + version )
+			zip = DownloadZip(url)
+			ExtractFilesFromZip(zip, r'.*/PdfSharp.dll', Ref_dir)
+			logdata[appid] = id
+	except :
+		traceback.print_exc()
+	
+	
+	print("\nSelenium IDE...")
+	try:
+		appid = 'SeleniumIDE'
+		dest_file = Ref_dir + 'selenium-ide.xpi'
+		url = r'http://release.seleniumhq.org/selenium-ide/'
+		#find last version
+		headers, body = http.request(url)
+		links = re.findall( r'href="(\d[\d\.]+/)"', body)
+		links.sort()
+		url += links[-1]
+		headers, body = http.request(url)
+		url += re.findall( r'href="(selenium-ide-[\d\.]+\.xpi)"', body)[0]
+		version = re.findall( r'\d[\d\.]*\d', urllib2.unquote(url) )[-1]
+		id = version + ' ' + url
+		if logdata[appid] == id and os.path.isfile(dest_file):
+			print(" No update!" )
+		else:
+			print(" Update to version " + version )
+			urllib.urlretrieve( url, dest_file)
+			logdata[appid] = id
+	except :
+		traceback.print_exc()
+	
+	
+	print("\nSelenium libraries...")
+	try:
+		appid = '.NetLibraries'
+		dest_file = Ref_dir + 'WebDriver.dll'
+		rooturl = r"http://selenium-release.storage.googleapis.com/"
+		#Find last version
+		headers, body = http.request(rooturl + "?delimiter=/&prefix=")
+		version = re.findall(r'<Prefix>(\d+\.\d+/)', body)[-1]
+		#Get files list
+		headers, body = http.request(rooturl + "?delimiter=/&prefix=" + version)
+		node = '<Key>(' + version + '{0})</Key>'
+		#download zip
+		url = rooturl + re.findall( node.format(r'selenium-dotnet-[\d\.]+.zip'), body)[0]
+		version = re.findall( r'\d[\d\.]*\d', urllib2.unquote(url) )[-1]
+		id = version + ' ' + url
+		if logdata[appid] == id and os.path.isfile(dest_file):
+			print(" No update!" )
+		else:
+			print(" Update to version " + version )
+			zip = DownloadZip(url)
+			ExtractFilesFromZip(zip, r'^net35/.', Ref_dir)
+			logdata[appid] = id
+	except :
+		traceback.print_exc()
+	
+	
+	print("\nIE32 driver...")
+	try:
+		appid = 'IE32'
+		dest_file = Ref_dir + 'IEDriverServer.exe'
+		url = rooturl + re.findall( node.format(r'IEDriverServer_Win32_[\d\.]+.zip') ,body)[0]
+		version = re.findall( r'\d[\d\.]*\d', urllib2.unquote(url) )[-1]
+		id = version + ' ' + url
+		if logdata[appid] == id and os.path.isfile(dest_file):
+			print(" No update!" )
+		else:
+			version = re.findall( r'\d[\d\.]*\d', urllib2.unquote(url) )[-1]
+			print(" Update to version " + version )
+			zip = DownloadZip(url)
+			CopyFileFromZip(zip, r'IEDriverServer.exe', dest_file)
+			logdata[appid] = id
+	except Exception, e:
+		traceback.print_exc()
+		
+	
+	print("\nIE64 driver...")
+	try:
+		appid = 'IE64'
+		dest_file = Ref_dir + 'IEDriverServer64.exe'
+		url = rooturl + re.findall( node.format(r'IEDriverServer_x64_[\d\.]+.zip') ,body)[0]
+		version = re.findall( r'\d[\d\.]*\d', urllib2.unquote(url) )[-1]
+		id = version + ' ' + url
+		if logdata[appid] == id and os.path.isfile(dest_file):
+			print(" No update!" )
+		else:
+			print(" Update to version " + version )
+			zip = DownloadZip(url)
+			CopyFileFromZip(zip, r'IEDriverServer.exe', dest_file)
+			logdata[appid] = id
+	except :
+		traceback.print_exc()
 		
 		
-	print( "Chrome driver...")	
-	headers, body = httplib2.Http().request(r"http://chromedriver.storage.googleapis.com/LATEST_RELEASE")
-	url = r'http://chromedriver.storage.googleapis.com/{0}/chromedriver_win32.zip'.format(body)
-	if logdata['Chrome'] == url :
-		print(" No update!" )
-	else:
-		print(" Update to version " + body )
-		zip = ZipFile(StringIO(  urllib2.urlopen(url).read()))
-		zip.extract('chromedriver.exe', Ref_dir)
-		logdata['Chrome'] = url
+	print("\nChrome driver...")
+	try:
+		appid = 'Chrome'
+		dest_file = Ref_dir + 'chromedriver.exe'
+		url = r"http://chromedriver.storage.googleapis.com"
+		headers, body = http.request(url + r'/LATEST_RELEASE')
+		version = body.strip()
+		url += r'/{0}/chromedriver_win32.zip'.format(version)
+		id = version + ' ' + url
+		if logdata[appid] == id and os.path.isfile(dest_file):
+			print(" No update!" )
+		else:
+			print(" Update to version " + version )
+			zip = DownloadZip(url)
+			CopyFileFromZip(zip, r'chromedriver.exe', dest_file)
+			logdata[appid] = id
+	except :
+		traceback.print_exc()
 
 
-	print("PhantomJS driver...")	
-	headers, body = httplib2.Http(disable_ssl_certificate_validation=True).request(r"https://bitbucket.org/ariya/phantomjs/downloads")
-	urls =  re.findall(r'href="(/ariya/phantomjs/downloads/phantomjs-[\d\.]+-windows.zip)"', body)
-	urls.sort()
-	url = r'https://bitbucket.org' + urls[-1]
-	if logdata['PhantomJs'] == url and os.path.isfile(Ref_dir + 'phantomjs.exe'):
-		print(" No update!" )
-	else:
-		print(" Update to version " + re.findall(r'\d[\d\.]+', url)[0] )
-		zip = ZipFile(StringIO(  urllib2.urlopen(url).read()))
-		for name in zip.namelist():
-			if name.endswith('phantomjs.exe'):	
-				file = open(Ref_dir + 'phantomjs.exe', 'wb')
-				file.write(zip.read(name))
-				file.close()
-		logdata['PhantomJs'] = url
+	print("\nPhantomJS driver...")
+	try:
+		appid = 'PhantomJs'
+		dest_file = Ref_dir + 'phantomjs.exe'
+		url = r"https://bitbucket.org/ariya/phantomjs/downloads"
+		headers, body = httplib2.Http(disable_ssl_certificate_validation=True).request(url)
+		links =  re.findall(r'href="/ariya/phantomjs/downloads(/phantomjs-[\d\.]+-windows.zip)"', body)
+		links.sort()
+		url  += links[-1]
+		version = re.findall( r'\d[\d\.]*\d', urllib2.unquote(url) )[-1]
+		id = version + ' ' + url
+		if logdata[appid] == id and os.path.isfile(dest_file):
+			print(" No update!" )
+		else:
+			print(" Update to version " + version )
+			zip = DownloadZip(url)
+			CopyFileFromZip(zip, r'.*/phantomjs.exe', dest_file)
+			CopyFileFromZip(zip, r'.*/LICENSE.BSD', Ref_dir + 'phantomjs.license.txt')
+			logdata[appid] = id
+	except :
+		traceback.print_exc()
 	
-	print( "Safari driver...")
-	etag = httplib2.Http().request(r'https://selenium.googlecode.com/git/javascript/safari-driver/prebuilt/SafariDriver.safariextz', "HEAD")[0]['etag']
-	if logdata['Safari'] == etag and os.path.isfile(Ref_dir + 'SafariDriver.safariextz'):
-		print(" No update!" )
-	else:
-		print("  New version")
-		urllib.urlretrieve(r'https://selenium.googlecode.com/git/javascript/safari-driver/prebuilt/SafariDriver.safariextz', Ref_dir + 'SafariDriver.safariextz')
-		logdata['Safari'] = etag
+	
+	print( "\nSafari driver...")
+	try:
+		appid = 'Safari'
+		dest_file = Ref_dir + 'SafariDriver.safariextz'
+		url = r'https://selenium.googlecode.com/git/javascript/safari-driver/prebuilt/SafariDriver.safariextz'
+		version = hashlib.md5( http.request(url, "HEAD")[0]['etag'] ).hexdigest()
+		id = version + ' ' + url
+		if logdata[appid] == id and os.path.isfile(dest_file):
+			print(" No update!" )
+		else:
+			print(" Update to version " + version )
+			urllib.urlretrieve(url, dest_file)
+			logdata[appid] = id
+	except :
+		traceback.print_exc()
+				
 				
 	#save versions
 	logfile = open(Log_path, 'w')
 	json.dump(logdata, logfile, sort_keys = False, indent = 4, ensure_ascii=False)
 	logfile.close()
 
+	print('\nEND\n')
 	
