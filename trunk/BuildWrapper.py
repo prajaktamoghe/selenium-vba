@@ -95,9 +95,6 @@ if __name__ == '__main__':
 	print( "** Include the formatters ...")
 	if( not RunCommand([ sevenzip_path, 'a', '-tzip', seleniumIde_path, formaters_path ])) : exit(1)
 
-	print( "** Download the Safari extension...")
-	urllib.urlretrieve('https://selenium.googlecode.com/git/javascript/safari-driver/prebuilt/SafariDriver.safariextz', '.\wrapper\References\SafariDriver.safariextz')
-
 	if(GetInput("Create the .chm help file [y/n] ? ") == 'y'):
 		print( "** Api documentation creation ...");
 		if( not RunCommand([ msbuild_path,'/v:quiet', '/p:Configuration=Release;CleanIntermediates=True', Current_dir + 'wrapper\SeleniumWrapper.shfbproj' ]) ): exit(1)
