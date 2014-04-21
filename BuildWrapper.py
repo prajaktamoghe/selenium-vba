@@ -1,105 +1,133 @@
-import os, string, re, time, fileinput, sys, shutil, urllib
-from datetime import datetime
-from subprocess import Popen, PIPE
+import os, string, re, time, fileinput, sys, shutil, urllib, datetime, subprocess
 
-Project_name = 'SeleniumWrapper';
-Current_dir = os.getcwd() + '\\';
-AssemblyInfo_path = Current_dir + r'wrapper\Properties\AssemblyInfo.cs';
-iss_path = Current_dir + r'wrapper\Package.iss';
-seleniumIde_path = Current_dir + r'wrapper\References\selenium-ide.xpi';
-formaters_path = Current_dir + r'formatters\vb-format.xpi';
+_projet_name = 'SeleniumWrapper'
+_current_dir = os.getcwd() + '\\'
+_assembly_info_path = _current_dir + r'wrapper\Properties\AssemblyInfo.cs'
+_iss_path = _current_dir + r'wrapper\Package.iss'
+_seleniumide_path = _current_dir + r'wrapper\References\selenium-ide.xpi'
+_formaters_path = _current_dir + r'formatters\vb-format.xpi'
 
-DXROOT_dir = "c:\Progra~1\Sandcastle"
-SHFBROOT_dir = "c:\Progra~1\EWSoftware\Sandcastle Help File Builder"
-sevenzip_path = r"C:\Program Files\7-Zip\7z.exe";
-innosetup_path = r"C:\Program Files\Inno Setup 5\ISCC.exe";
-msbuild_path = r"C:\WINDOWS\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe";
+_dxroot_dir = r'c:\Progra~1\Sandcastle'
+_shfbroot_dir = r'c:\Progra~1\EWSoftware\Sandcastle Help File Builder'
+_sevenzip_path = r'c:\Progra~1\7-Zip\7z.exe'
+_innosetup_path = r'c:\Progra~1\Inno Setup 5\ISCC.exe'
+_msbuild_path = r'c:\WINDOWS\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe'
 
-def CheckPaths():
-	for path in dir():
-		if( path.endswith('_path') and not os.path.isfile(eval(path)) ) : print('Missing ' + path + '=' + eval(path));
-		elif( path.endswith('_dir') and not os.path.isdir(eval(path)) ) : print('Missing ' + path + '=' + eval(path));
+def main():
 
-def ReplaceInFile(file_path, pattern, replacement):
-    text = open(file_path, 'r').read();
-    open(file_path, 'w').write( re.sub(pattern, replacement, text ) );
-    return;
+	check_paths()
+	
+	os.environ['DXROOT'] = _dxroot_dir
+	os.environ['SHFBROOT'] = _shfbroot_dir
+	
+	last_modified_time = get_file_datetime(_assembly_info_path)
+	current_version = find_in_file(_assembly_info_path, r'AssemblyFileVersion\("([.\d]+)"\)')
 
-def DeleteFolder(folder_path):
-	if(os.path.isdir(folder_path)) : shutil.rmtree(folder_path);
-	return;
+	print('')
+	print('Project : ' + _projet_name)
+	print('Tasks   : Build and package')
+	print('Current Version  : ' + current_version)
+	print('Last compilation : ' + (last_modified_time.strftime('%Y-%m-%d %H:%M:%S') if last_modified_time else 'none'))
+	print('_______________________________________________________________________\n')
 
-def RunCommand(arguments):
-    proc = Popen(arguments, stdout=PIPE, stderr=PIPE, shell=False)
-    proc.wait()
-    if(proc.returncode != 0):
-        print('\r\n  ERROR while executing command:\r\n\r\n' + ' '.join(arguments) + '\r\n')
-        print('\r\n  ERROR details:\r\n')
-        for line in proc.stdout: print(line.decode("utf-8").replace('\r\n', ''))
-        for line in proc.stderr: print(line.decode("utf-8").replace('\r\n', ''))
-        print('\r\n\r\n')
-        return False;
-    return True;
+	new_version = get_new_version(current_version)
 
-def GetInput(message):
-    try: return raw_input(message);
-    except NameError: return input(message);
+	print('New version : ' + new_version + '\n')
+	print('** Update version number...')
+	replace_in_file(_assembly_info_path, r'AssemblyFileVersion\("[.\d]+"\)', r'AssemblyFileVersion("' + new_version + '")')
 
-def GetVersion(version):
-    new_version =""
-    while (new_version == ""):
-        res = GetInput("Digit to increment [w.x.y.z] or version [0.0.0.0] or skip [s] ? ");
-        if ( re.match(r"^s|z|y|x|w$", res)) :
-            version_digit = version.split('.');
-            new_version = {
-                "s" : version,
-                "z" : version_digit[0] + "." + version_digit[1] + "." + version_digit[2] + "." + str(int(version_digit[3])+1),
-                "y" : version_digit[0] + "." + version_digit[1] + "." + str(int(version_digit[2])+1) + ".0",
-                "x" : version_digit[0] + "." + str(int(version_digit[1]) + 1) + ".0.0",
-                "w" : str(int(version_digit[0])+1) + ".0.0.0",
-            }.get(res, '');
-        elif ( re.match(r"^\d+\.\d+\.\d+\.\d+$", res) ):
-            new_version = res;
-    return new_version
+	print('** Clear previous compilations ...')
+	delete_folder(_current_dir + r'wrapper\bin')
+	delete_folder(_current_dir + r'wrapper\obj')
 
-def MsBuild(csproj):
-	return RunCommand([ msbuild_path,'/v:quiet', '/t:build', '/p:Configuration=Release;TargetFrameworkVersion=v3.5', csproj ]);
+	print('** Compile main library ...')
+	exec_msbuild( _current_dir + r'wrapper\SeleniumWrapper.csproj')
+
+	print('** Include the formatters ...')
+	exec_command( _sevenzip_path, 'a', '-tzip', _seleniumide_path, _formaters_path)
+
+	if(get_input('Create the .chm help file [y/n] ? ') == 'y'):
+		print('** Api documentation creation ...')
+		exec_command( _msbuild_path,'/v:quiet', '/p:Configuration=Release;CleanIntermediates=True', _current_dir + 'wrapper\SeleniumWrapper.shfbproj')
+		
+	print('** Build setup package ...')
+	exec_command( _innosetup_path, '/q', '/O' + _current_dir, _iss_path)
+
+	print('\n__________________________________________________________END OF SCRIPT')
+	
+def check_paths():
+	for path in [ p for p in dir() if re.match( '.+_path$|.+_dir$ ', p) and not os.path.exists(eval(p)) ] :
+		 print('Missing ' + path + '=' + eval(path))
+
+def get_file_datetime(filepath):
+	if not os.path.isfile(filepath):
+		return None
+	return datetime.datetime.fromtimestamp(os.path.getmtime(filepath))
+		 
+def find_in_file(filepath, pattern):
+	with open(filepath, 'r') as f:
+		result = re.search(pattern, f.read())
+		return result.group(result.re.groups)
+		 
+def replace_in_file(filepath, pattern, replacement):
+	with open(filepath, 'r') as f:
+		text = f.read()
+	with open(filepath, 'w') as f:
+		f.write(re.sub(pattern, replacement, text))
+
+def delete_folder(folderpath):
+	if os.path.isdir(folderpath):
+		shutil.rmtree(folderpath)
+
+def exec_command(*arguments):
+	p = subprocess.Popen(arguments, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
+	p.wait()
+	if p.returncode != 0:
+		print('\n>COMMAND:\n' + ' '.join(arguments) + '\n\n>ERROR:\n')
+		print((p.stdout.read().strip('\r\n') + '\n' + p.stderr.read().strip('\r\n')).decode("utf-8"))
+		quit()
+
+def exec_msbuild(csproj):
+	exec_command( _msbuild_path, '/v:quiet', '/t:build', '/p:Configuration=Release;TargetFrameworkVersion=v3.5', csproj)
+	
+def get_input(message):
+    try:
+		return raw_input(message)
+    except NameError:
+		return input(message)
+
+def get_new_version(version):
+	new_version = ''
+	matrix_add = {'s': [0,0,0,0], 'z':[0,0,0,1], 'y':[0,0,1,0], 'x':[0,1,0,0], 'w':[1,0,0,0]}
+	matrix_mul = {'s': [1,1,1,1], 'z':[1,1,1,1], 'y':[1,1,1,0], 'x':[1,1,0,1], 'w':[1,0,1,1]}
+	while new_version == '':
+		input = get_input('Digit to increment [w.x.y.z] or version [0.0.0.0] or skip [s] ? ').strip()
+		if re.match(r's|z|y|x|w', input) :
+			add = matrix_add[input]
+			mul = matrix_mul[input]
+			values = [int(d) for d in version.split('.')]
+			new_version = '.'.join( str( values[i] * mul[i] + add[i] ) for i in range(0,4))
+		elif re.match(r'\d+\.\d+\.\d+\.\d+', input):
+			new_version = input
+	return new_version
+
+class Logger:
+
+	def __init__(self, filename=os.path.basename(__file__) + '.log'):
+		self.terminal = sys.stdout
+		self.log = open(filename, "w")
+		sys.stdout = sys.stderr = self
+	
+	def __enter__(self):
+		return self
+	
+	def __exit__(self, type, value, traceback):
+		self.log.close()
+	
+	def write(self, message):
+		self.terminal.write(message)
+		self.log.write(message)
 
 if __name__ == '__main__':
-	CheckPaths();
-	os.environ['DXROOT'] = DXROOT_dir;
-	os.environ['SHFBROOT'] = SHFBROOT_dir;
-	CurrentVersion = re.findall(r'AssemblyFileVersion\("([.\d]+)"\)', open(AssemblyInfo_path, 'r').read())[0];
-	LastModified = datetime.fromtimestamp(os.path.getmtime(AssemblyInfo_path))
-
-	print( "_______________________________________________________________________" )
-	print( "" )
-	print( "Project name     : " + Project_name )
-	print( "Current Version  : " + CurrentVersion )
-	print( "Last compilation : " + LastModified.strftime("%Y-%m-%d %H:%M:%S") )
-	print( "_______________________________________________________________________\r\n" )
-
-	NewVersion = GetVersion(CurrentVersion)
-
-	print( "New version : " + NewVersion + "\n")
-	print( "** Update version number..." )
-	ReplaceInFile( AssemblyInfo_path, r'AssemblyFileVersion\("[.\d]+"\)', r'AssemblyFileVersion("' + NewVersion + '")' )
-
-	print( "** Clear previous compilations ...")
-	DeleteFolder(Current_dir + r'wrapper\bin' );
-	DeleteFolder(Current_dir + r'wrapper\obj' );
-
-	print( "** Compile main library ...")
-	if( not MsBuild( Current_dir + r'wrapper\SeleniumWrapper.csproj' ) ): exit(1)
-
-	print( "** Include the formatters ...")
-	if( not RunCommand([ sevenzip_path, 'a', '-tzip', seleniumIde_path, formaters_path ])) : exit(1)
-
-	if(GetInput("Create the .chm help file [y/n] ? ") == 'y'):
-		print( "** Api documentation creation ...");
-		if( not RunCommand([ msbuild_path,'/v:quiet', '/p:Configuration=Release;CleanIntermediates=True', Current_dir + 'wrapper\SeleniumWrapper.shfbproj' ]) ): exit(1)
-		
-	print( "** Build setup package ...")
-	if( not RunCommand([ innosetup_path, '/q', '/O'+Current_dir, iss_path ])): exit(1)
-
-	print("\r\nEnd")
+	with  Logger() as log:
+		main()
