@@ -39,9 +39,14 @@ def main():
 	print('** Clear previous compilations ...')
 	delete_folder(_current_dir + r'wrapper\bin')
 	delete_folder(_current_dir + r'wrapper\obj')
+	delete_folder(_current_dir + r'SScript\bin')
+	delete_folder(_current_dir + r'SScript\obj')
 
 	print('** Compile main library ...')
 	exec_msbuild( _current_dir + r'wrapper\SeleniumWrapper.csproj')
+	
+	print('** Compile runer ...')
+	exec_msbuild( _current_dir + r'SScript\SScript.csproj')
 
 	print('** Include the formatters ...')
 	exec_command( _sevenzip_path, 'a', '-tzip', _seleniumide_path, _formaters_path)
@@ -113,7 +118,7 @@ def get_new_version(version):
 
 class Logger:
 
-	def __init__(self, filename=os.path.basename(__file__) + '.log'):
+	def __init__(self, filename=os.path.basename(__file__)[:-3] + '.log'):
 		self.terminal = sys.stdout
 		self.log = open(filename, "w")
 		sys.stdout = sys.stderr = self
