@@ -21,13 +21,13 @@ namespace SeleniumWrapper {
         void NotEquals(Object expected, Object current, string failmessage = null);
 
         [Description("")]
-        void Matches(string input, string pattern, string failmessage = null);
+        void Matches(string text, string pattern, string failmessage = null);
 
         [Description("")]
-        void NotMatches(string input, string pattern, string failmessage = null);
+        void NotMatches(string text, string pattern, string failmessage = null);
 
         [Description("")]
-        void Contains(string input, string text, string failmessage = null);
+        void Contains(string text, string value, string failmessage = null);
 
         [Description("")]
         void Fail(string message = null);
@@ -68,7 +68,8 @@ namespace SeleniumWrapper {
         /// <param name="failmessage"></param>
         public void True(bool value, string failmessage = null) {
             if (value != true)
-                throw new Exception("Assert.True failed!" + "\n" + failmessage);
+                //throw new COMException("Assert.True failed!" + "\n" + failmessage, 20000);
+                throw new ApplicationException("Assert.True failed!" + "\n" + failmessage);
         }
 
         /// <summary></summary>
@@ -76,7 +77,7 @@ namespace SeleniumWrapper {
         /// <param name="failmessage"></param>
         public void False(bool value, string failmessage = null) {
             if (value != false)
-                throw new Exception("Assert.False failed!" + "\n" + failmessage);
+                throw new ApplicationException("Assert.False failed!" + "\n" + failmessage);
         }
 
         /// <summary>Test that two objects are equal and raise an exception if the result is false</summary>
@@ -85,7 +86,7 @@ namespace SeleniumWrapper {
         /// <param name="failmessage"></param>
         public void Equals(Object expected, Object current, string failmessage = null) {
             if (!Utils.ObjectEquals(expected, current))
-                throw new ApplicationException("Assert.Equals failed!\n" + (failmessage != "" ? failmessage : "expected=<" + Utils.Truncate(expected.ToString()) + "> result=<" + Utils.Truncate(current.ToString()) + "> " + "\n"));
+                throw new ApplicationException("Assert.Equals failed!\n" + (String.IsNullOrEmpty(failmessage) ? "exp=<" + Utils.Truncate(expected.ToString()) + "> got=<" + Utils.Truncate(current.ToString()) + ">" : failmessage));
         }
 
         /// <summary>Test that two objects are not equal and raise an exception if the result is false</summary>
@@ -94,7 +95,7 @@ namespace SeleniumWrapper {
         /// <param name="failmessage"></param>
         public void NotEquals(Object expected, Object current, string failmessage = null) {
             if (Utils.ObjectEquals(expected, current))
-                throw new ApplicationException("Assert.NotEquals failed!\n" + (failmessage != "" ? failmessage : "expected=<" + Utils.Truncate(expected.ToString()) + "> result=<" + Utils.Truncate(current.ToString()) + "> "));
+                throw new ApplicationException("Assert.NotEquals failed!\n" + (String.IsNullOrEmpty(failmessage) ? "exp=<" + Utils.Truncate(expected.ToString()) + "> got=<" + Utils.Truncate(current.ToString()) + ">" : failmessage));
         }
 
         /// <summary></summary>
@@ -103,7 +104,7 @@ namespace SeleniumWrapper {
         /// <param name="failmessage"></param>
         public void Matches(string input, string pattern, string failmessage = null) {
             if (!Regex.IsMatch(input, pattern))
-                throw new ApplicationException("Assert.Matches failed!\n" + (failmessage != "" ? failmessage : "input=<" + Utils.Truncate(input) + "> pattern=<" + pattern + "> "));
+                throw new ApplicationException("Assert.Matches failed!\n" + (String.IsNullOrEmpty(failmessage) ? "txt=<" + Utils.Truncate(input) + "> pat=<" + pattern + ">" : failmessage));
         }
 
         /// <summary></summary>
@@ -112,16 +113,16 @@ namespace SeleniumWrapper {
         /// <param name="failmessage"></param>
         public void NotMatches(string input, string pattern, string failmessage = null) {
             if (Regex.IsMatch(input, pattern))
-                throw new ApplicationException("Assert.NotMatches failed!\n" + (failmessage != "" ? failmessage : "input=<" + Utils.Truncate(input) + "> pattern=<" + pattern + "> "));
+                throw new ApplicationException("Assert.NotMatches failed!\n" + (String.IsNullOrEmpty(failmessage) ? "txt=<" + Utils.Truncate(input) + "> pat=<" + pattern + ">" : failmessage));
         }
 
         /// <summary></summary>
-        /// <param name="input"></param>
         /// <param name="text"></param>
+        /// <param name="value"></param>
         /// <param name="failmessage"></param>
-        public void Contains(string input, string text, string failmessage = null) {
-            if (!input.Contains(text))
-                throw new ApplicationException("Assert.Contains failed!\n" + (failmessage != "" ? failmessage : "input=<" + Utils.Truncate(input) + "> text=<" + text + "> "));
+        public void Contains(string text, string value, string failmessage = null) {
+            if (!text.Contains(value))
+                throw new ApplicationException("Assert.Contains failed!\n" + (String.IsNullOrEmpty(failmessage) ? "val=<" + Utils.Truncate(text) + "> str=<" + value + ">" : failmessage));
         }
 
         /// <summary></summary>
