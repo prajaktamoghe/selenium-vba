@@ -20,13 +20,13 @@ namespace SeleniumWrapper {
         string NotEquals(Object expected, Object current, string failmessage = null);
 
         [Description("")]
-        string Matches(string input, string pattern, string failmessage = null);
+        string Matches(string text, string pattern, string failmessage = null);
 
         [Description("")]
-        string Contains(string input, string text, string failmessage = null);
+        string Contains(string text, string value, string failmessage = null);
 
         [Description("")]
-        string NotMatches(string input, string pattern, string failmessage = null);
+        string NotMatches(string text, string pattern, string failmessage = null);
     }
 
     /// <summary>Testing functions. Return the résult of the verification</summary>
@@ -86,7 +86,7 @@ namespace SeleniumWrapper {
         public string Equals(Object expected, Object current, string failmessage = null) {
             if (Utils.ObjectEquals(expected, current))
                 return "OK";
-            return String.IsNullOrEmpty(failmessage) ? "KO, Verify.Equals failed! expected=<" + Utils.Truncate(expected.ToString()) + "> result=<" + Utils.Truncate(current.ToString()) + ">" : failmessage;
+            return String.IsNullOrEmpty(failmessage) ? "KO, Verify.Equals failed! exp=<" + Utils.Truncate(expected.ToString()) + "> got=<" + Utils.Truncate(current.ToString()) + ">" : failmessage;
         }
 
         /// <summary>Test that two objects are not equal and raise an exception if the result is false</summary>
@@ -95,41 +95,41 @@ namespace SeleniumWrapper {
         /// <param name="failmessage">Message to return if the verification fails...</param>
         public string NotEquals(Object expected, Object current, string failmessage = null) {
             if (Utils.ObjectEquals(expected, current))
-                return String.IsNullOrEmpty(failmessage) ? "KO, Verify.NotEquals failed! expected=<" + Utils.Truncate(expected.ToString()) + "> result=<" + Utils.Truncate(current.ToString()) + ">" : failmessage;
+                return String.IsNullOrEmpty(failmessage) ? "KO, Verify.NotEquals failed! exp=<" + Utils.Truncate(expected.ToString()) + "> got=<" + Utils.Truncate(current.ToString()) + ">" : failmessage;
             return "OK";
         }
 
         /// <summary></summary>
-        /// <param name="input"></param>
-        /// <param name="pattern"></param>
-        /// <param name="failmessage"></param>
-        /// <returns></returns>
-        public string Matches(string input, string pattern, string failmessage = null) {
-            if (Regex.IsMatch(input, pattern))
-                return "OK";
-            return String.IsNullOrEmpty(failmessage) ? "KO, Verify.Matches failed! input=<" + Utils.Truncate(input.ToString()) + "> pattern=<" + pattern + ">" : failmessage;
-        }
-
-        /// <summary></summary>
-        /// <param name="input"></param>
-        /// <param name="pattern"></param>
-        /// <param name="failmessage"></param>
-        /// <returns></returns>
-        public string NotMatches(string input, string pattern, string failmessage = null) {
-            if (Regex.IsMatch(input, pattern))
-                return String.IsNullOrEmpty(failmessage) ? "KO, Verify.NotMatches failed! input=<" + Utils.Truncate(input.ToString()) + "> pattern=<" + pattern + ">" : failmessage;
-            return "OK";
-        }
-
-        /// <summary></summary>
-        /// <param name="input"></param>
         /// <param name="text"></param>
+        /// <param name="pattern"></param>
         /// <param name="failmessage"></param>
         /// <returns></returns>
-        public string Contains(string input, string text, string failmessage = null) {
-            if (input.Contains(text))
+        public string Matches(string text, string pattern, string failmessage = null) {
+            if (Regex.IsMatch(text, pattern))
                 return "OK";
-            return String.IsNullOrEmpty(failmessage) ? "KO, Verify.Contains failed! input=<" + Utils.Truncate(input) + "> text=<" + text + ">" : failmessage;
+            return String.IsNullOrEmpty(failmessage) ? "KO, Verify.Matches failed! txt=<" + Utils.Truncate(text.ToString()) + "> pat=<" + pattern + ">" : failmessage;
+        }
+
+        /// <summary></summary>
+        /// <param name="text"></param>
+        /// <param name="pattern"></param>
+        /// <param name="failmessage"></param>
+        /// <returns></returns>
+        public string NotMatches(string text, string pattern, string failmessage = null) {
+            if (Regex.IsMatch(text, pattern))
+                return String.IsNullOrEmpty(failmessage) ? "KO, Verify.NotMatches failed! txt=<" + Utils.Truncate(text.ToString()) + "> pat=<" + pattern + ">" : failmessage;
+            return "OK";
+        }
+
+        /// <summary></summary>
+        /// <param name="text"></param>
+        /// <param name="value"></param>
+        /// <param name="failmessage"></param>
+        /// <returns></returns>
+        public string Contains(string text, string value, string failmessage = null) {
+            if (text.Contains(value))
+                return "OK";
+            return String.IsNullOrEmpty(failmessage) ? "KO, Verify.Contains failed! txt=<" + Utils.Truncate(text) + "> val=<" + value + ">" : failmessage;
         }
 
     }
