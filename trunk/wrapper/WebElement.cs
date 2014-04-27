@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Collections;
+using OpenQA.Selenium;
 
 namespace SeleniumWrapper {
     /// <summary>
@@ -391,12 +392,18 @@ namespace SeleniumWrapper {
         }
 
         private WebElement findElement(OpenQA.Selenium.By by, int timeoutms) {
-            object ret;
-            if (timeoutms > 0)
-                ret = this._wd.WaitUntilObject(() => _webElement.FindElement(by), timeoutms);
-            else
-                ret = _webElement.FindElement(by);
-            return new WebElement(this._wd, (OpenQA.Selenium.IWebElement)ret);
+            try {
+                object ret;
+                if (timeoutms > 0)
+                    ret = this._wd.WaitUntilObject(() => _webElement.FindElement(by), timeoutms);
+                else
+                    ret = _webElement.FindElement(by);
+                return new WebElement(this._wd, (OpenQA.Selenium.IWebElement)ret);
+            } catch (Exception ex) {
+                if (ex is NoSuchElementException || ex is TimeoutException)
+                    throw new Exception("Element not found. " + "Method=" + by.ToString().ToLower().Substring(3).Replace(": ", ", value="));
+                throw;
+            }
         }
 
         /// <summary>Find all elements within the current context using the given mechanism.</summary>
@@ -473,11 +480,17 @@ namespace SeleniumWrapper {
         }
 
         private WebElementCollection findElements(OpenQA.Selenium.By by, int timeoutms) {
-            if (timeoutms > 0) {
-                var ret = this._wd.WaitUntilObject(() => _webElement.FindElements(by), timeoutms);
-                return new WebElementCollection(this._wd, (ReadOnlyCollection<OpenQA.Selenium.IWebElement>)ret);
+            try {
+                if (timeoutms > 0) {
+                    var ret = this._wd.WaitUntilObject(() => _webElement.FindElements(by), timeoutms);
+                    return new WebElementCollection(this._wd, (ReadOnlyCollection<OpenQA.Selenium.IWebElement>)ret);
+                }
+                return new WebElementCollection(this._wd, _webElement.FindElements(by));
+            } catch (Exception ex) {
+                if (ex is NoSuchElementException || ex is TimeoutException)
+                    throw new Exception("Elements not found. " + "Method=" + by.ToString().ToLower().Substring(3).Replace(": ", ", value="));
+                throw;
             }
-            return new WebElementCollection(this._wd, _webElement.FindElements(by));
         }
 
         #endregion Find Elements
