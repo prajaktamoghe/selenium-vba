@@ -13,6 +13,7 @@ using OpenQA.Selenium.PhantomJS;
 using OpenQA.Selenium.Remote;
 using System.Net;
 using System.Text;
+using System.IO;
 
 namespace SeleniumWrapper {
     /// <summary>Defines the interface through which the user controls the browser using WebDriver (Selenium 2) and Selenium RC (Selenium 1) commands.</summary>
@@ -53,7 +54,7 @@ namespace SeleniumWrapper {
     [ComVisible(true), ComDefaultInterface(typeof(IWebDriver)), ComSourceInterfaces(typeof(WebDriverEvents)), ClassInterface(ClassInterfaceType.None)]
     public partial class WebDriver : WebDriverCore, IWebDriver {
 
-        private bool _hideCommandPromptWindow = false;
+        private bool _hideCommandPromptWindow = true;
 
         //public delegate void EndOfCommandDelegate();
         //public event EndOfCommandDelegate EndOfCommand;
@@ -87,7 +88,7 @@ namespace SeleniumWrapper {
         ///     driver.open "/"
         /// </code>
         /// </example>
-        public void start(string browser, String baseUrl = null, bool useLastSession = true) {
+        public void start(string browser, String baseUrl = null, bool useLastSession = false) {
             if (useLastSession && CopyStaticDriver(baseUrl)) return;
             _isStartedRemotely = false;
             var dir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
@@ -511,7 +512,7 @@ namespace SeleniumWrapper {
             if (value is System.Collections.IDictionary) {
                 var dictionary = new Dictionary((value as System.Collections.IDictionary).Count);
                 foreach (DictionaryEntry item in (value as System.Collections.IDictionary))
-                    dictionary.Add(item.Key, item.Value);
+                    dictionary.Add(item.Key, Decapsulate(item.Value));
                 return dictionary;
             }
             if (value is ICollection) {
@@ -609,19 +610,26 @@ namespace SeleniumWrapper {
                     return findElement(((By)locator).base_, 0) != null;
                 } catch (Exception) {
                     return false;
-                } else if (locator is string)
+                } 
+            else if (locator is string)
                 return (Boolean)InvokeWd(() => WebDriverBacked.IsElementPresent((string)locator));
             else
                 throw new ArgumentException("Locator has to be a 'String' or a 'By' object!");
         }
 
         private WebElement findElement(OpenQA.Selenium.By by, int timeoutms) {
-            object ret;
-            if (timeoutms > 0)
-                ret = this.WaitUntilObject(() => WebDriver.FindElement(by), timeoutms);
-            else
-                ret = WebDriver.FindElement(by);
-            return new WebElement(this, (OpenQA.Selenium.IWebElement)ret);
+            try {
+                object ret;
+                if (timeoutms == 0)
+                    ret = WebDriver.FindElement(by);
+                else
+                    ret = this.WaitUntilObject(() => WebDriver.FindElement(by), timeoutms);
+                return new WebElement(this, (OpenQA.Selenium.IWebElement)ret);
+            } catch (Exception ex){
+                if(ex is NoSuchElementException || ex is TimeoutException)
+                    throw new Exception("Element not found. " + "Method=" + by.ToString().ToLower().Substring(3).Replace(": ", ", value="));
+                throw;
+            }
         }
 
         /// <summary>Find all elements within the current context using the given mechanism.</summary>
@@ -698,11 +706,17 @@ namespace SeleniumWrapper {
         }
 
         private WebElementCollection findElements(OpenQA.Selenium.By by, int timeoutms = 0) {
-            if (timeoutms > 0) {
-                var ret = this.WaitUntilObject(() => WebDriver.FindElements(by), timeoutms);
-                return new WebElementCollection(this, (ReadOnlyCollection<OpenQA.Selenium.IWebElement>)ret);
+            try{
+                if (timeoutms > 0) {
+                    var ret = this.WaitUntilObject(() => WebDriver.FindElements(by), timeoutms);
+                    return new WebElementCollection(this, (ReadOnlyCollection<OpenQA.Selenium.IWebElement>)ret);
+                }
+                return new WebElementCollection(this, WebDriver.FindElements(by));
+            } catch (Exception ex) {
+                if (ex is NoSuchElementException || ex is TimeoutException)
+                    throw new Exception("Elements not found. " + "Method=" + by.ToString().ToLower().Substring(3).Replace(": ", ", value="));
+                throw;
             }
-            return new WebElementCollection(this, WebDriver.FindElements(by));
         }
 
         /// <summary>Gets the screenshot of the current window</summary>
@@ -839,10 +853,10 @@ namespace SeleniumWrapper {
             foreach (var element in elements) {
                 var url = element.GetAttribute(attribute);
                 try {
-                        var request = WebRequest.Create(url) as HttpWebRequest;
-                        request.Method = "HEAD";
-                        if(((HttpWebResponse)request.GetResponse()).StatusCode != HttpStatusCode.OK)
-                            list.Add(url);
+                    var request = WebRequest.Create(url) as HttpWebRequest;
+                    request.Method = "HEAD";
+                    if(((HttpWebResponse)request.GetResponse()).StatusCode != HttpStatusCode.OK)
+                        list.Add(url);
                 } catch {
                     list.Add(url);
                 }
