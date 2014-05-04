@@ -113,7 +113,7 @@ namespace InterfaceGeneration
                             else
                             {
                                 WriteLine( retType + " " + Char.ToLower(lMethods[i].Name[0]) + lMethods[i].Name.Substring(1) + "(" + argsInt + ")",
-                                        " return (" + retType + ")InvokeWd(()=>WebDriverBacked." + lMethods[i].Name + "(" + argsMeth + "))");
+                                        " return InvokeWd(()=>WebDriverBacked." + lMethods[i].Name + "(" + argsMeth + "))");
 
                                 if (lMethods[i].Name.StartsWith("Get"))
                                 {
@@ -234,7 +234,7 @@ namespace InterfaceGeneration
                 sbInterface.AppendLine("\t\t" + methodDeclaration + ";");
                 if (this.parseToDecimal && methodContent.IndexOf("return")>0 )
                 {
-                    sbClass.AppendLine("\t\tpublic " + methodDeclaration + "{" + methodContent.Replace("return (Double)", "return Convert.ToDouble(") + ");}");
+                    sbClass.AppendLine("\t\tpublic " + methodDeclaration + "{" + methodContent.Replace("return ", "return Convert.ToDouble(") + ");}");
                 }else{
                     sbClass.AppendLine("\t\tpublic " + methodDeclaration + "{" + methodContent + ";}");
                 }
