@@ -168,23 +168,35 @@ namespace SeleniumWrapper
         [Description("Finds elements matching the specified tag name.")]
         WebElementCollection findElementsByTagName(String tagname, int timeoutms = 0);
 
-        [Description("Wait for an attribute")]
-        void waitForAttribute(string attribute, string value);
+        [Description("Wait for call to a procedure to return true. The procedure receives a WebElement as argument and returns a Boolean.")]
+        WebElement WaitFor(object procedure, int timeoutms = -1);
 
-        [Description("Wait for a different attribute")]
-        void waitForNotAttribute(string attribute, string value);
+        [Description("Wait for an attribute")]
+        WebElement waitForAttribute(string attribute, string pattern, int timeoutms = -1);
 
         [Description("Wait for a CSS property")]
-        void waitForCssValue(string propertyName, string value);
+        WebElement waitForCssValue(string propertyName, string value, int timeoutms = -1);
+
+        [Description("Wait for a web element to be displayed or not. Default is displayed.")]
+        WebElement WaitForDisplayed(bool displayed = true, int timeoutms = -1);
+
+        [Description("Wait for a web element to be enabled or not. Default is enabled.")]
+        WebElement WaitForEnabled(bool enabled = true, int timeoutms = -1);
+
+        [Description("Wait for a different attribute")]
+        WebElement waitForNotAttribute(string attribute, string pattern, int timeoutms = -1);
 
         [Description("Wait for a different CSS property")]
-        void waitForNotCssValue(string propertyName, string value);
-
-        [Description("Wait for text")]
-        void waitForText(string value);
-
+        WebElement waitForNotCssValue(string propertyName, string value, int timeoutms = -1);
+        
         [Description("Wait for a different text")]
-        void waitForNotText(string value);
+        WebElement waitForNotText(string pattern, int timeoutms = -1);
+
+        [Description("Wait for a selection to true or false. Default is true.")]
+        WebElement WaitForSelection(bool selected = true, int timeoutms = -1);
+        
+        [Description("Wait for text")]
+        WebElement waitForText(string pattern, int timeoutms = -1);
 
         [Description("Gets the screenshot of the current element")]
         Image getScreenshot();
