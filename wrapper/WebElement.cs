@@ -16,6 +16,7 @@ namespace SeleniumWrapper {
     [Guid("567CB939-FD53-4E83-A8D2-A693991646BE")]
     [ComVisible(true), ComDefaultInterface(typeof(IWebElement)), ClassInterface(ClassInterfaceType.None)]
     public class WebElement : IWebElement, Select, Table {
+
         internal OpenQA.Selenium.IWebElement _webElement;
         internal OpenQA.Selenium.IWebDriver _webDriver;
         internal WebDriver _wd;
@@ -241,48 +242,99 @@ namespace SeleniumWrapper {
             new OpenQA.Selenium.Interactions.Actions(_webDriver).KeyUp(_webElement, theKey).Perform();
         }
 
+
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+        delegate bool WebElementCallBack(ref WebElement webelement);
+
+        /// <summary>Waits for a function to return true. VBScript: Function WaitEx(webdriver), VBA: Function WaitEx(webdriver As WebDriver) As Boolean </summary>
+        /// <param name="function">Function reference.  VBScript: wd.WaitFor GetRef(\"WaitEx\")  VBA: wd.WaitFor AddressOf WaitEx)</param>
+        /// <param name="timeoutms">Optional timeout</param>
+        /// <returns>Current WebDriver</returns>
+        public WebElement WaitFor(object procedure, int timeoutms = 6000) {
+            var we = this;
+            if (procedure is int) {
+                var proc = (WebElementCallBack)Marshal.GetDelegateForFunctionPointer(new IntPtr((int)procedure), typeof(WebElementCallBack));
+                _wd.WaitNotNullOrTrue(() => proc.Invoke(ref we), timeoutms);
+            } else {
+                var type = procedure.GetType();
+                _wd.WaitNotNullOrTrue(() => type.InvokeMember(string.Empty, System.Reflection.BindingFlags.InvokeMethod, null, null, new []{we}), timeoutms);
+            }
+            return we;
+        }
+
         /// <summary>Waits for an attribute</summary>
         /// <param name="attribute">Attribute</param>
         /// <param name="value">Value</param>
-        public void waitForAttribute(string attribute, string value) {
-            waitFor(() => _webElement.GetAttribute(attribute) == value);
+        public WebElement waitForAttribute(string attribute, string pattern, int timeoutms = -1) {
+            var regex = new Regex(pattern);
+            waitFor(() => regex.IsMatch(_webElement.GetAttribute(attribute)), timeoutms);
+            return this;
         }
 
         /// <summary>Waits for a different attribute</summary>
         /// <param name="attribute">Attribute</param>
         /// <param name="value">Value</param>
-        public void waitForNotAttribute(string attribute, string value) {
-            waitFor(() => _webElement.GetAttribute(attribute) != value);
+        public WebElement waitForNotAttribute(string attribute, string pattern, int timeoutms = -1) {
+            var regex = new Regex(pattern);
+            waitFor(() => !regex.IsMatch(_webElement.GetAttribute(attribute)), timeoutms);
+            return this;
         }
 
         /// <summary>Waits for a CSS property</summary>
         /// <param name="propertyName">Property name</param>
         /// <param name="value">Value</param>
-        public void waitForCssValue(string propertyName, string value) {
-            waitFor(() => _webElement.GetCssValue(propertyName) == value);
+        public WebElement waitForCssValue(string propertyName, string value, int timeoutms = -1) {
+            waitFor(() => _webElement.GetCssValue(propertyName) == value, timeoutms);
+            return this;
         }
 
         /// <summary>Waits for a different CSS property</summary>
         /// <param name="propertyName">Property name</param>
         /// <param name="value">Value</param>
-        public void waitForNotCssValue(string propertyName, string value) {
-            waitFor(() => _webElement.GetCssValue(propertyName) != value);
+        public WebElement waitForNotCssValue(string propertyName, string value, int timeoutms = -1) {
+            waitFor(() => _webElement.GetCssValue(propertyName) != value, timeoutms);
+            return this;
         }
 
         /// <summary>Waits for text</summary>
         /// <param name="value">Value</param>
-        public void waitForText(string value) {
-            waitFor(() => _webElement.Text == value);
+        public WebElement waitForText(string pattern, int timeoutms = -1) {
+            var regex = new Regex(pattern);
+            if (_webElement.TagName.ToLower() == "input")
+                waitFor(() => regex.IsMatch(_webElement.GetAttribute("value")), timeoutms);
+            else
+                waitFor(() => regex.IsMatch(_webElement.Text), timeoutms);
+            return this;
         }
 
         /// <summary>Waits for a different text</summary>
         /// <param name="value">Value</param>
-        public void waitForNotText(string value) {
-            waitFor(() => _webElement.Text != value);
+        public WebElement waitForNotText(string pattern, int timeoutms = -1) {
+            var regex = new Regex(pattern);
+            if (_webElement.TagName.ToLower() == "input")
+                waitFor(() => !regex.IsMatch(_webElement.GetAttribute("value")), timeoutms);
+            else
+                waitFor(() => !regex.IsMatch(_webElement.Text), timeoutms);
+            return this;
         }
 
-        private void waitFor(Func<bool> condition) {
-            DateTime end = DateTime.Now.AddMilliseconds(this._wd._timeout);
+        public WebElement WaitForSelection(bool selected = true, int timeoutms = -1) {
+            waitFor(() => _webElement.Selected == selected, timeoutms);
+            return this;
+        }
+
+        public WebElement WaitForEnabled(bool enabled = true, int timeoutms = -1) {
+            waitFor(() => _webElement.Enabled == enabled, timeoutms);
+            return this;
+        }
+
+        public WebElement WaitForDisplayed(bool displayed = true, int timeoutms = -1) {
+            waitFor(() => _webElement.Displayed == displayed, timeoutms);
+            return this;
+        }
+
+        private void waitFor(Func<bool> condition, int timeout = -1) {
+            DateTime end = DateTime.Now.AddMilliseconds(timeout == -1 ? this._wd._timeout : timeout);
             while (!this._wd._canceled && !condition()) {
                 if (DateTime.Now > end)
                     throw new Exception("Timeout reached!");
@@ -290,6 +342,7 @@ namespace SeleniumWrapper {
             }
             this._wd.CheckCanceled();
         }
+
 
         /// <summary>Gets the screenshot of the current element</summary>
         /// <returns>Image</returns>
@@ -323,8 +376,8 @@ namespace SeleniumWrapper {
         /// <param name="timeoutms">Optional timeout</param>
         /// <returns>WebElement</returns>
         public WebElement findElement(By by, int timeoutms = 0) {
-            if (by.base_ == null) throw new NullReferenceException("The locating mechanism is null!");
-            return this.findElement(by.base_, timeoutms);
+            if (by._by == null) throw new NullReferenceException("The locating mechanism is null!");
+            return this.findElement(by._by, timeoutms);
         }
 
         /// <summary>Finds the first element matching the specified name.</summary>
@@ -393,12 +446,9 @@ namespace SeleniumWrapper {
 
         private WebElement findElement(OpenQA.Selenium.By by, int timeoutms) {
             try {
-                object ret;
-                if (timeoutms > 0)
-                    ret = this._wd.WaitUntilObject(() => _webElement.FindElement(by), timeoutms);
-                else
-                    ret = _webElement.FindElement(by);
-                return new WebElement(this._wd, (OpenQA.Selenium.IWebElement)ret);
+                if (timeoutms < 1)
+                    return new WebElement(this._wd,_webElement.FindElement(by));
+                return new WebElement(this._wd, this._wd.WaitNoException(() => _webElement.FindElement(by), timeoutms));
             } catch (Exception ex) {
                 if (ex is NoSuchElementException || ex is TimeoutException)
                     throw new Exception("Element not found. " + "Method=" + by.ToString().ToLower().Substring(3).Replace(": ", ", value="));
@@ -411,8 +461,8 @@ namespace SeleniumWrapper {
         /// <param name="timeoutms">Optional timeout</param>
         /// <returns>A list of all WebElements, or an empty list if nothing matches</returns>
         public WebElementCollection findElements(By by, int timeoutms = 0) {
-            if (((By)by).base_ == null) throw new NullReferenceException("The locating mechanism is null!");
-            return findElements(((By)by).base_, timeoutms);
+            if (((By)by)._by == null) throw new NullReferenceException("The locating mechanism is null!");
+            return findElements(((By)by)._by, timeoutms);
         }
 
         /// <summary>Finds elements matching the specified name.</summary>
@@ -481,11 +531,12 @@ namespace SeleniumWrapper {
 
         private WebElementCollection findElements(OpenQA.Selenium.By by, int timeoutms) {
             try {
-                if (timeoutms > 0) {
-                    var ret = this._wd.WaitUntilObject(() => _webElement.FindElements(by), timeoutms);
-                    return new WebElementCollection(this._wd, (ReadOnlyCollection<OpenQA.Selenium.IWebElement>)ret);
-                }
-                return new WebElementCollection(this._wd, _webElement.FindElements(by));
+                if (timeoutms < 1)
+                    return new WebElementCollection(this._wd, _webElement.FindElements(by));
+                return new WebElementCollection(this._wd, this._wd.WaitNotNullOrTrue(() => {
+                    var elts = _webElement.FindElements(by);
+                    return elts.Count == 0 ? null : elts;
+                }, timeoutms));
             } catch (Exception ex) {
                 if (ex is NoSuchElementException || ex is TimeoutException)
                     throw new Exception("Elements not found. " + "Method=" + by.ToString().ToLower().Substring(3).Replace(": ", ", value="));
