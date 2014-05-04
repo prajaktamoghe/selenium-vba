@@ -1,4 +1,4 @@
-import os, types, httplib2, re, urllib2, urllib, json, sys, traceback, urllib2, hashlib, StringIO, zipfile, requests, threading, Queue, datetime
+import os, types, httplib2, re, urllib2, urllib, json, sys, traceback, urllib2, hashlib, StringIO, zipfile, requests, threading, Queue, datetime, csv
 
 _project_name = 'SeleniumWrapper';
 _current_dir = os.getcwd() + '\\'
@@ -25,6 +25,8 @@ def main():
 
 	print('\n__________________________________________________________END OF SCRIPT')
 
+	
+	
 def get_file_datetime(filepath):
 	if not os.path.isfile(filepath):
 		return None
@@ -39,7 +41,10 @@ class VersionControl(dict):
 		self.filepath = filepath
 		if os.path.isfile(filepath):
 			with open(filepath, 'r') as file:
-				self.saved_versions = json.load(file)
+				#self.saved_versions = json.load(file)
+				self.saved_versions = {}
+				for key, val in csv.reader(file, delimiter=':'):
+					self.saved_versions[key] = val
 		else:
 			self.saved_versions = {}
 				
@@ -48,7 +53,10 @@ class VersionControl(dict):
 		
 	def __exit__(self, type, value, traceback):
 		with open(self.filepath, 'w') as file:
-			json.dump(self, file, sort_keys = False, indent = 4, ensure_ascii=False)
+			#json.dump(self, file, sort_keys = False, indent = 4, ensure_ascii=False)
+			w = csv.writer(file, delimiter=':')
+			for key, val in self.items():
+				w.writerow([key, val])
 		
 	def __getitem__(self, key):
 		value = dict.get(self, key)
@@ -61,7 +69,6 @@ class ParallelWorker(Queue.Queue):
 		Queue.Queue.__init__(self)
 		for i in range(num_worker):
 			t = threading.Thread(target=self.worker)
-			#p = multiprocessing.Process(target=self.worker)
 			t.daemon = True
 			t.start()
 			
@@ -135,7 +142,7 @@ class WebSource:
 
 class Logger:
 
-	def __init__(self, filename=os.path.basename(__file__) + '.log'):
+	def __init__(self, filename=os.path.basename(__file__)[:-3] + '.log'):
 		self.terminal = sys.stdout
 		self.log = open(filename, "w")
 		sys.stdout = sys.stderr = self
@@ -157,33 +164,33 @@ class Tasks(VersionControl):
 		url += WebSource(url).findlast( r'<Key>([\d\.]+/IEDriverServer_Win32_[\d\.]+.zip)')
 		url +=  r'?etag=' + WebSource(url).etag()				
 		dest_file = _ref_dir + 'IEDriverServer.exe'
-		if self['IE32'] != url or not os.path.isfile(dest_file):
+		if VersionControl.__getitem__(self, 'IE32') != url or not os.path.isfile(dest_file):
 			with WebZip(url) as zip:
 				zip.copy(r'IEDriverServer.exe', dest_file)
 			print("Updated IE32 driver to version " + find_version_in_url(url) )
-		self['IE32'] = url
+		VersionControl.__setitem__(self, 'IE32', url)
 	
 	def update_SeleniumLibraries(self):
 		url = r"http://selenium-release.storage.googleapis.com/"
 		url += WebSource(url).findlast(r'<Key>([\d\.]+/selenium-dotnet-strongnamed-[\d\.]+.zip)')
 		url +=  r'?etag=' + WebSource(url).etag()
 		dest_file = _ref_dir + 'WebDriver.dll'
-		if self['.NetLibraries'] != url or not os.path.isfile(dest_file):
+		if VersionControl.__getitem__(self, '.NetLibraries') != url or not os.path.isfile(dest_file):
 			with WebZip(url) as zip:
 				zip.copy(r'^net35/.', _ref_dir)
 			print("Updated Selenium .Net: to version " + find_version_in_url(url) )
-		self['.NetLibraries'] = url
+		VersionControl.__setitem__(self, '.NetLibraries', url)
 	
 	def update_IE64(self):
 		url = r"http://selenium-release.storage.googleapis.com/"
 		url += WebSource(url).findlast( r'<Key>([\d\.]+/IEDriverServer_x64_[\d\.]+.zip)')
 		url +=  r'?etag=' + WebSource(url).etag()
 		dest_file = _ref_dir + 'IEDriverServer64.exe'
-		if self['IE64'] != url or not os.path.isfile(dest_file):
+		if VersionControl.__getitem__(self, 'IE64') != url or not os.path.isfile(dest_file):
 			with WebZip(url) as zip:
 				zip.copy(r'IEDriverServer.exe', dest_file)
 			print("Updated IE64 driver to version " + find_version_in_url(url) )
-		self['IE64'] = url
+		VersionControl.__setitem__(self, 'IE64', url)
     
 	def update_PdfSharp(self):
 		url = r'http://sourceforge.net/projects/pdfsharp/files/pdfsharp/'
@@ -191,11 +198,11 @@ class Tasks(VersionControl):
 		url = r'http://sunet.dl.sourceforge.net/project/pdfsharp/pdfsharp/' + WebSource(url).find(r'([^/]+/[^/]*Assemblies[^/]*\.zip)/download')
 		url +=  r'?etag=' + WebSource(url).etag()
 		dest_file = _ref_dir + 'PdfSharp.dll'
-		if self['PDFsharp'] != url or not os.path.isfile(dest_file):
+		if VersionControl.__getitem__(self, 'PDFsharp') != url or not os.path.isfile(dest_file):
 			with WebZip(url) as zip:
 				zip.copy(r'.*/PdfSharp.dll', dest_file)
 			print("Updated PDF Sharp to version " + find_version_in_url(url) )
-		self['PDFsharp'] = url
+		VersionControl.__setitem__(self, 'PDFsharp', url)
 	
 	def update_SeleniumIDE(self):
 		url = r'http://release.seleniumhq.org/selenium-ide/'
@@ -203,43 +210,43 @@ class Tasks(VersionControl):
 		url += WebSource(url).find(r'href="(selenium-ide-[\d\.]+\.xpi)"')
 		url +=  r'?etag=' + WebSource(url).etag()
 		dest_file = _ref_dir + 'selenium-ide.xpi'
-		if self['SeleniumIDE'] != url or not os.path.isfile(dest_file):
+		if VersionControl.__getitem__(self, 'SeleniumIDE') != url or not os.path.isfile(dest_file):
 			WebFile(url).save(dest_file)
 			print("Updated Selenium IDE to version " + find_version_in_url(url) )
-		self['SeleniumIDE'] = url
+		VersionControl.__setitem__(self, 'SeleniumIDE', url)
     
 	def update_ChromeDriver(self):
 		url = r"http://chromedriver.storage.googleapis.com/"
 		url += WebSource(url + r'LATEST_RELEASE').gettext().strip() + r'/chromedriver_win32.zip'
 		url +=  r'?etag=' + WebSource(url).etag()
 		dest_file = _ref_dir + 'chromedriver.exe'
-		if self['Chrome'] != url or not os.path.isfile(dest_file):
+		if VersionControl.__getitem__(self, 'Chrome') != url or not os.path.isfile(dest_file):
 			with WebZip(url) as zip:
 				zip.copy(r'chromedriver.exe', dest_file)
 			print("Updated Chrome driver to version " + find_version_in_url(url) )
-		self['Chrome'] = url
+		VersionControl.__setitem__(self, 'Chrome', url)
 	
 	def update_PhantomJS(self):
 		url = r"https://bitbucket.org/ariya/phantomjs/downloads"
 		url += WebSource(url).findlast(r'href="/ariya/phantomjs/downloads(/phantomjs-[\d\.]+-windows.zip)"')
 		url +=  r'?etag=' + WebSource(url).etag()
 		dest_file = _ref_dir + 'phantomjs.exe'
-		if self['PhantomJs'] != url or not os.path.isfile(dest_file):
+		if VersionControl.__getitem__(self, 'PhantomJs') != url or not os.path.isfile(dest_file):
 			with WebZip(url) as zip:
 				zip.copy(r'.*/phantomjs.exe', dest_file)
 				zip.copy(r'.*/LICENSE.BSD', _ref_dir + 'phantomjs.license.txt')
 			print("Updated PhantomJS to version " + find_version_in_url(url) )
-		self['PhantomJs'] = url
+		VersionControl.__setitem__(self, 'PhantomJs', url)
     
 	def update_Safari(self):
 		url = r'https://selenium.googlecode.com/git/javascript/safari-driver/prebuilt/SafariDriver.safariextz'
 		etag = WebSource(url).etag()
 		url += '?etag=' + etag
 		dest_file = _ref_dir + 'SafariDriver.safariextz'
-		if self['Safari'] != url or not os.path.isfile(dest_file):
+		if VersionControl.__getitem__(self, 'Safari') != url or not os.path.isfile(dest_file):
 			WebFile(url).save(dest_file)
 			print("Updated Safari driver to version " + etag )
-		self['Safari'] = url
+		VersionControl.__setitem__(self, 'Safari', url)
 
 if __name__ == '__main__':
 	with  Logger() as log:
