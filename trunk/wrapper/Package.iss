@@ -39,10 +39,10 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 [Files]
 Source: ".\bin\Release\*.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\bin\Release\*.pdb"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\SScript\bin\Release\sscript.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\SScript\bin\Release\Interop.MSScriptControl.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\SScript\bin\Release\msscript.ocx"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\SScript\bin\Release\sscript.exe.manifest"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\VbsConsoleRunner\bin\Release\vbsc.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\VbsConsoleRunner\bin\Release\vbsc.exe.manifest"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\VbsConsoleRunner\bin\Release\Interop.MSScriptControl.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\VbsConsoleRunner\bin\Release\msscript.ocx"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\References\phantomjs.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\References\chromedriver.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\References\IEDriverServer.exe"; DestDir: "{app}"; DestName: "IEDriverServer.exe" ; Flags: ignoreversion;
@@ -108,15 +108,15 @@ Root: HKLM; Subkey: "SOFTWARE\Microsoft\.NETFramework\Policy\AppPatch\v2.0.50727
 Root: HKLM; Subkey: "SOFTWARE\Microsoft\.NETFramework\Policy\AppPatch\v2.0.50727.00000\msaccess.exe"; Flags: deletekey; Check: IsExcel2003orInf;
 Root: HKLM; Subkey: "SOFTWARE\Microsoft\.NETFramework\Policy\AppPatch\v2.0.50727.00000\outlook.exe"; Flags: deletekey; Check: IsExcel2003orInf;
  
-Root: HKCR32; Subkey: "VBSFile\Shell\Run\command"; ValueType: string; ValueData: """{app}\sscript.exe"" noexit ""%1"" %*"; Flags: deletekey uninsdeletekey
-Root: HKCR64; Subkey: "VBSFile\Shell\Run\command"; ValueType: string; ValueData: """{app}\sscript.exe"" noexit ""%1"" %*"; Flags: deletekey uninsdeletekey; Check: IsWin64;
+Root: HKCR32; Subkey: "VBSFile\Shell\Run\command"; ValueType: string; ValueData: """{app}\vbsc.exe"" noexit ""%1"" %*"; Flags: deletekey uninsdeletekey
+Root: HKCR64; Subkey: "VBSFile\Shell\Run\command"; ValueType: string; ValueData: """{app}\vbsc.exe"" noexit ""%1"" %*"; Flags: deletekey uninsdeletekey; Check: IsWin64;
 
 [Run] 
 Filename: "{dotnet2064}\RegAsm.exe"; Parameters: {#MyDllName}.dll /codebase /tlb:{#MyDllName}.tlb; WorkingDir: {app}; StatusMsg: "Registering {#MyDllName} dll"; Flags: runhidden; Check: IsWin64;
 Filename: "{dotnet2032}\RegAsm.exe"; Parameters: {#MyDllName}.dll /codebase /tlb:{#MyDllName}.tlb; WorkingDir: {app}; StatusMsg: "Registering {#MyDllName} dll"; Flags: runhidden;
 Filename: "{pf32}\Mozilla Firefox\firefox.exe"; Parameters: "selenium-ide.xpi"; WorkingDir: {app}; Flags: shellexec postinstall; Description: "Install Selenium IDE Addon for Firefox";
-Filename: "{sys}\reg.exe"; Parameters: "add ""HKCR\VBSFile\Shell"" /t REG_SZ /v """" /f /d Run"; WorkingDir: {app}; Flags: shellexec postinstall runhidden; Description: "Set customize console as default"; Check: IsWin64;
-Filename: "{syswow64}\reg.exe"; Parameters: "add ""HKCR\VBSFile\Shell"" /t REG_SZ /v """" /f /d Run"; WorkingDir: {app}; Flags: shellexec postinstall runhidden; Description: "Set customize console as default";
+Filename: "{sys}\reg.exe"; Parameters: "add ""HKCR\VBSFile\Shell"" /t REG_SZ /v """" /f /d Run"; WorkingDir: {app}; Flags: shellexec postinstall runhidden; Description: "Set the console runner as default"; Check: IsWin64;
+Filename: "{syswow64}\reg.exe"; Parameters: "add ""HKCR\VBSFile\Shell"" /t REG_SZ /v """" /f /d Run"; WorkingDir: {app}; Flags: shellexec postinstall runhidden; Description: "Set the console runner as default";
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}"
