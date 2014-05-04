@@ -42,13 +42,13 @@ namespace SeleniumWrapper {
     [Guid("038A7E6F-8F7F-40E5-B6C4-80B2B91F0D44")]
     [ComVisible(true), ComDefaultInterface(typeof(IBy)), ClassInterface(ClassInterfaceType.None)]
     public class By : IBy {
-        internal OpenQA.Selenium.By base_;
+        internal OpenQA.Selenium.By _by;
 
         public By() {
         }
 
         private By(OpenQA.Selenium.By by) {
-            this.base_ = by;
+            this._by = by;
         }
 
         /// <summary></summary>
