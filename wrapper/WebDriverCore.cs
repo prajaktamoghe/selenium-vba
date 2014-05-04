@@ -16,9 +16,13 @@ using OpenQA.Selenium.Remote;
 
 namespace SeleniumWrapper {
 
+
     public abstract class WebDriverCore : MarshalByRefObject, IDisposable {
 
-        public delegate Object ActionResult();
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+        internal delegate void OnWaitCallBack();
+
+        public delegate T ActionResult<T>();
         public delegate void ActionVoid();
 
         protected static WebDriverCore _webDriverCoreStatic;
@@ -37,6 +41,7 @@ namespace SeleniumWrapper {
         protected Proxy _proxy { get; set; }
         protected bool _isStartedRemotely;
         protected System.Timers.Timer _timerhotkey;
+        internal OnWaitCallBack _onwait = null;
 
         String _error;
         Thread _thread;
@@ -63,6 +68,10 @@ namespace SeleniumWrapper {
         protected virtual void Dispose(bool disposing) {
             _timerhotkey.Stop();
             if (_thread != null) _thread.Abort();
+        }
+
+        public void SetDoEvents(object procedure) {
+            _onwait = (OnWaitCallBack)Marshal.GetDelegateForFunctionPointer(new IntPtr((int)procedure), typeof(OnWaitCallBack));
         }
 
         public bool CopyStaticDriver(string baseUrl = null) {
@@ -154,8 +163,8 @@ namespace SeleniumWrapper {
             if (_error != null) throw new ApplicationException(GetErrorPrefix(action.Method.Name) + "\n" + _error);
         }
 
-        protected Object InvokeWd(ActionResult action) {
-            object result = null;
+        protected T InvokeWd<T>(ActionResult<T> action) {
+            T result = default(T);
             _error = null;
             _thread = new System.Threading.Thread((System.Threading.ThreadStart)delegate {
                 try {
@@ -177,8 +186,8 @@ namespace SeleniumWrapper {
             return result;
         }
 
-        protected void InvokeWdWaitFor(ActionResult action, Object expected, bool match) {
-            object result = null;
+        protected void InvokeWdWaitFor<T>(ActionResult<T> action, T expected, bool match) {
+            T result = default(T);
             _error = null;
             _thread = new System.Threading.Thread((System.Threading.ThreadStart)delegate {
                 while (!_canceled && (match ^ Utils.ObjectEquals(result, expected))) {
@@ -192,6 +201,7 @@ namespace SeleniumWrapper {
                         _error = ex.GetType().Name + ": " + ex.Message;
                     }
                     Thread.Sleep(100);
+                    if (_onwait != null) _onwait();
                 }
             });
             _thread.Start();
@@ -201,7 +211,7 @@ namespace SeleniumWrapper {
                 var sb = new StringBuilder();
                 sb.Append(GetErrorPrefix(action.Method.Name));
                 if (expected != null)
-                    sb.Append(" Expected" + (match ? "=" : "!=") + "<" + expected.ToString() + "> result=<" + (result ?? "null").ToString() + ">.");
+                    sb.Append(" Expected" + (match ? "=" : "!=") + "<" + expected.ToString() + "> result=<" + string.Format("{0}", result) + ">.");
                 if (!succed)
                     sb.Append(" Timed out after " + _timeout + " ms.");
                 if (_error != null)
@@ -210,13 +220,13 @@ namespace SeleniumWrapper {
             }
         }
 
-        protected void InvokeWdAssert(ActionResult action, Object expected, bool match) {
-            Object result = InvokeWd(action);
+        protected void InvokeWdAssert<T>(ActionResult<T> action, T expected, bool match) {
+            T result = InvokeWd(action);
             if (match ^ Utils.ObjectEquals(result, expected)) throw new ApplicationException(GetErrorPrefix(action.Method.Name) + "\nexpected" + (match ? "=" : "!=") + "<" + expected.ToString() + ">\nresult=<" + result.ToString() + "> ");
         }
 
-        protected String InvokeWdVerify(ActionResult action, Object expected, bool match) {
-            Object result = InvokeWd(action);
+        protected String InvokeWdVerify<T>(ActionResult<T> action, T expected, bool match) {
+            T result = InvokeWd(action);
             if (match ^ Utils.ObjectEquals(result, expected)) {
                 return "KO, " + GetErrorPrefix(action.Method.Name) + " expected" + (match ? "=" : "!=") + "<" + expected.ToString() + "> result=<" + result.ToString() + "> ";
             } else {
@@ -233,24 +243,37 @@ namespace SeleniumWrapper {
         /// <param name="function"></param>
         /// <param name="timeoutms"></param>
         /// <returns></returns>
-        internal object WaitUntilObject(ActionResult function, int timeoutms) {
-            var endTime = DateTime.Now.AddMilliseconds(timeoutms);
-            string errorMsg = String.Empty;
+        internal T WaitNotNullOrTrue<T>(ActionResult<T> function, int timeoutms) {
+            var endTime = DateTime.Now.AddMilliseconds(timeoutms == -1 ? this._timeout : timeoutms);
             while (true) {
-                try {
-                    errorMsg = String.Empty;
-                    var result = function();
-                    if (result != null) return result;
-                } catch (Exception ex) {
-                    errorMsg = ex.Message;
-                }
+                var result = function();
+                if (!(result == null || (result is bool && (bool)(object)result == false)))
+                    return result;
                 this.CheckCanceled();
                 if (DateTime.Now > endTime)
-                    throw new TimeoutException("The operation has timed out! " + errorMsg);
-                Thread.Sleep(30);
+                    throw new TimeoutException("The operation has timed out!");
+                Thread.Sleep(25);
+                if (_onwait != null) _onwait();
             }
         }
 
+        internal T WaitNoException<T>(Func<T> function, int timeoutms) {
+            var end = DateTime.Now.AddMilliseconds(timeoutms == -1 ? this._timeout : timeoutms);
+            string errorMsg = null;
+            while (true) {
+                try {
+                    errorMsg = String.Empty;
+                    return function();
+                } catch (Exception ex) {
+                    if (DateTime.Now > (DateTime)end)
+                        throw new TimeoutException("The operation has timed out! " + ex.Message);
+                }
+                this.CheckCanceled();
+                System.Threading.Thread.Sleep(25);
+                if (_onwait != null) _onwait();
+            }
+        }
+        
         internal void CheckCanceled() {
             if (_canceled) {
                 _canceled = false;
