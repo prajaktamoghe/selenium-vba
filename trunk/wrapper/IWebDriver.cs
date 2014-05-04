@@ -14,6 +14,8 @@ namespace SeleniumWrapper {
     [ComVisible(true), InterfaceType(ComInterfaceType.InterfaceIsIDispatch)]
     public partial interface IWebDriver {
 
+        void SetDoEvents(object procedure);
+
         [Description("Get the Actions class")]
         Actions Actions { get; }
 
@@ -48,7 +50,7 @@ namespace SeleniumWrapper {
         bool HideCommandPromptWindow { get; set; }
 
         [Description("Starts a new Selenium session")]
-        void start(String browser, String baseUrl = null, bool useLastSession = true);
+        void start(String browser, String baseUrl = null, bool useLastSession = false);
 
         [Description("Starts remotely a new Selenium session")]
         void startRemotely(String browser, String remoteAddress, String baseUrl = null);
@@ -68,6 +70,9 @@ namespace SeleniumWrapper {
         [Description("Wait the specified time in millisecond before executing the next command")]
         void sleep(int timems);
 
+        [Description("Wait for the callback procedure to return true")]
+        WebDriver WaitFor(object procedure, int timeoutms = 6000);
+
         [Description("Saves the entire contents of the current window canvas to a PNG file. Contrast this with the captureScreenshot command, which captures the contents of the OS viewport (i.e. whatever is currently being displayed on the monitor), and is implemented in the RC only. Currently this only works in Firefox when running in chrome mode, and in IE non-HTA using the EXPERIMENTAL \"Snapsie\" utility. The Firefox implementation is mostly borrowed from the Screengrab! Firefox extension. Please see http://www.screengrab.org and http://snapsie.sourceforge.net/ for details. the path to the file to persist the screenshot as. No filename extension will be appended by default. Directories will not be created if they do not exist, and an exception will be thrown, possibly by native code.a kwargs string that modifies the way the screenshot is captured. Example: \"background=#CCFFDD\" . Currently valid options: backgroundthe background CSS for the HTML document. This may be useful to set for capturing screenshots of less-than-ideal layouts, for example where absolute positioning causes the calculation of the canvas dimension to fail and a black background is exposed (possibly obscuring black text).")]
         void captureEntirePageScreenshot(String filename, String kwargs = null);
 
@@ -77,11 +82,14 @@ namespace SeleniumWrapper {
         [Description("Execute JavaScrip on the page")]
         Object executeScript(String script, object arguments = null);
 
+        [Description("Execute JavaScrip on the page until it doesn't throw an error")]
+        Object waitForScriptSuccees(String script, object arguments = null, int timeoutms = 5000);
+
         [Description("Wait for a script condition to return true")]
-        void waitScriptCondition(String scriptCondition, object arguments = null, int timeoutms = 5000);
+        void waitForScriptCondition(String scriptCondition, object arguments = null, int timeoutms = 5000);
 
         [Description("Wait for a script object(defined and not null)")]
-        void waitScriptObject(String objectName, int timeoutms = 5000);
+        void waitForScriptObject(String objectName, int timeoutms = 5000);
 
         [Description("Undo the effect of calling chooseCancelOnNextConfirmation. Note that Selenium's overridden window.confirm() function will normally automatically return true, as if the user had manually clicked OK, so you shouldn't need to use this command unless for some reason you need to change your mind prior to the next confirmation. After any confirmation, Selenium will resume using the default behavior for future confirmations, automatically returning true (OK) unless/until you explicitly call chooseCancelOnNextConfirmation for each confirmation.  Take note - every time a confirmation comes up, you must consume it with a corresponding getConfirmation, or else the next selenium operation will fail.")]
         void chooseOkOnNextConfirmation();
@@ -151,6 +159,12 @@ namespace SeleniumWrapper {
 
         [Description("Finds elements matching the specified tag name.")]
         WebElementCollection findElementsByTagName(String tagname, int timeoutms = 0);
+
+        [Description("Waits for an element to be removed")]
+        void WaitNotElement(By by, int timeoutms = -1);
+
+        [Description("Waits for the title to match the pattern")]
+        void WaitTitleMatches(string pattern, int timeoutms = -1);
 
         [Description("Switches focus to the specified window.")]
         WebDriver switchToWindow(string windowName, int timeoutms = 0);

@@ -16,6 +16,7 @@ using System.Text;
 using System.IO;
 
 namespace SeleniumWrapper {
+
     /// <summary>Defines the interface through which the user controls the browser using WebDriver (Selenium 2) and Selenium RC (Selenium 1) commands.</summary>
     /// <example>
     /// 
@@ -270,6 +271,7 @@ namespace SeleniumWrapper {
         public void sleep(int timems) {
             var endTime = DateTime.Now.AddMilliseconds(timems);
             do {
+                if (_onwait != null) _onwait();
                 Thread.Sleep(30);
                 this.CheckCanceled();
             } while (DateTime.Now < endTime);
@@ -285,6 +287,26 @@ namespace SeleniumWrapper {
         /// <param name="timems">Time to wait in millisecond</param>
         public void pause(int timems) {
             this.sleep(timems);
+        }
+
+
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+        delegate bool WebDriverCallBack(ref WebDriver webdriver);
+
+        /// <summary>Waits for a function to return true. VBScript: Function WaitEx(webdriver), VBA: Function WaitEx(webdriver As WebDriver) As Boolean </summary>
+        /// <param name="function">Function reference.  VBScript: wd.WaitFor GetRef(\"WaitEx\")  VBA: wd.WaitFor AddressOf WaitEx)</param>
+        /// <param name="timeoutms">Optional timeout</param>
+        /// <returns>Current WebDriver</returns>
+        public WebDriver WaitFor(object function, int timeoutms = 6000) {
+            var wd = this;
+            if (function is int) {
+                var proc = (WebDriverCallBack)Marshal.GetDelegateForFunctionPointer(new IntPtr((int)function), typeof(WebDriverCallBack));
+                WaitNotNullOrTrue(() => proc.Invoke(ref wd), timeoutms);
+            } else {
+                var type = function.GetType();
+                WaitNotNullOrTrue(() => type.InvokeMember(string.Empty, System.Reflection.BindingFlags.InvokeMethod, null, function, new [] { wd }), timeoutms);
+            }
+            return wd;
         }
 
         /// <summary>Specifies the amount of time the driver should wait when searching for an element if it is not immediately present.</summary>
@@ -338,6 +360,12 @@ namespace SeleniumWrapper {
         }
 
         #region WebDriver Code   // Following funtion are webdriver related
+
+        /*
+        public Object Wait([MarshalAs(UnmanagedType.FunctionPtr)]WebDriverCallBack procedure, int timeoutms = -1) {
+            return new Waiter().WaitNotNullOrTrue(() => procedure(this), timeoutms);
+        }
+         * */
 
         /// <summary>Sets the size of the outer browser window, including title bars and window borders.</summary>
         /// <param name="width"></param>
@@ -431,14 +459,19 @@ namespace SeleniumWrapper {
         /// </code>
         /// </example>
         public Object executeScript(String script, object arguments = null) {
-            var argsEncapsulated = Encapsulate(arguments);
-            object argsInArray =argsEncapsulated == null ? new object[0] : argsEncapsulated is object[] ? argsEncapsulated : new object[] {argsEncapsulated};
-            return Decapsulate(((OpenQA.Selenium.IJavaScriptExecutor)WebDriver).ExecuteScript(script, argsInArray));
+            var unboxed_args = UnboxArguments(arguments);
+            var result = ((OpenQA.Selenium.IJavaScriptExecutor)WebDriver).ExecuteScript(script,unboxed_args);
+            return BoxArguments(result);
         }
 
-        public void waitScriptCondition(String scriptCondition, object arguments = null, int timeoutms = 5000) {
-            var argsEncapsulated = Encapsulate(arguments);
-            object argsInArray = argsEncapsulated == null ? new object[0] : argsEncapsulated is object[] ? argsEncapsulated : new object[] { argsEncapsulated };
+        public Object waitForScriptSuccees(String script, object arguments = null, int timeoutms = 5000) {
+            var unboxed_args = UnboxArguments(arguments);
+            var result = WaitNoException(() => ((OpenQA.Selenium.IJavaScriptExecutor)WebDriver).ExecuteScript(script, unboxed_args), timeoutms);
+            return BoxArguments(result);
+        }
+
+        public void waitForScriptCondition(String scriptCondition, object arguments = null, int timeoutms = 5000) {
+            object argsInArray = UnboxArguments(arguments);
             var endTime = DateTime.Now.AddMilliseconds(timeoutms);
             string errorMsg = String.Empty;
             if (!scriptCondition.TrimStart().StartsWith("return"))
@@ -458,13 +491,14 @@ namespace SeleniumWrapper {
                 if (DateTime.Now > endTime)
                     throw new TimeoutException("The operation has timed out! " + errorMsg);
                 Thread.Sleep(30);
+                if (_onwait != null) _onwait();
             }
         }
 
         /// <summary>Wait for a script object(defined and not null)</summary>
         /// <param name="objectName">Object name</param>
         /// <param name="timeoutms">Optional timeout</param>
-        public void waitScriptObject(String objectName, int timeoutms = 5000) {
+        public void waitForScriptObject(String objectName, int timeoutms = 5000) {
             var endTime = DateTime.Now.AddMilliseconds(timeoutms);
             string errorMsg = String.Empty;
             var variable = new StringBuilder();
@@ -486,11 +520,17 @@ namespace SeleniumWrapper {
                     if (DateTime.Now > endTime)
                         throw new TimeoutException("The operation has timed out! " + errorMsg);
                     Thread.Sleep(30);
+                    if (_onwait != null) _onwait();
                 }
             }
         }
 
-        private Object Encapsulate(Object value) {            
+        internal object[] UnboxArguments(Object value) {
+            var args = UnboxArguments_recursive(value);
+            return args == null ? new object[0] : args is object[] ? (object[])args : new object[] { args };
+        }
+
+        internal Object UnboxArguments_recursive(Object value) {
             if(value is WebElement)
                 return ((WebElement)value)._webElement;
             if (value is ICollection) {
@@ -498,13 +538,13 @@ namespace SeleniumWrapper {
                 var array = new object[collection.Count];
                 int i = 0;
                 foreach (object ele in collection)
-                    array[i++] = Encapsulate(ele);
+                    array[i++] = UnboxArguments_recursive(ele);
                 return array;
             }
             return value;
         }
 
-        private Object Decapsulate(Object value) {
+        internal Object BoxArguments(Object value) {
             if (value is OpenQA.Selenium.IWebElement)
                 return new WebElement(this, (OpenQA.Selenium.IWebElement)value);
             if (value is ReadOnlyCollection<OpenQA.Selenium.IWebElement>)
@@ -512,14 +552,14 @@ namespace SeleniumWrapper {
             if (value is System.Collections.IDictionary) {
                 var dictionary = new Dictionary((value as System.Collections.IDictionary).Count);
                 foreach (DictionaryEntry item in (value as System.Collections.IDictionary))
-                    dictionary.Add(item.Key, Decapsulate(item.Value));
+                    dictionary.Add(item.Key, BoxArguments(item.Value));
                 return dictionary;
             }
             if (value is ICollection) {
                 var arrayList = new object[(value as ICollection).Count];
                 int i = 0;
                 foreach (object ele in (value as ICollection))
-                    arrayList[i++] = Decapsulate(ele);
+                    arrayList[i++] = BoxArguments(ele);
                 return arrayList;
             }
             if (value is long)
@@ -532,9 +572,8 @@ namespace SeleniumWrapper {
         /// <param name="timeoutms">Optional timeout</param>
         /// <returns>WebElement</returns>
         public WebElement findElement(By by, int timeoutms = 0) {
-            return null;
-            //if (by.base_ == null) throw new NullReferenceException("The locating mechanism is null!");
-            //return findElement(by.base_, timeoutms);
+            if (by._by == null) throw new NullReferenceException("The locating mechanism is null!");
+            return findElement(by._by, timeoutms);
         }
 
         /// <summary>Finds an element by name.</summary>
@@ -607,7 +646,7 @@ namespace SeleniumWrapper {
         public bool isElementPresent(object locator) {
             if (locator is By)
                 try {
-                    return findElement(((By)locator).base_, 0) != null;
+                    return findElement(((By)locator)._by, 0) != null;
                 } catch (Exception) {
                     return false;
                 } 
@@ -623,7 +662,7 @@ namespace SeleniumWrapper {
                 if (timeoutms == 0)
                     ret = WebDriver.FindElement(by);
                 else
-                    ret = this.WaitUntilObject(() => WebDriver.FindElement(by), timeoutms);
+                    ret = this.WaitNoException(() => WebDriver.FindElement(by), timeoutms);
                 return new WebElement(this, (OpenQA.Selenium.IWebElement)ret);
             } catch (Exception ex){
                 if(ex is NoSuchElementException || ex is TimeoutException)
@@ -637,8 +676,8 @@ namespace SeleniumWrapper {
         /// <param name="timeoutms">Optional timeout</param>
         /// <returns>A list of all WebElements, or an empty list if nothing matches</returns>
         public WebElementCollection findElements(By by, int timeoutms = 0) {
-            if (by.base_ == null) throw new NullReferenceException("The locating mechanism is null!");
-            return findElements(by.base_, timeoutms);
+            if (by._by == null) throw new NullReferenceException("The locating mechanism is null!");
+            return findElements(by._by, timeoutms);
         }
 
         /// <summary>Finds elements by name.</summary>
@@ -707,17 +746,35 @@ namespace SeleniumWrapper {
 
         private WebElementCollection findElements(OpenQA.Selenium.By by, int timeoutms = 0) {
             try{
-                if (timeoutms > 0) {
-                    var ret = this.WaitUntilObject(() => WebDriver.FindElements(by), timeoutms);
-                    return new WebElementCollection(this, (ReadOnlyCollection<OpenQA.Selenium.IWebElement>)ret);
-                }
-                return new WebElementCollection(this, WebDriver.FindElements(by));
+                if (timeoutms > 0)
+                    return new WebElementCollection(this, WebDriver.FindElements(by));
+                return new WebElementCollection(this, this.WaitNotNullOrTrue(() => {
+                    var elts = WebDriver.FindElements(by);
+                    return elts.Count == 0 ? null : elts;
+                }, timeoutms));
             } catch (Exception ex) {
                 if (ex is NoSuchElementException || ex is TimeoutException)
                     throw new Exception("Elements not found. " + "Method=" + by.ToString().ToLower().Substring(3).Replace(": ", ", value="));
                 throw;
             }
         }
+
+        public void WaitNotElement(By by, int timeoutms = -1) {
+            WaitNotNullOrTrue(() => {
+                try {
+                    WebDriver.FindElement(by._by);
+                    return null;
+                } catch (TimeoutException) {
+                    return this;
+                }
+            }, timeoutms == -1 ? this.Timeout : timeoutms);
+        }
+
+        public void WaitTitleMatches(string pattern, int timeoutms = -1) {
+            var regex = new Regex(pattern);
+            WaitNotNullOrTrue(() => regex.IsMatch(WebDriver.Title), timeoutms);
+        }
+
 
         /// <summary>Gets the screenshot of the current window</summary>
         /// <returns>Image</returns>
@@ -773,7 +830,7 @@ namespace SeleniumWrapper {
         /// <returns>Current web driver</returns>
         public WebDriver switchToWindow(string windowName, int timeoutms = 0) {
             if (timeoutms > 0)
-                this.WaitUntilObject(() => WebDriver.SwitchTo().Window(windowName), timeoutms);
+                this.WaitNoException(() => WebDriver.SwitchTo().Window(windowName), timeoutms);
             else
                 WebDriver.SwitchTo().Window(windowName);
             return this;
@@ -787,13 +844,13 @@ namespace SeleniumWrapper {
             if (index_or_name is string) {
                 string windowName = (string)index_or_name;
                 if (timeoutms > 0)
-                    this.WaitUntilObject(() => WebDriver.SwitchTo().Frame(windowName), timeoutms);
+                    this.WaitNoException(() => WebDriver.SwitchTo().Frame(windowName), timeoutms);
                 else
                     WebDriver.SwitchTo().Frame(windowName);
             } else {
                 int frameIndex = (int)index_or_name;
                 if (timeoutms > 0)
-                    this.WaitUntilObject(() => WebDriver.SwitchTo().Frame(frameIndex), timeoutms);
+                    this.WaitNoException(() => WebDriver.SwitchTo().Frame(frameIndex), timeoutms);
                 else
                     WebDriver.SwitchTo().Frame(frameIndex);
             }
@@ -806,7 +863,7 @@ namespace SeleniumWrapper {
         public Alert switchToAlert(int timeoutms = 0) {
             Object alert;
             if (timeoutms > 0) {
-                alert = this.WaitUntilObject(WebDriver.SwitchTo().Alert, timeoutms);
+                alert = this.WaitNoException(WebDriver.SwitchTo().Alert, timeoutms);
             } else {
                 try {
                     alert = WebDriver.SwitchTo().Alert();
