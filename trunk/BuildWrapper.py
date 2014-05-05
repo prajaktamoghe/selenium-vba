@@ -46,7 +46,7 @@ def main():
 	exec_msbuild( _current_dir + r'wrapper\SeleniumWrapper.csproj')
 	
 	print('** Compile console runner ...')
-	exec_msbuild( _current_dir + r'\VbsConsoleRunner\VbsConsoleRunner.csproj')
+	exec_msbuild( _current_dir + r'VbsConsoleRunner\VbsConsoleRunner.csproj')
 
 	print('** Include the formatters ...')
 	exec_command( _sevenzip_path, 'a', '-tzip', _seleniumide_path, _formaters_path)

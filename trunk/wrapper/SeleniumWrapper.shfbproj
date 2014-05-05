@@ -30,17 +30,21 @@
 	  <Filter entryType="Class" fullName="SeleniumWrapper.Assert" filterName="Assert" isExposed="True" />
 	  <Filter entryType="Class" fullName="SeleniumWrapper.By" filterName="By" isExposed="True" />
 	  <Filter entryType="Class" fullName="SeleniumWrapper.Image" filterName="Image" isExposed="True" />
+	  <Filter entryType="Class" fullName="SeleniumWrapper.Select" filterName="Select" isExposed="True" />
 	  <Filter entryType="Class" fullName="SeleniumWrapper.Keys" filterName="Keys" isExposed="True" />
 	  <Filter entryType="Class" fullName="SeleniumWrapper.PdfFile" filterName="PdfFile" isExposed="True" />
 	  <Filter entryType="Interface" fullName="SeleniumWrapper.Select" filterName="Select" isExposed="True" />
 	  <Filter entryType="Class" fullName="SeleniumWrapper.Utils" filterName="Utils" isExposed="True" />
 	  <Filter entryType="Class" fullName="SeleniumWrapper.Verify" filterName="Verify" isExposed="True" />
-	  <Filter entryType="Class" fullName="SeleniumWrapper.Waiter" filterName="Waiter" isExposed="True" />
 	  <Filter entryType="Class" fullName="SeleniumWrapper.WebDriver" filterName="WebDriver" isExposed="True" />
+	  <Filter entryType="Class" fullName="SeleniumWrapper.WebElement" filterName="WebElement" isExposed="True" />
+	  <Filter entryType="Class" fullName="SeleniumWrapper.WebElementCollection" filterName="WebElementCollection" isExposed="True" />
+	  <Filter entryType="Class" fullName="SeleniumWrapper.Dictionary" filterName="Dictionary" isExposed="True" />
+	  <Filter entryType="Class" fullName="SeleniumWrapper.Point" filterName="Point" isExposed="True" />
+	  <Filter entryType="Class" fullName="SeleniumWrapper.Size" filterName="Size" isExposed="True" />
+	  <Filter entryType="Class" fullName="SeleniumWrapper.Table" filterName="Table" isExposed="True" />
 	  <Filter entryType="Delegate" fullName="SeleniumWrapper.WebDriver.ActionResult" filterName="WebDriver.ActionResult" isExposed="False" />
 	  <Filter entryType="Delegate" fullName="SeleniumWrapper.WebDriver.ActionVoid" filterName="WebDriver.ActionVoid" isExposed="False" />
-	  <Filter entryType="Class" fullName="SeleniumWrapper.WebElement" filterName="WebElement" isExposed="True" />
-	  <Filter entryType="Class" fullName="SeleniumWrapper.Table" filterName="Table" isExposed="True" />
 	</Filter>
 	</ApiFilter>
     <MissingTags>None</MissingTags>

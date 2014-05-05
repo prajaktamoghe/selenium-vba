@@ -247,7 +247,7 @@ namespace SeleniumWrapper {
         delegate bool WebElementCallBack(ref WebElement webelement);
 
         /// <summary>Waits for a function to return true. VBScript: Function WaitEx(webdriver), VBA: Function WaitEx(webdriver As WebDriver) As Boolean </summary>
-        /// <param name="function">Function reference.  VBScript: wd.WaitFor GetRef(\"WaitEx\")  VBA: wd.WaitFor AddressOf WaitEx)</param>
+        /// <param name="procedure">Function reference.  VBScript: wd.WaitFor GetRef(\"WaitEx\")  VBA: wd.WaitFor AddressOf WaitEx)</param>
         /// <param name="timeoutms">Optional timeout</param>
         /// <returns>Current WebDriver</returns>
         public WebElement WaitFor(object procedure, int timeoutms = 6000) {
@@ -263,8 +263,10 @@ namespace SeleniumWrapper {
         }
 
         /// <summary>Waits for an attribute</summary>
-        /// <param name="attribute">Attribute</param>
-        /// <param name="value">Value</param>
+        /// <param name="attribute"></param>
+        /// <param name="pattern"></param>
+        /// <param name="timeoutms"></param>
+        /// <returns></returns>
         public WebElement waitForAttribute(string attribute, string pattern, int timeoutms = -1) {
             var regex = new Regex(pattern);
             waitFor(() => regex.IsMatch(_webElement.GetAttribute(attribute)), timeoutms);
@@ -272,8 +274,10 @@ namespace SeleniumWrapper {
         }
 
         /// <summary>Waits for a different attribute</summary>
-        /// <param name="attribute">Attribute</param>
-        /// <param name="value">Value</param>
+        /// <param name="attribute"></param>
+        /// <param name="pattern"></param>
+        /// <param name="timeoutms"></param>
+        /// <returns></returns>
         public WebElement waitForNotAttribute(string attribute, string pattern, int timeoutms = -1) {
             var regex = new Regex(pattern);
             waitFor(() => !regex.IsMatch(_webElement.GetAttribute(attribute)), timeoutms);
@@ -283,6 +287,7 @@ namespace SeleniumWrapper {
         /// <summary>Waits for a CSS property</summary>
         /// <param name="propertyName">Property name</param>
         /// <param name="value">Value</param>
+        /// <param name="timeoutms"></param>
         public WebElement waitForCssValue(string propertyName, string value, int timeoutms = -1) {
             waitFor(() => _webElement.GetCssValue(propertyName) == value, timeoutms);
             return this;
@@ -291,13 +296,17 @@ namespace SeleniumWrapper {
         /// <summary>Waits for a different CSS property</summary>
         /// <param name="propertyName">Property name</param>
         /// <param name="value">Value</param>
+        /// <param name="timeoutms"></param>
+        /// <returns></returns>
         public WebElement waitForNotCssValue(string propertyName, string value, int timeoutms = -1) {
             waitFor(() => _webElement.GetCssValue(propertyName) != value, timeoutms);
             return this;
         }
 
         /// <summary>Waits for text</summary>
-        /// <param name="value">Value</param>
+        /// <param name="pattern"></param>
+        /// <param name="timeoutms"></param>
+        /// <returns></returns>
         public WebElement waitForText(string pattern, int timeoutms = -1) {
             var regex = new Regex(pattern);
             if (_webElement.TagName.ToLower() == "input")
@@ -308,7 +317,9 @@ namespace SeleniumWrapper {
         }
 
         /// <summary>Waits for a different text</summary>
-        /// <param name="value">Value</param>
+        /// <param name="pattern"></param>
+        /// <param name="timeoutms"></param>
+        /// <returns></returns>
         public WebElement waitForNotText(string pattern, int timeoutms = -1) {
             var regex = new Regex(pattern);
             if (_webElement.TagName.ToLower() == "input")
