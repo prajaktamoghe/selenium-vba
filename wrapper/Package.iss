@@ -58,8 +58,8 @@ Source: ".\Examples\*.*"; DestDir: "{app}\Examples"; Flags: ignoreversion skipif
 Source: ".\Templates\*.dot" ; DestDir: "{userappdata}\Microsoft\Templates"; Flags: ignoreversion skipifsourcedoesntexist overwritereadonly ; Attribs:readonly
 Source: ".\Templates\*.xlt" ; DestDir: "{userappdata}\Microsoft\Templates"; Flags: ignoreversion skipifsourcedoesntexist overwritereadonly ; Attribs:readonly
 ;Source: ".\Templates\*.xlt" ; DestDir: "{code:GetAppFolder|Excel.Application}\..\Templates"; Flags: ignoreversion skipifsourcedoesntexist overwritereadonly ; Attribs:readonly
-Source: ".\exe.config" ; DestDir: "{app}"; DestName: "sscript.exe.config"; Flags: ignoreversion uninsneveruninstall
-Source: ".\exe.config" ; DestDir: "{win}\SYSTEM32"; DestName: "cscript.exe.config"; Flags: ignoreversion uninsneveruninstall
+Source: ".\exe.config" ; DestDir: "{app}"; DestName: "vbsc.exe.config"; Flags: ignoreversion uninsneveruninstall
+Source: ".\exe.config" ; DestDir: "{win}\SYSTEM32"; DestName: "wscript.exe.config"; Flags: ignoreversion uninsneveruninstall
 Source: ".\exe.config" ; DestDir: "{win}\SYSTEM32"; DestName: "cscript.exe.config"; Flags: ignoreversion uninsneveruninstall
 Source: ".\exe.config" ; DestDir: "{code:GetAppFolder|Excel.Application}"; DestName: "EXCEL.EXE.CONFIG"; Flags: ignoreversion uninsneveruninstall; Check: IsAppInstalled('Excel.Application');
 Source: ".\exe.config" ; DestDir: "{code:GetAppFolder|Word.Application}"; DestName: "WINWORD.EXE.CONFIG"; Flags: ignoreversion uninsneveruninstall; Check: IsAppInstalled('Word.Application');

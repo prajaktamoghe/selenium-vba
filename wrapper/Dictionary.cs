@@ -32,11 +32,11 @@ namespace SeleniumWrapper {
 
         }
 
-        public int Count() {
+        public new int Count() {
             return base.Count;
         }
 
-        public System.Collections.IEnumerator GetEnumerator() {
+        public new System.Collections.IEnumerator GetEnumerator() {
             return base.Values.GetEnumerator();
         }
 
@@ -44,7 +44,7 @@ namespace SeleniumWrapper {
             return base[Index];
         }
 
-        public object[] Keys {
+        public new object[] Keys {
             get { 
                 var ret = new object[base.Count];
                 base.Keys.CopyTo(ret, 0);
@@ -52,7 +52,7 @@ namespace SeleniumWrapper {
             }
         }
 
-        public object[] Values {
+        public new object[] Values {
             get {
                 var ret = new object[base.Count];
                 base.Values.CopyTo(ret, 0);

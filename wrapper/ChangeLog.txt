@@ -2,6 +2,20 @@ Author : Florent BREHERET
 Contact : florentbr@gmail.com
 Website : http://code.google.com/p/selenium-vba
 
+v1.0.19.0  (2014/05/05)
+===============================================================================
+ * Updated Selenium libraries to 2.41.0
+ * Updated IEDriverServer to 2.41.0
+ * Updated Chrome driver to 2.10
+ * Added an enhanced console script runner (vbsc.exe) to replace wscript.exe
+ * Added WaitFor method (waits for a provided procedure to to return true)
+ * Added WaitForSelection, WaitForEnabled and WaitForDisplayed methods
+ * Added WaitNotElement and WaitTitleMatches methods
+ * Added waitForScriptCondition, waitForScriptObject and waitForScriptSuccees
+ * Standardized the error message for missing elements between browsers.
+ * Fixed the missing sub-dictionaries that were not returned by executeScript
+ * The child console is now hidden by default
+
 v1.0.18.0  (2014/02/25)
 ===============================================================================
  * Updated Selenium libraries to 2.40.0
