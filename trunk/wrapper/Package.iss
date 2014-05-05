@@ -55,6 +55,7 @@ Source: ".\ChangeLog.txt"; DestDir: "{app}"; Flags: ignoreversion overwritereado
 Source: ".\chm\SeleniumWrapperApi.chm"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\QuickTest.vbs"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\Examples\*.*"; DestDir: "{app}\Examples"; Flags: ignoreversion skipifsourcedoesntexist overwritereadonly ; Attribs:readonly
+Source: ".\Templates\*.*" ; DestDir: "{app}\Templates"; Flags: ignoreversion skipifsourcedoesntexist overwritereadonly ; Attribs:readonly
 Source: ".\Templates\*.dot" ; DestDir: "{userappdata}\Microsoft\Templates"; Flags: ignoreversion skipifsourcedoesntexist overwritereadonly ; Attribs:readonly
 Source: ".\Templates\*.xlt" ; DestDir: "{userappdata}\Microsoft\Templates"; Flags: ignoreversion skipifsourcedoesntexist overwritereadonly ; Attribs:readonly
 ;Source: ".\Templates\*.xlt" ; DestDir: "{code:GetAppFolder|Excel.Application}\..\Templates"; Flags: ignoreversion skipifsourcedoesntexist overwritereadonly ; Attribs:readonly
@@ -69,9 +70,9 @@ Source: ".\exe.config" ; DestDir: "{code:GetAppFolder|Outlook.Application}"; Des
 [Icons]
 ;Name: "{group}\Readme"; Filename: "{app}\Readme.txt"; WorkingDir: "{app}";
 Name: "{group}\Project Home Page"; Filename: "http://code.google.com/p/selenium-vba/"; WorkingDir: "{app}";
-Name: "{group}\Excel Template"; Filename: "{userappdata}\Microsoft\Templates\SeleniumWrapper.xlt"; WorkingDir: "{app}";
-Name: "{group}\Word Template"; Filename: "{userappdata}\Microsoft\Templates\SeleniumWrapper.dot"; WorkingDir: "{app}";
+Name: "{group}\Vbs Console"; Filename: "{app}\vbsc.exe"; WorkingDir: "{app}";
 Name: "{group}\Examples"; Filename: "{app}\Examples"; WorkingDir: "{app}";
+Name: "{group}\Templates"; Filename: "{app}\Templates"; WorkingDir: "{app}";
 Name: "{group}\QuickTest"; Filename: "{app}\QuickTest.vbs"; WorkingDir: "{app}";
 Name: "{group}\API documentation"; Filename: "{app}\SeleniumWrapperApi.chm"; WorkingDir: "{app}";
 Name: "{group}\ChangeLog"; Filename: "{app}\ChangeLog.txt"; WorkingDir: "{app}";
