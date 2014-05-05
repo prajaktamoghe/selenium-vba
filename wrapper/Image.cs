@@ -14,7 +14,7 @@ namespace SeleniumWrapper {
         bool IsNull { get; }
 
         [Description("Save as a PNG image file")]
-        void SaveAs(string filePath);
+        string SaveAs(string filePath);
 
         [Description("Copy the image to the clipboard")]
         void Copy();
@@ -119,11 +119,17 @@ namespace SeleniumWrapper {
             }
         }
 
+
         /// <summary>Save the image to the provided path as a PNG image.</summary>
         /// <param name="filePath">PNG file path. Ex : C:\capture01.png</param>
-        public void SaveAs(string filePath) {
+        /// <returns>Full file path</returns>
+        public string SaveAs(string filePath) {
+            filePath = filePath.Replace("{TIME}", DateTime.Now.ToString("yyyyMMdd-HHmmss"));
+            filePath = Path.GetFullPath(Environment.ExpandEnvironmentVariables(filePath));
+            Directory.CreateDirectory(Path.GetDirectoryName(filePath));
             using (var img = Bitmap.FromStream(_stream))
                 img.Save(filePath, ImageFormat.Png);
+            return filePath;
         }
 
         /// <summary>Copy the image to the Clipboard.</summary>
