@@ -20,7 +20,7 @@ imageDiff.saveAs "image-diff.png"
 imageA.Dispose
 imageB.Dispose
 
-wscript.echo imageDiff.UnmatchedRatio * 100 & "% of non matching pixels"	'Displays the comparison result
+wscript.echo imageDiff.diffCount & " unmatching pixels"	'Displays the comparison result
 imageDiff.Dispose
 
 
