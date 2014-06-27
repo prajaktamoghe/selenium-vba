@@ -169,8 +169,8 @@ namespace SeleniumWrapper {
         [Description("Switches focus to the specified window.")]
         WebDriver switchToWindow(string windowName, int timeoutms = 0);
 
-        [Description("Switches focus to the specified frame, by index or name.")]
-        WebDriver switchToFrame(object index_or_name, int timeoutms = 0);
+        [Description("Switches focus to the specified frame, by index, name or WebElement.")]
+        WebDriver switchToFrame(object index_name_element, int timeoutms = 0);
 
         [Description("Switches focus to an alert on the page.")]
         Alert switchToAlert(int timeoutms = 0);

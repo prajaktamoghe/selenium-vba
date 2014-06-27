@@ -829,31 +829,23 @@ namespace SeleniumWrapper {
         /// <param name="timeoutms">Optional timeout</param>
         /// <returns>Current web driver</returns>
         public WebDriver switchToWindow(string windowName, int timeoutms = 0) {
-            if (timeoutms > 0)
-                this.WaitNoException(() => WebDriver.SwitchTo().Window(windowName), timeoutms);
-            else
-                WebDriver.SwitchTo().Window(windowName);
+            this.WaitNoException(() => WebDriver.SwitchTo().Window(windowName), timeoutms);
             return this;
         }
 
-        /// <summary>Switches focus to the specified frame, by index or name.</summary>
-        /// <param name="index_or_name">The name of the window to switch to, or an integer representing the index to switch to.</param>
+        /// <summary>Switches focus to the specified frame, by index, name or WebElement.</summary>
+        /// <param name="index_name_element">The name, id, or WebElement of the frame to switch.</param>
         /// <param name="timeoutms">Optional timeout</param>
         /// <returns>Current web driver</returns>
-        public WebDriver switchToFrame(object index_or_name, int timeoutms = 0) {
-            if (index_or_name is string) {
-                string windowName = (string)index_or_name;
-                if (timeoutms > 0)
-                    this.WaitNoException(() => WebDriver.SwitchTo().Frame(windowName), timeoutms);
-                else
-                    WebDriver.SwitchTo().Frame(windowName);
-            } else {
-                int frameIndex = (int)index_or_name;
-                if (timeoutms > 0)
-                    this.WaitNoException(() => WebDriver.SwitchTo().Frame(frameIndex), timeoutms);
-                else
-                    WebDriver.SwitchTo().Frame(frameIndex);
-            }
+        public WebDriver switchToFrame(object index_name_element, int timeoutms = 0) {
+            if (index_name_element is string)
+                this.WaitNoException(() => WebDriver.SwitchTo().Frame(index_name_element as string), timeoutms);
+            else if (index_name_element is WebElement)
+                this.WaitNoException(() => WebDriver.SwitchTo().Frame(((WebElement)index_name_element)._webElement), timeoutms);
+            else if (index_name_element is int)
+                this.WaitNoException(() => WebDriver.SwitchTo().Frame((int)index_name_element), timeoutms);
+            else
+                throw new Exception("Invalide argument type for index_name_element");
             return this;
         }
 
