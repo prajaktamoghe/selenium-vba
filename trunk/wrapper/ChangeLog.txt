@@ -3,11 +3,16 @@ Contact : florentbr@gmail.com
 Website : http://code.google.com/p/selenium-vba
 
 
-v1.0.20.0  (2014/)
+v1.0.20.0  (2014/09/18)
 ===============================================================================
-Updated PhantomJs to 1.9.7
-Added "Run VBS" on Folders context menu
-Added the switch to a frame by WebElement switchToFrame(WebElement)
+ * Updated Selenium libraries to 2.43.1
+ * Updated IEDriverServer to 2.43.0
+ * Updated PhantomJs to 1.9.7
+ * Added the option "raise" on findElement to skip the exception and to return Nothing
+ * Added "Run VBS" on the context menu of the folder
+ * Added the switch to a frame by WebElement switchToFrame(WebElement)
+ * Added arguments and proxy suport for PhantomJS
+ * Fixed switchToFrame and switchToWindow when called an index (issue 92)
 
 v1.0.19.0  (2014/05/05)
 ===============================================================================
