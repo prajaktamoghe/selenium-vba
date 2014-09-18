@@ -73,6 +73,9 @@ namespace vbsc {
             //Handle Console prints
             this.TextFormated = Regex.Replace(this.TextFormated, @"Debug\.Print", @"Wscript.Echo", RegexOptions.Multiline | RegexOptions.IgnoreCase);
             if (par_script == null) {
+                //Format CreateObject
+                this.TextFormated = Regex.Replace(this.TextFormated, @"Wscript.CreateObject", @"CreateObject", RegexOptions.IgnoreCase);
+
                 //Format Arguments
                 this.TextFormated = Regex.Replace(this.TextFormated, @"Wscript\.Arguments\(", @"Wscript.Arguments.Item(", RegexOptions.IgnoreCase);
                 //Replace param

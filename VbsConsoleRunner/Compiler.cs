@@ -1,4 +1,7 @@
 ﻿using MSScriptControl;
+using System.Collections.Generic;
+using System;
+using System.Text.RegularExpressions;
 
 namespace vbsc {
 
@@ -59,7 +62,7 @@ namespace vbsc {
             _script = script;
             _compiler.AddObject("WScript", wscript, true);
             _compiler.AddCode("Function IIf(Expression, TruePart, FalsePart)\r\nIf Expression Then IIf = truepart Else IIf = falsepart\r\nEnd Function\r\n");
-            if(script != null)
+            if (script != null)
                 return AddCode(script.GetCode());
             return true;
         }
@@ -67,8 +70,8 @@ namespace vbsc {
         public bool AddCode(string code, bool noevent = false) {
             Clear();
             try {
-                var content = code;
-                _compiler.AddCode(content);
+                //var main = _compiler.Modules.Add("Main");
+                _compiler.AddCode(code);
                 return true;
             } catch {
                 if (_error == null) throw;
@@ -84,9 +87,12 @@ namespace vbsc {
             if (procedure == null) return true;
             _procedure = procedure;
             try {
-                _result = _compiler.Run(procedure.Name, procedure.Params);
+                _result = procedure.Module.Run(procedure.Name, procedure.Params);
                 return true;
-            } catch {
+            } catch(Exception ex) {
+                var quitEx = Regex.Match(ex.Message, @"^Quit=(\d+)$", RegexOptions.IgnoreCase);
+                if (quitEx.Success)
+                    return quitEx.Groups[1].Value == "0" ? true : false;
                 if (_error == null) throw;
                 if (OnError != null && !noevent)
                     OnError(_error);
@@ -107,6 +113,10 @@ namespace vbsc {
 
         public Procedures Procedures {
             get { return _compiler.Procedures; }
+        }
+
+        public Modules Modules {
+            get { return _compiler.Modules; }
         }
 
     }

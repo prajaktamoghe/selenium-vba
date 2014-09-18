@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Diagnostics;
 
 namespace vbsc {
 
@@ -32,7 +33,7 @@ namespace vbsc {
             get { return _arguments.ToArray(); }
         }
 
-        public object ParseOption(string pattern, object default_Value) {
+        private object ParseOption(string pattern, object default_Value) {
             var re = new Regex(pattern);
             for (int i = 0; i < _arguments.Count; i++) {
                 if (re.IsMatch(_arguments[i])) {
@@ -55,19 +56,19 @@ namespace vbsc {
 
         public override string ToString() {
             return string.Format(@"
-Usage: sscript [OPTIONS] files...
-
-files : Single file or list of files.
+Usage: {0} [OPTIONS] ""file1"" ""file2"" ...
 
 OPTIONS:
 
-{0}
+{1}
 
 Exemples:
 
-{1}
-               ", _sb_options.ToString()
-                , _sb_examples.ToString()
+{2}
+               ", 
+                Process.GetCurrentProcess().ProcessName,
+                _sb_options.ToString(),
+                _sb_examples.ToString()
              );
         }
 

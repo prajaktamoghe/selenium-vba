@@ -1,5 +1,8 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.InteropServices;
+using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace vbsc {
 
@@ -27,7 +30,7 @@ namespace vbsc {
             options.ParseOption("threads", @"^threads=.*|t=.*$", 1, "threads,t=n : ", "Number of script to execute in parallel.");
 
             options.AddExample(@"sscript noexit args=firefox,chrome ""c:\scripts\*.vbs\"" ""c:\scripts\*.vbs\""");
-            options.AddExample(@"sscript o=""c:\scripts\result-{time}.log"" ""c:\scripts\*.vbs""");
+            options.AddExample(@"sscript o=""c:\scripts\result-{DATETIME}.log"" ""c:\scripts\*.vbs""");
             options.AddExample(@"sscript t=4 ""c:\scripts\*.vbs""");
 
             if (options.Files.Length > 0) {
@@ -39,59 +42,66 @@ namespace vbsc {
             if ((bool)options["help"]) {
                 //Display help
                 Console.WriteLine(options.ToString());
-                return;
+            } else {
+                //Run scripts
+                try {
+                    if (RunScripts(options))
+                        Environment.ExitCode = 0;
+                } catch (Exception ex) {
+                    StdInOut.LogException(ex, args);
+                }
             }
-
-            //Run scripts
-            if (RunScripts(options, args))
-                Environment.ExitCode = 0;
 
             //Wait for a key pressed if noexit is present
             if ((bool)options["noexit"])
                 Console.ReadKey();
         }
 
-        static bool RunScripts(Options options, string[] args) {
+        static bool RunScripts(Options options) {
 
-            try {
-                StdInOut.HideInfo = (bool)options["noinfo"];
-                var starttime = DateTime.Now;
-                StdInOut.LogStart(starttime);
+            StdInOut.HideInfo = (bool)options["noinfo"];
+            var starttime = DateTime.Now;
+            StdInOut.LogStart(starttime);
 
-                //Check log path
-                var logpath = (string)options["out"];
-                if (logpath != null) {
-                    logpath = logpath.Replace("{time}", DateTime.Now.ToString("yyyyMMdd-HHmmss"));
-                    if (logpath.IndexOfAny(Path.GetInvalidPathChars()) != -1) {
-                        StdInOut.LogError("Invalide log file path.", "Argument: " + (string)options["out"]);
-                        return false;
+            //Check log path
+            var logpath = (string)options["out"];
+            if (logpath != null) {
+                logpath = logpath.Replace("{DATETIME}", DateTime.Now.ToString("yyyyMMdd-HHmmss"));
+                if (logpath.IndexOf("{ID}") != -1) {
+                    var id = 0;
+                    var new_logpath = string.Empty;
+                    while(true){
+                        new_logpath = logpath.Replace("{ID}", (++id).ToString() );
+                        if (!File.Exists(new_logpath)) break;
                     }
-                }
+                    logpath = new_logpath;
 
-                string[] list_scripts_path;
-                try {
-                    list_scripts_path = Utils.ExpandFilePaths(options.Files, "vbs");
-                } catch (FileNotFoundException ex) {
-                    StdInOut.LogError(ex.Message, "Argument: " + ex.FileName);
+                }
+                if (logpath.IndexOfAny(Path.GetInvalidPathChars()) != -1) {
+                    StdInOut.LogError("Invalide log file path.", "Argument: " + (string)options["out"]);
                     return false;
                 }
-
-                var runner = new MultiScriptRunner((int)options["threads"]);
-                var results = runner.Run(list_scripts_path, (string[])options["args"], (string[])options["params"], (string)options["filter"], (bool)options["debug"]);
-
-                //Print final result
-                StdInOut.LogResults(results, starttime, DateTime.Now);
-
-                //Save log file                
-                if (!string.IsNullOrEmpty(logpath))
-                    StdInOut.SaveTo(logpath);
-                return results.Exists((r) => !r.Succeed) == false;
-
-            } catch (Exception ex) {
-                StdInOut.LogException(ex, args);
             }
-            return false;
 
+            string[] list_scripts_path;
+            try {
+                list_scripts_path = Utils.ExpandFilePaths(options.Files, "vbs");
+            } catch (FileNotFoundException ex) {
+                StdInOut.LogError(ex.Message, "Argument: " + ex.FileName);
+                return false;
+            }
+
+            var runner = new MultiScriptRunner((int)options["threads"]);
+            var results = runner.Run(list_scripts_path, (string[])options["args"], (string[])options["params"], (string)options["filter"], (bool)options["debug"]);
+
+            //Print final result
+            StdInOut.LogResults(results, starttime, DateTime.Now);
+
+            //Save log file                
+            if (!string.IsNullOrEmpty(logpath)) {
+                StdInOut.SaveTo(logpath);
+            }
+            return results.Exists((r) => !r.Succeed) == false;
         }
 
     }
