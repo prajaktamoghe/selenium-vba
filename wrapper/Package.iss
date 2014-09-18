@@ -108,16 +108,21 @@ Root: HKLM; Subkey: "SOFTWARE\Microsoft\.NETFramework\Policy\AppPatch\v2.0.50727
 Root: HKLM; Subkey: "SOFTWARE\Microsoft\.NETFramework\Policy\AppPatch\v2.0.50727.00000\winword.exe"; Flags: deletekey; Check: IsExcel2003orInf;
 Root: HKLM; Subkey: "SOFTWARE\Microsoft\.NETFramework\Policy\AppPatch\v2.0.50727.00000\msaccess.exe"; Flags: deletekey; Check: IsExcel2003orInf;
 Root: HKLM; Subkey: "SOFTWARE\Microsoft\.NETFramework\Policy\AppPatch\v2.0.50727.00000\outlook.exe"; Flags: deletekey; Check: IsExcel2003orInf;
- 
+
+Root: HKLM32; Subkey: "SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\vbsc.exe"; ValueType: string; ValueData: "{app}\vbsc.exe"; Flags: deletekey uninsdeletekey
+Root: HKLM64; Subkey: "SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\vbsc.exe"; ValueType: string; ValueData: "{app}\vbsc.exe"; Flags: deletekey uninsdeletekey; Check: IsWin64;
 Root: HKCR32; Subkey: "VBSFile\Shell\Run\command"; ValueType: string; ValueData: """{app}\vbsc.exe"" noexit ""%1"" %*"; Flags: deletekey uninsdeletekey
 Root: HKCR64; Subkey: "VBSFile\Shell\Run\command"; ValueType: string; ValueData: """{app}\vbsc.exe"" noexit ""%1"" %*"; Flags: deletekey uninsdeletekey; Check: IsWin64;
+Root: HKCR32; Subkey: "Directory\shell\Run VBS\Command"; ValueType: string; ValueData: """{app}\vbsc.exe"" noexit ""%1\*.vbs"""; Flags: deletekey uninsdeletekey
+Root: HKCR64; Subkey: "Directory\shell\Run VBS\Command"; ValueType: string; ValueData: """{app}\vbsc.exe"" noexit ""%1\*.vbs"""; Flags: deletekey uninsdeletekey; Check: IsWin64;
+
 
 [Run] 
 Filename: "{dotnet2064}\RegAsm.exe"; Parameters: {#MyDllName}.dll /codebase /tlb:{#MyDllName}.tlb; WorkingDir: {app}; StatusMsg: "Registering {#MyDllName} dll"; Flags: runhidden; Check: IsWin64;
 Filename: "{dotnet2032}\RegAsm.exe"; Parameters: {#MyDllName}.dll /codebase /tlb:{#MyDllName}.tlb; WorkingDir: {app}; StatusMsg: "Registering {#MyDllName} dll"; Flags: runhidden;
-Filename: "{pf32}\Mozilla Firefox\firefox.exe"; Parameters: "selenium-ide.xpi"; WorkingDir: {app}; Flags: shellexec postinstall; Description: "Install Selenium IDE Addon for Firefox";
 Filename: "{sys}\reg.exe"; Parameters: "add ""HKCR\VBSFile\Shell"" /t REG_SZ /v """" /f /d Run"; WorkingDir: {app}; Flags: shellexec postinstall runhidden; Description: "Set the console runner as default"; Check: IsWin64;
 Filename: "{syswow64}\reg.exe"; Parameters: "add ""HKCR\VBSFile\Shell"" /t REG_SZ /v """" /f /d Run"; WorkingDir: {app}; Flags: shellexec postinstall runhidden; Description: "Set the console runner as default";
+Filename: "{code:GetFirefoxPath|}"; Parameters: "selenium-ide.xpi"; WorkingDir: {app}; Flags: shellexec postinstall; Description: "Install Selenium IDE Addon for Firefox";
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}"
@@ -135,6 +140,20 @@ var _IsExcel64: Boolean;
 var _IsExcel2003: Boolean;
 var _IsExcel2007orSup: Boolean;
 
+//---------------------------------------------------------------------------------------
+// Firefox functions
+//--------------------------------------------------------------------------------------- 
+function GetFirefoxPath(arg : String): string;
+  var version: String; path: String;
+  Begin
+    RegQueryStringValue(HKLM32, 'SOFTWARE\Mozilla\Mozilla Firefox', 'CurrentVersion', version);
+    if RegQueryStringValue(HKLM32, 'SOFTWARE\Mozilla\Mozilla Firefox\' + version + '\Main', 'PathToExe', path) then Begin
+      Result := path;
+    end else begin
+      MsgBox('Firefox path not found.', mbError, MB_OK);
+    end;
+  end;
+  
 //---------------------------------------------------------------------------------------
 // Excel functions
 //--------------------------------------------------------------------------------------- 
