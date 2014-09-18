@@ -104,34 +104,34 @@ namespace SeleniumWrapper {
         String PageSource { get; }
 
         [Description("Find the first WebElement using the given method.")]
-        WebElement findElement([MarshalAs(UnmanagedType.IDispatch)]By by, int timeoutms = 0);
+        WebElement findElement([MarshalAs(UnmanagedType.IDispatch)]By by, int timeoutms = 0, bool raise = true);
 
         [Description("Finds the first element matching the specified name.")]
-        WebElement findElementByName(String name, int timeoutms = 0);
+        WebElement findElementByName(String name, int timeoutms = 0, bool raise = true);
 
         [Description("Finds the first element matching the specified XPath query.")]
-        WebElement findElementByXPath(String xpath, int timeoutms = 0);
+        WebElement findElementByXPath(String xpath, int timeoutms = 0, bool raise = true);
 
         [Description("Finds the first element matching the specified id.")]
-        WebElement findElementById(String id, int timeoutms = 0);
+        WebElement findElementById(String id, int timeoutms = 0, bool raise = true);
 
         [Description("Finds the first element matching the specified CSS class.")]
-        WebElement findElementByClassName(String classname, int timeoutms = 0);
+        WebElement findElementByClassName(String classname, int timeoutms = 0, bool raise = true);
 
         [Description("Finds the first element matching the specified CSS selector.")]
-        WebElement findElementByCssSelector(String cssselector, int timeoutms = 0);
+        WebElement findElementByCssSelector(String cssselector, int timeoutms = 0, bool raise = true);
 
         [Description("Finds the first element matching the specified link text.")]
-        WebElement findElementByLinkText(String linktext, int timeoutms = 0);
+        WebElement findElementByLinkText(String linktext, int timeoutms = 0, bool raise = true);
 
         [Description("Finds the first of elements that match the part of the link text supplied")]
-        WebElement findElementByPartialLinkText(String partiallinktext, int timeoutms = 0);
+        WebElement findElementByPartialLinkText(String partiallinktext, int timeoutms = 0, bool raise = true);
 
         [Description("Finds the first element matching the specified tag name.")]
-        WebElement findElementByTagName(String tagname, int timeoutms = 0);
+        WebElement findElementByTagName(String tagname, int timeoutms = 0, bool raise = true);
 
         [Description("Indicates whether a WebElement is present using the given method.")]
-        bool isElementPresent(object locator);
+        bool isElementPresent(object locator, int timeoutms = 0);
 
         [Description("Find all elements within the current context using the given mechanism.")]
         WebElementCollection findElements([MarshalAs(UnmanagedType.IDispatch)]By by, int timeoutms = 0);
@@ -167,10 +167,10 @@ namespace SeleniumWrapper {
         void WaitTitleMatches(string pattern, int timeoutms = -1);
 
         [Description("Switches focus to the specified window.")]
-        WebDriver switchToWindow(string windowName, int timeoutms = 0);
+        WebDriver switchToWindow(object name_index, int timeoutms = 0, bool raise = true);
 
         [Description("Switches focus to the specified frame, by index, name or WebElement.")]
-        WebDriver switchToFrame(object index_name_element, int timeoutms = 0);
+        WebDriver switchToFrame(object index_name_element, int timeoutms = 0, bool raise = true);
 
         [Description("Switches focus to an alert on the page.")]
         Alert switchToAlert(int timeoutms = 0);

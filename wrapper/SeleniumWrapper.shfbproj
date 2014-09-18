@@ -36,6 +36,7 @@
 	  <Filter entryType="Interface" fullName="SeleniumWrapper.Select" filterName="Select" isExposed="True" />
 	  <Filter entryType="Class" fullName="SeleniumWrapper.Utils" filterName="Utils" isExposed="True" />
 	  <Filter entryType="Class" fullName="SeleniumWrapper.Verify" filterName="Verify" isExposed="True" />
+	  <Filter entryType="Class" fullName="SeleniumWrapper.Waiter" filterName="Waiter" isExposed="True" />
 	  <Filter entryType="Class" fullName="SeleniumWrapper.WebDriver" filterName="WebDriver" isExposed="True" />
 	  <Filter entryType="Class" fullName="SeleniumWrapper.WebElement" filterName="WebElement" isExposed="True" />
 	  <Filter entryType="Class" fullName="SeleniumWrapper.WebElementCollection" filterName="WebElementCollection" isExposed="True" />

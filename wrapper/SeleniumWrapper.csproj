@@ -148,6 +148,7 @@
     <Compile Include="Image.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="Verify.cs" />
+    <Compile Include="Waiter.cs" />
     <Compile Include="WebDriver.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WebDriverGen.cs" />

@@ -385,84 +385,96 @@ namespace SeleniumWrapper {
         /// <summary>Find the first WebElement using the given method.</summary>
         /// <param name="by">Methode</param>
         /// <param name="timeoutms">Optional timeout</param>
+        /// <param name="raise">Optional - Raise an exception after the timeout when true</param>
         /// <returns>WebElement</returns>
-        public WebElement findElement(By by, int timeoutms = 0) {
+        public WebElement findElement(By by, int timeoutms = 0, bool raise = true) {
             if (by._by == null) throw new NullReferenceException("The locating mechanism is null!");
-            return this.findElement(by._by, timeoutms);
+            return this.findElement(by._by, timeoutms, raise);
         }
 
         /// <summary>Finds the first element matching the specified name.</summary>
         /// <param name="name">Name</param>
         /// <param name="timeoutms">Optional timeout in millisecond</param>
+        /// <param name="raise">Optional - Raise an exception after the timeout when true</param>
         /// <returns>WebElement</returns>
-        public WebElement findElementByName(String name, int timeoutms = 0) {
-            return this.findElement(OpenQA.Selenium.By.Name(name), timeoutms);
+        public WebElement findElementByName(String name, int timeoutms = 0, bool raise = true) {
+            return this.findElement(OpenQA.Selenium.By.Name(name), timeoutms, raise);
         }
 
         /// <summary>Finds the first element matching the specified XPath query.</summary>
         /// <param name="xpath">XPath</param>
         /// <param name="timeoutms">Optional timeout in millisecond</param>
+        /// <param name="raise">Optional - Raise an exception after the timeout when true</param>
         /// <returns>WebElement</returns>
-        public WebElement findElementByXPath(String xpath, int timeoutms = 0) {
-            return this.findElement(OpenQA.Selenium.By.XPath(xpath), timeoutms);
+        public WebElement findElementByXPath(String xpath, int timeoutms = 0, bool raise = true) {
+            return this.findElement(OpenQA.Selenium.By.XPath(xpath), timeoutms, raise);
         }
 
         /// <summary>Finds the first element matching the specified id.</summary>
         /// <param name="id">Id</param>
         /// <param name="timeoutms">Optional timeout in millisecond</param>
+        /// <param name="raise">Optional - Raise an exception after the timeout when true</param>
         /// <returns>WebElement</returns>
-        public WebElement findElementById(String id, int timeoutms = 0) {
-            return this.findElement(OpenQA.Selenium.By.Id(id), timeoutms);
+        public WebElement findElementById(String id, int timeoutms = 0, bool raise = true) {
+            return this.findElement(OpenQA.Selenium.By.Id(id), timeoutms, raise);
         }
 
         /// <summary>Finds the first element matching the specified CSS class.</summary>
         /// <param name="classname">Classname</param>
         /// <param name="timeoutms">Optional timeout in millisecond</param>
+        /// <param name="raise">Optional - Raise an exception after the timeout when true</param>
         /// <returns>WebElement</returns>
-        public WebElement findElementByClassName(String classname, int timeoutms = 0) {
-            return this.findElement(OpenQA.Selenium.By.ClassName(classname), timeoutms);
+        public WebElement findElementByClassName(String classname, int timeoutms = 0, bool raise = true) {
+            return this.findElement(OpenQA.Selenium.By.ClassName(classname), timeoutms, raise);
         }
 
         /// <summary>Finds the first element matching the specified CSS selector.</summary>
         /// <param name="cssselector">CSS seletor</param>
         /// <param name="timeoutms">Optional timeout in millisecond</param>
+        /// <param name="raise">Optional - Raise an exception after the timeout when true</param>
         /// <returns>WebElement</returns>
-        public WebElement findElementByCssSelector(String cssselector, int timeoutms = 0) {
-            return this.findElement(OpenQA.Selenium.By.CssSelector(cssselector), timeoutms);
+        public WebElement findElementByCssSelector(String cssselector, int timeoutms = 0, bool raise = true) {
+            return this.findElement(OpenQA.Selenium.By.CssSelector(cssselector), timeoutms, raise);
         }
 
         /// <summary>Finds the first element matching the specified link text.</summary>
         /// <param name="linktext">Link text</param>
         /// <param name="timeoutms">Optional timeout in millisecond</param>
+        /// <param name="raise">Optional - Raise an exception after the timeout when true</param>
         /// <returns>WebElement</returns>
-        public WebElement findElementByLinkText(String linktext, int timeoutms = 0) {
-            return this.findElement(OpenQA.Selenium.By.LinkText(linktext), timeoutms);
+        public WebElement findElementByLinkText(String linktext, int timeoutms = 0, bool raise = true) {
+            return this.findElement(OpenQA.Selenium.By.LinkText(linktext), timeoutms, raise);
         }
 
         /// <summary>Finds the first of elements that match the part of the link text supplied</summary>
         /// <param name="partiallinktext">Partial link text</param>
         /// <param name="timeoutms">Optional timeout in millisecond</param>
+        /// <param name="raise">Optional - Raise an exception after the timeout when true</param>
         /// <returns>WebElement</returns>
-        public WebElement findElementByPartialLinkText(String partiallinktext, int timeoutms = 0) {
-            return this.findElement(OpenQA.Selenium.By.PartialLinkText(partiallinktext), timeoutms);
+        public WebElement findElementByPartialLinkText(String partiallinktext, int timeoutms = 0, bool raise = true) {
+            return this.findElement(OpenQA.Selenium.By.PartialLinkText(partiallinktext), timeoutms, raise);
         }
 
         /// <summary>Finds the first element matching the specified tag name.</summary>
         /// <param name="tagname">Tag name</param>
         /// <param name="timeoutms">Optional timeout in millisecond</param>
+        /// <param name="raise">Optional - Raise an exception after the timeout when true</param>
         /// <returns>WebElement</returns>
-        public WebElement findElementByTagName(String tagname, int timeoutms = 0) {
-            return this.findElement(OpenQA.Selenium.By.TagName(tagname), timeoutms);
+        public WebElement findElementByTagName(String tagname, int timeoutms = 0, bool raise = true) {
+            return this.findElement(OpenQA.Selenium.By.TagName(tagname), timeoutms, raise);
         }
 
-        private WebElement findElement(OpenQA.Selenium.By by, int timeoutms) {
+        private WebElement findElement(OpenQA.Selenium.By by, int timeoutms, bool raise) {
             try {
                 if (timeoutms < 1)
                     return new WebElement(this._wd,_webElement.FindElement(by));
                 return new WebElement(this._wd, this._wd.WaitNoException(() => _webElement.FindElement(by), timeoutms));
             } catch (Exception ex) {
-                if (ex is NoSuchElementException || ex is TimeoutException)
-                    throw new Exception("Element not found. " + "Method=" + by.ToString().ToLower().Substring(3).Replace(": ", ", value="));
+                if (ex is NoSuchElementException || ex is TimeoutException) {
+                    if(raise)
+                        throw new Exception("Element not found. " + "Method=" + by.ToString().ToLower().Substring(3).Replace(": ", ", value="));
+                    return null;
+                }
                 throw;
             }
         }

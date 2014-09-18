@@ -26,8 +26,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApplication1", "..\C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageCompare", "..\ImageCompare\ImageCompare.csproj", "{7DD01EF0-9AC1-4A6D-900A-23426774A49B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SeleniumTests", "..\SeleniumTests\SeleniumTests.csproj", "{8C736FEF-5C57-421D-968F-EF2AD7D6A8BA}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VbsConsoleRunner", "..\VbsConsoleRunner\VbsConsoleRunner.csproj", "{20AE71E5-B9A8-415A-A9F1-A378E1EC2602}"
 EndProject
 Global
@@ -94,7 +92,6 @@ Global
 		{C6044AEF-15CC-4DCE-A481-CE021AA9EEFF}.VBSrunner|Any CPU.ActiveCfg = VBSrunner|Any CPU
 		{C6044AEF-15CC-4DCE-A481-CE021AA9EEFF}.VBSrunner|Any CPU.Build.0 = VBSrunner|Any CPU
 		{C6044AEF-15CC-4DCE-A481-CE021AA9EEFF}.VBSrunner|Mixed Platforms.ActiveCfg = Debug Excel|Any CPU
-		{C6044AEF-15CC-4DCE-A481-CE021AA9EEFF}.VBSrunner|Mixed Platforms.Build.0 = Debug Excel|Any CPU
 		{C6044AEF-15CC-4DCE-A481-CE021AA9EEFF}.VBSrunner|x86.ActiveCfg = VBSrunner|Any CPU
 		{C6044AEF-15CC-4DCE-A481-CE021AA9EEFF}.VS_Tests|Any CPU.ActiveCfg = VS_Tests|Any CPU
 		{C6044AEF-15CC-4DCE-A481-CE021AA9EEFF}.VS_Tests|Any CPU.Build.0 = VS_Tests|Any CPU
@@ -395,45 +392,6 @@ Global
 		{7DD01EF0-9AC1-4A6D-900A-23426774A49B}.Windriver-Tests|Mixed Platforms.Build.0 = Release|x86
 		{7DD01EF0-9AC1-4A6D-900A-23426774A49B}.Windriver-Tests|x86.ActiveCfg = Release|x86
 		{7DD01EF0-9AC1-4A6D-900A-23426774A49B}.Windriver-Tests|x86.Build.0 = Release|x86
-		{8C736FEF-5C57-421D-968F-EF2AD7D6A8BA}.Console|Any CPU.ActiveCfg = Release|x86
-		{8C736FEF-5C57-421D-968F-EF2AD7D6A8BA}.Console|Mixed Platforms.ActiveCfg = Release|x86
-		{8C736FEF-5C57-421D-968F-EF2AD7D6A8BA}.Console|Mixed Platforms.Build.0 = Release|x86
-		{8C736FEF-5C57-421D-968F-EF2AD7D6A8BA}.Console|x86.ActiveCfg = Release|x86
-		{8C736FEF-5C57-421D-968F-EF2AD7D6A8BA}.Console|x86.Build.0 = Release|x86
-		{8C736FEF-5C57-421D-968F-EF2AD7D6A8BA}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{8C736FEF-5C57-421D-968F-EF2AD7D6A8BA}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{8C736FEF-5C57-421D-968F-EF2AD7D6A8BA}.Debug|x86.ActiveCfg = Debug|x86
-		{8C736FEF-5C57-421D-968F-EF2AD7D6A8BA}.Debug|x86.Build.0 = Debug|x86
-		{8C736FEF-5C57-421D-968F-EF2AD7D6A8BA}.DebugExcel|Any CPU.ActiveCfg = Debug|x86
-		{8C736FEF-5C57-421D-968F-EF2AD7D6A8BA}.DebugExcel|Mixed Platforms.ActiveCfg = Debug|x86
-		{8C736FEF-5C57-421D-968F-EF2AD7D6A8BA}.DebugExcel|x86.ActiveCfg = Debug|x86
-		{8C736FEF-5C57-421D-968F-EF2AD7D6A8BA}.DebugExcel|x86.Build.0 = Debug|x86
-		{8C736FEF-5C57-421D-968F-EF2AD7D6A8BA}.DebugVBScript|Any CPU.ActiveCfg = Debug|x86
-		{8C736FEF-5C57-421D-968F-EF2AD7D6A8BA}.DebugVBScript|Mixed Platforms.ActiveCfg = Debug|x86
-		{8C736FEF-5C57-421D-968F-EF2AD7D6A8BA}.DebugVBScript|x86.ActiveCfg = Debug|x86
-		{8C736FEF-5C57-421D-968F-EF2AD7D6A8BA}.DebugVBScript|x86.Build.0 = Debug|x86
-		{8C736FEF-5C57-421D-968F-EF2AD7D6A8BA}.Generate|Any CPU.ActiveCfg = Release|x86
-		{8C736FEF-5C57-421D-968F-EF2AD7D6A8BA}.Generate|Mixed Platforms.ActiveCfg = Release|x86
-		{8C736FEF-5C57-421D-968F-EF2AD7D6A8BA}.Generate|x86.ActiveCfg = Release|x86
-		{8C736FEF-5C57-421D-968F-EF2AD7D6A8BA}.Generate|x86.Build.0 = Release|x86
-		{8C736FEF-5C57-421D-968F-EF2AD7D6A8BA}.Release|Any CPU.ActiveCfg = Release|x86
-		{8C736FEF-5C57-421D-968F-EF2AD7D6A8BA}.Release|Mixed Platforms.ActiveCfg = Release|x86
-		{8C736FEF-5C57-421D-968F-EF2AD7D6A8BA}.Release|x86.ActiveCfg = Release|x86
-		{8C736FEF-5C57-421D-968F-EF2AD7D6A8BA}.Release|x86.Build.0 = Release|x86
-		{8C736FEF-5C57-421D-968F-EF2AD7D6A8BA}.VBSrunner|Any CPU.ActiveCfg = VBSrunner|x86
-		{8C736FEF-5C57-421D-968F-EF2AD7D6A8BA}.VBSrunner|Mixed Platforms.ActiveCfg = VBSrunner|x86
-		{8C736FEF-5C57-421D-968F-EF2AD7D6A8BA}.VBSrunner|x86.ActiveCfg = VBSrunner|x86
-		{8C736FEF-5C57-421D-968F-EF2AD7D6A8BA}.VBSrunner|x86.Build.0 = VBSrunner|x86
-		{8C736FEF-5C57-421D-968F-EF2AD7D6A8BA}.VS_Tests|Any CPU.ActiveCfg = Release|x86
-		{8C736FEF-5C57-421D-968F-EF2AD7D6A8BA}.VS_Tests|Mixed Platforms.ActiveCfg = Release|x86
-		{8C736FEF-5C57-421D-968F-EF2AD7D6A8BA}.VS_Tests|Mixed Platforms.Build.0 = Release|x86
-		{8C736FEF-5C57-421D-968F-EF2AD7D6A8BA}.VS_Tests|x86.ActiveCfg = Release|x86
-		{8C736FEF-5C57-421D-968F-EF2AD7D6A8BA}.VS_Tests|x86.Build.0 = Release|x86
-		{8C736FEF-5C57-421D-968F-EF2AD7D6A8BA}.Windriver-Tests|Any CPU.ActiveCfg = Release|x86
-		{8C736FEF-5C57-421D-968F-EF2AD7D6A8BA}.Windriver-Tests|Mixed Platforms.ActiveCfg = Release|x86
-		{8C736FEF-5C57-421D-968F-EF2AD7D6A8BA}.Windriver-Tests|Mixed Platforms.Build.0 = Release|x86
-		{8C736FEF-5C57-421D-968F-EF2AD7D6A8BA}.Windriver-Tests|x86.ActiveCfg = Release|x86
-		{8C736FEF-5C57-421D-968F-EF2AD7D6A8BA}.Windriver-Tests|x86.Build.0 = Release|x86
 		{20AE71E5-B9A8-415A-A9F1-A378E1EC2602}.Console|Any CPU.ActiveCfg = Release|x86
 		{20AE71E5-B9A8-415A-A9F1-A378E1EC2602}.Console|Mixed Platforms.ActiveCfg = Release|x86
 		{20AE71E5-B9A8-415A-A9F1-A378E1EC2602}.Console|Mixed Platforms.Build.0 = Release|x86
