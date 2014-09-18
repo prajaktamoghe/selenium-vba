@@ -371,7 +371,7 @@ namespace SeleniumWrapper {
             if (_profile != null) throw new Exception("Profile configuration is not available for PhantomJS driver!");
             if (_preferences != null) throw new Exception("Preference configuration is not available for PhantomJS!");
             if (_extensions != null) throw new Exception("Extension configuration is not available for PhantomJS!");
-            if (_proxy != null) throw new Exception("Proxy configuration is not available for InternetExplorerDriver!");
+            //if (_proxy != null) throw new Exception("Proxy configuration is not available for InternetExplorerDriver!");
             foreach (var capability in _capabilities)
                 phantomjsOptions.AddAdditionalCapability(capability.Key, capability.Value);
             return phantomjsOptions;
