@@ -44,17 +44,19 @@ namespace vbsc {
         }
 
         public static void LogStart(DateTime starttime) {
-            LogLine("START " + starttime.ToString("yyyy/MM/dd HH:mm:ss") + "\r\n");
+            LogLine(
+                "START " + starttime.ToString("yyyy/MM/dd HH:mm:ss") + "\r\n"
+            );
         }
 
         public static void LogException(Exception ex, string[] arguments) {
             var sb = new StringBuilder();
             sb.AppendLine("[Exception] " + System.Reflection.Assembly.GetExecutingAssembly().Location);
-            sb.AppendLine("------------------------------------------------------------------");
+            sb.AppendLine("--------------------------------------------------------------");
             sb.AppendLine(ex.Message.Trim('\r', '\n', ' '));
             sb.AppendLine("\r\nArguments:" + FormatArguments(arguments));
             sb.AppendLine("\r\nStackTrace:\r\n" + ex.StackTrace.ToString());
-            sb.AppendLine("\r\n******************************************************************");
+            sb.AppendLine("\r\n************************************************************************");
             sb.Append("FAILED");
             LogLine(sb.ToString());
         }
@@ -64,7 +66,7 @@ namespace vbsc {
             sb.AppendLine("[Error] " + title);
             sb.AppendLine("------------------------------------------------------------------");
             sb.AppendLine(info);
-            sb.AppendLine("\r\n******************************************************************");
+            sb.AppendLine("\r\n************************************************************************");
             sb.Append("FAILED");
             LogLine(sb.ToString());
         }
@@ -82,7 +84,7 @@ namespace vbsc {
 
         internal static void LogScriptException(Script script, Exception ex) {
             LogLine(
-                "\r\n[Exception] " + script.SourceName
+                "[Exception] " + script.SourceName
                 + "\r\n------------------------------------------------------------------"
                 + "\r\n" + ex.Message.Trim('\r', '\n', ' ')
                 + "\r\n\r\nStackTrace:\r\n" + ex.StackTrace.ToString()
@@ -92,7 +94,7 @@ namespace vbsc {
 
         internal static void LogScriptError(string source, string text) {
             LogLine(
-                "\r\n[Fail] " + source
+                "[Fail] " + source
                 + "\r\n------------------------------------------------------------------"
                 + "\r\n" + text.CleanEnd()
                 + "\r\n"
@@ -101,7 +103,7 @@ namespace vbsc {
 
         internal static void LogScriptInfo(string source, string text) {
             LogLine(
-                "\r\n[Info] " + source
+                "[Info] " + source
                 + "\r\n------------------------------------------------------------------"
                 + "\r\n" + text.CleanEnd()
                 + "\r\n"
@@ -110,7 +112,7 @@ namespace vbsc {
 
         public static void SaveTo(string filepath) {
             using (var writer = new StreamWriter(new FileStream(filepath, FileMode.Append, FileAccess.Write, FileShare.None)))
-                writer.Write(_logfile_text.ToString() + "\r\n\r\n");
+                writer.Write(_logfile_text.ToString() + "\r\n\r\n\r\n\r\n\r\n\r\n");
         }
 
         internal static void LogResults(List<ScriptResult> results, DateTime starttime, DateTime endtime) {
@@ -124,14 +126,14 @@ namespace vbsc {
                     nberror++;
             }
             var sb_results = new StringBuilder();
-            sb_results.Append("\r\n[Results summary]");
+            sb_results.Append("[Results summary]");
             sb_results.Append("\r\n------------------------------------------------------------------\r\n");
             if (sb_error.Length != 0)
                 sb_results.Append("Failed:\r\n" + sb_error.ToString());
             if (sb_succeed.Length != 0)
                 sb_results.Append("Succeed:\r\n" + sb_succeed.ToString());
-            sb_results.Append("\r\n******************************************************************\r\n");
-            sb_results.Append(string.Format("{0}: {1} failed / {2} runned in {3}s",
+            sb_results.Append("\r\n************************************************************************\r\n");
+            sb_results.Append(string.Format("{0}: {1} failed / {2} run in {3}s",
                     nberror == 0 ? "SUCCEED" : "FAILED",
                     nberror,
                     nbrunned,

@@ -71,14 +71,15 @@ namespace vbsc {
 
         private ProcedureList ListProcedures(Script script, Regex pattern) {
             var procedures = new ProcedureList();
-            foreach (IScriptProcedure proc in _compiler.Procedures) {
+            foreach(Module _mod in _compiler.Modules){
+                foreach (IScriptProcedure proc in _mod.Procedures) {
                 var proc_name = proc.Name;
                 switch (proc_name.ToLower()) {
-                    case "initialize": procedures.ProcInitialize = new ProcedureItem(proc_name); break;
-                    case "terminate": procedures.ProcTerminate = new ProcedureItem(proc_name); break;
-                    case "setup": procedures.ProcSetup = new ProcedureItem(proc_name); break;
-                    case "teardown": procedures.ProcTearDown = new ProcedureItem(proc_name); break;
-                    case "onerror": procedures.ProcOnError = new ProcedureItem(proc_name); break;
+                    case "initialize": procedures.ProcInitialize = new ProcedureItem(_mod, proc_name); break;
+                    case "terminate": procedures.ProcTerminate = new ProcedureItem(_mod, proc_name); break;
+                    case "setup": procedures.ProcSetup = new ProcedureItem(_mod, proc_name); break;
+                    case "teardown": procedures.ProcTearDown = new ProcedureItem(_mod, proc_name); break;
+                    case "onerror": procedures.ProcOnError = new ProcedureItem(_mod, proc_name); break;
                     case "iif": break;
                     default:
                         if (proc.HasReturnValue) continue;
@@ -86,7 +87,7 @@ namespace vbsc {
                         ProcedureStringParams proc_params_str;
                         if (script.ProceduresParams.TryGetValue(proc_name, out proc_params_str)) {
                             if (!_compiler.Eval("Array(" + proc_params_str.Params + ')')) {
-                                var error = new ScriptError(script, new ProcedureItem(proc_name), "Invalide array: " + proc_params_str.Params);
+                                var error = new ScriptError(script, new ProcedureItem(_mod, proc_name), "Invalide array: " + proc_params_str.Params);
                                 error.AddTraceLine(script, proc_params_str.Line);
                                 OnError(error);
                                 continue;
@@ -95,18 +96,19 @@ namespace vbsc {
                             foreach (var p in proc_params) {
                                 var proc_args = p is object[] ? (object[])p : new object[1]{ p };
                                 if (proc_args.Length == proc.NumArgs) {
-                                    procedures.Add(proc_name, proc_args);
+                                    procedures.Add(_mod, proc_name, proc_args);
                                 } else {
-                                    var error = new ScriptError(script, new ProcedureItem(proc_name), string.Format("Procedure {0} requires {1} argument(s). {2} provied.", proc_name, proc.NumArgs, proc_args.Length));
+                                    var error = new ScriptError(script, new ProcedureItem(_mod, proc_name), string.Format("Procedure {0} requires {1} argument(s). {2} provied.", proc_name, proc.NumArgs, proc_args.Length));
                                     error.AddTraceLine(script, script.TextFormated.GetLineNumber("(Sub|Function).\b" + proc_name + "\b"));
                                     OnError(error);
                                     break;
                                 }
                             }
                         } else if (proc.NumArgs == 0) {
-                            procedures.Add(proc_name, new object[0]);
+                            procedures.Add(_mod, proc_name, new object[0]);
                         }
                         break;
+                    }
                 }
             }
             return procedures;

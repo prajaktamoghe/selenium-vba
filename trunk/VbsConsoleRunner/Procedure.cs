@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using MSScriptControl;
 
 namespace vbsc {
 
@@ -11,10 +12,12 @@ namespace vbsc {
 
     class ProcedureItem {
 
-        public string Name;
+        public readonly Module Module;
+        public readonly string Name;
         public object[] Params;
 
-        public ProcedureItem(string name, object[] parameters = null) {
+        public ProcedureItem(Module module, string name, object[] parameters = null) {
+            Module = module;
             Name = name;
             Params = parameters ?? new object[0];
         }
@@ -37,8 +40,8 @@ namespace vbsc {
         public ProcedureItem ProcTearDown = null;
         public ProcedureItem ProcOnError = null;
 
-        public void Add(string procedure, object[] parameters) {
-            base.Add(new ProcedureItem(procedure, parameters));
+        public void Add(Module module, string procedure, object[] parameters) {
+            base.Add(new ProcedureItem(module, procedure, parameters));
         }
 
         public new ProcedureItem this[int index] {

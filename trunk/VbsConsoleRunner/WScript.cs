@@ -26,6 +26,10 @@ namespace vbsc {
             Arguments = null;
         }
 
+        public void Include() {
+
+        }
+
         public void Echo(object message) {
             if (OnEcho == null)
                 return;
@@ -50,6 +54,17 @@ namespace vbsc {
 
         public string FullName {
             get { return System.Reflection.Assembly.GetExecutingAssembly().Location; }
+        }
+
+        public string CurrentDirectory {
+            get { return Directory.GetCurrentDirectory();}
+            set { Directory.SetCurrentDirectory(value);}
+        }
+
+        public string CD(string directory = null) {
+            if (!string.IsNullOrEmpty(directory))
+                Directory.SetCurrentDirectory(directory);
+            return Directory.GetCurrentDirectory();
         }
 
         public string Path {
@@ -83,5 +98,11 @@ namespace vbsc {
             Thread.Sleep(timems);
         }
 
+        public void Quit(int exitcode = 0) {
+            throw new Exception("Quit=" + exitcode.ToString());
+        }
+
     }
+
+
 }
