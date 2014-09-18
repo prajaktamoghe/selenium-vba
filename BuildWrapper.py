@@ -104,7 +104,7 @@ def get_input(message):
 def get_new_version(version):
 	new_version = ''
 	matrix_add = {'s': [0,0,0,0], 'z':[0,0,0,1], 'y':[0,0,1,0], 'x':[0,1,0,0], 'w':[1,0,0,0]}
-	matrix_mul = {'s': [1,1,1,1], 'z':[1,1,1,1], 'y':[1,1,1,0], 'x':[1,1,0,1], 'w':[1,0,1,1]}
+	matrix_mul = {'s': [1,1,1,1], 'z':[1,1,1,1], 'y':[1,1,1,0], 'x':[1,1,0,0], 'w':[1,0,0,0]}
 	while new_version == '':
 		input = get_input('Digit to increment [w.x.y.z] or version [0.0.0.0] or skip [s] ? ').strip()
 		if re.match(r's|z|y|x|w', input) :
