@@ -31,7 +31,7 @@ namespace SeleniumWrapper {
         [Description("Image height")]
         int Height { get; }
 
-        [Description("Number of unmatching pixels resulting of a comparison")]
+        [Description("Number of non matching pixels in result of a comparison")]
         double DiffCount { get; }
 
         [Description("Dispose the image resources")]
@@ -72,7 +72,7 @@ namespace SeleniumWrapper {
 
 
         /// <summary>
-        /// Number of unmatching pixels resulting of a comparis
+        /// Number of non matching pixels in result of a comparison
         /// </summary>
         public double DiffCount {
             get{return _diffCount;}
