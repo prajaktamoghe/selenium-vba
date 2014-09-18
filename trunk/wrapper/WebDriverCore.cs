@@ -142,7 +142,6 @@ namespace SeleniumWrapper {
             return "Method " + lMethodname + " failed!";
         }
 
-
         protected void InvokeWd(ActionVoid action) {
             _error = null;
             _thread = new System.Threading.Thread((System.Threading.ThreadStart)delegate {
@@ -258,6 +257,8 @@ namespace SeleniumWrapper {
         }
 
         internal T WaitNoException<T>(Func<T> function, int timeoutms) {
+            if (timeoutms == 0)
+                return function();
             var end = DateTime.Now.AddMilliseconds(timeoutms == -1 ? this._timeout : timeoutms);
             string errorMsg = null;
             while (true) {

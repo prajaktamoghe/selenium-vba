@@ -570,93 +570,99 @@ namespace SeleniumWrapper {
         /// <summary>Find the first WebElement using the given method.</summary>
         /// <param name="by">Methode</param>
         /// <param name="timeoutms">Optional timeout</param>
+        /// <param name="raise">Optional - Raise an exception after the timeout when true</param>
         /// <returns>WebElement</returns>
-        public WebElement findElement(By by, int timeoutms = 0) {
+        public WebElement findElement(By by, int timeoutms = 0, bool raise = true) {
             if (by._by == null) throw new NullReferenceException("The locating mechanism is null!");
-            return findElement(by._by, timeoutms);
+            return findElement(by._by, timeoutms, raise);
         }
 
         /// <summary>Finds an element by name.</summary>
         /// <param name="name">The name of the element to find.</param>
         /// <param name="timeoutms">Optional timeout</param>
+        /// <param name="raise">Optional - Raise an exception after the timeout when true</param>
         /// <returns>WebElement</returns>
-        public WebElement findElementByName(String name, int timeoutms = 0) {
-            return this.findElement(OpenQA.Selenium.By.Name(name), timeoutms);
+        public WebElement findElementByName(String name, int timeoutms = 0, bool raise = true) {
+            return this.findElement(OpenQA.Selenium.By.Name(name), timeoutms, raise);
         }
 
         /// <summary>Finds an element by XPath.</summary>
         /// <param name="xpath">The xpath locator of the element to find.</param>
         /// <param name="timeoutms">Optional timeout</param>
+        /// <param name="raise">Optional - Raise an exception after the timeout when true</param>
         /// <returns>WebElement</returns>
-        public WebElement findElementByXPath(String xpath, int timeoutms = 0) {
-            return this.findElement(OpenQA.Selenium.By.XPath(xpath), timeoutms);
+        public WebElement findElementByXPath(String xpath, int timeoutms = 0, bool raise = true) {
+            return this.findElement(OpenQA.Selenium.By.XPath(xpath), timeoutms, raise);
         }
 
         /// <summary>Finds an element by id.</summary>
         /// <param name="id">The id of the element to be found.</param>
         /// <param name="timeoutms">Optional timeout</param>
+        /// <param name="raise">Optional - Raise an exception after the timeout when true</param>
         /// <returns>WebElement</returns>
-        public WebElement findElementById(String id, int timeoutms = 0) {
-            return this.findElement(OpenQA.Selenium.By.Id(id), timeoutms);
+        public WebElement findElementById(String id, int timeoutms = 0, bool raise = true) {
+            return this.findElement(OpenQA.Selenium.By.Id(id), timeoutms, raise);
         }
 
         /// <summary>Finds an element by class name.</summary>
         /// <param name="classname">The class name of the element to find.</param>
         /// <param name="timeoutms">Optional timeout</param>
+        /// <param name="raise">Optional - Raise an exception after the timeout when true</param>
         /// <returns>WebElement</returns>
-        public WebElement findElementByClassName(String classname, int timeoutms = 0) {
-            return this.findElement(OpenQA.Selenium.By.ClassName(classname), timeoutms);
+        public WebElement findElementByClassName(String classname, int timeoutms = 0, bool raise = true) {
+            return this.findElement(OpenQA.Selenium.By.ClassName(classname), timeoutms, raise);
         }
 
         /// <summary>Finds an element by css selector.</summary>
         /// <param name="cssselector">The css selector to use when finding elements.</param>
         /// <param name="timeoutms">Optional timeout</param>
+        /// <param name="raise">Optional - Raise an exception after the timeout when true</param>
         /// <returns>WebElement</returns>
-        public WebElement findElementByCssSelector(String cssselector, int timeoutms = 0) {
-            return this.findElement(OpenQA.Selenium.By.CssSelector(cssselector), timeoutms);
+        public WebElement findElementByCssSelector(String cssselector, int timeoutms = 0, bool raise = true) {
+            return this.findElement(OpenQA.Selenium.By.CssSelector(cssselector), timeoutms, raise);
         }
 
         /// <summary>Finds an element by link text.</summary>
         /// <param name="linktext">The text of the element to be found.</param>
         /// <param name="timeoutms">Optional timeout</param>
+        /// <param name="raise">Optional - Raise an exception after the timeout when true</param>
         /// <returns>WebElement</returns>
-        public WebElement findElementByLinkText(String linktext, int timeoutms = 0) {
-            return this.findElement(OpenQA.Selenium.By.LinkText(linktext), timeoutms);
+        public WebElement findElementByLinkText(String linktext, int timeoutms = 0, bool raise = true) {
+            return this.findElement(OpenQA.Selenium.By.LinkText(linktext), timeoutms, raise);
         }
 
         /// <summary>Finds an element by a partial match of its link text.</summary>
         /// <param name="partiallinktext">The text of the element to partially match on.</param>
         /// <param name="timeoutms">Optional timeout</param>
+        /// <param name="raise">Optional - Raise an exception after the timeout when true</param>
         /// <returns>WebElement</returns>
-        public WebElement findElementByPartialLinkText(String partiallinktext, int timeoutms = 0) {
-            return this.findElement(OpenQA.Selenium.By.PartialLinkText(partiallinktext), timeoutms);
+        public WebElement findElementByPartialLinkText(String partiallinktext, int timeoutms = 0, bool raise = true) {
+            return this.findElement(OpenQA.Selenium.By.PartialLinkText(partiallinktext), timeoutms, raise);
         }
 
         /// <summary>Finds an element by tag name.</summary>
         /// <param name="tagname">The tag name of the element to find.</param>
         /// <param name="timeoutms">Optional timeout</param>
+        /// <param name="raise">Optional - Raise an exception after the timeout when true</param>
         /// <returns>WebElement</returns>
-        public WebElement findElementByTagName(String tagname, int timeoutms = 0) {
-            return this.findElement(OpenQA.Selenium.By.TagName(tagname), timeoutms);
+        public WebElement findElementByTagName(String tagname, int timeoutms = 0, bool raise = true) {
+            return this.findElement(OpenQA.Selenium.By.TagName(tagname), timeoutms, raise);
         }
 
         /// <summary>"Verifies that the specified element is somewhere on the page."</summary>
         /// <param name="locator">An element loctor. String or By object</param>
+        /// <param name="timeoutms">Optional timeout</param>
         /// <returns>true if the element is present, false otherwise</returns>
-        public bool isElementPresent(object locator) {
+        public bool isElementPresent(object locator, int timeoutms = 0) {
             if (locator is By)
-                try {
-                    return findElement(((By)locator)._by, 0) != null;
-                } catch (Exception) {
-                    return false;
-                } 
+                return findElement(((By)locator)._by, timeoutms, false) != null;
             else if (locator is string)
                 return (Boolean)InvokeWd(() => WebDriverBacked.IsElementPresent((string)locator));
             else
                 throw new ArgumentException("Locator has to be a 'String' or a 'By' object!");
         }
 
-        private WebElement findElement(OpenQA.Selenium.By by, int timeoutms) {
+        private WebElement findElement(OpenQA.Selenium.By by, int timeoutms, bool raise) {
             try {
                 object ret;
                 if (timeoutms == 0)
@@ -665,8 +671,11 @@ namespace SeleniumWrapper {
                     ret = this.WaitNoException(() => WebDriver.FindElement(by), timeoutms);
                 return new WebElement(this, (OpenQA.Selenium.IWebElement)ret);
             } catch (Exception ex){
-                if(ex is NoSuchElementException || ex is TimeoutException)
-                    throw new Exception("Element not found. " + "Method=" + by.ToString().ToLower().Substring(3).Replace(": ", ", value="));
+                if (ex is NoSuchElementException || ex is TimeoutException) {
+                    if(raise)
+                        throw new Exception("Element not found. " + "Method=" + by.ToString().ToLower().Substring(3).Replace(": ", ", value="));
+                    return null;
+                }
                 throw;
             }
         }
@@ -738,7 +747,7 @@ namespace SeleniumWrapper {
 
         /// <summary>Finds elements by tag name.</summary>
         /// <param name="tagname">The tag name the use when finding elements.</param>
-        /// <param name="timeoutms">Optional timeout</param>
+        /// <param name="timeoutms">Optional timeout to find at least on element</param>
         /// <returns>Array of WebElements</returns>
         public WebElementCollection findElementsByTagName(String tagname, int timeoutms = 0) {
             return this.findElements(OpenQA.Selenium.By.TagName(tagname), timeoutms);
@@ -746,7 +755,7 @@ namespace SeleniumWrapper {
 
         private WebElementCollection findElements(OpenQA.Selenium.By by, int timeoutms = 0) {
             try{
-                if (timeoutms > 0)
+                if (timeoutms == 0)
                     return new WebElementCollection(this, WebDriver.FindElements(by));
                 return new WebElementCollection(this, this.WaitNotNullOrTrue(() => {
                     var elts = WebDriver.FindElements(by);
@@ -825,27 +834,58 @@ namespace SeleniumWrapper {
         }
 
         /// <summary>Switches focus to the specified window.</summary>
-        /// <param name="windowName">The name of the window to switch to.</param>
+        /// <param name="name_index">The name of the window to switch to or index(-1 for the last one).</param>
         /// <param name="timeoutms">Optional timeout</param>
+        /// <param name="raise">Optional - Raise an exception after the timeout when true</param>
         /// <returns>Current web driver</returns>
-        public WebDriver switchToWindow(string windowName, int timeoutms = 0) {
-            this.WaitNoException(() => WebDriver.SwitchTo().Window(windowName), timeoutms);
+        public WebDriver switchToWindow(object name_index, int timeoutms = 0, bool raise = true) {
+            try {
+                if(name_index is string){
+                    this.WaitNoException(() => WebDriver.SwitchTo().Window((string)name_index), timeoutms);
+                }else if(name_index is Int16){
+                    var index = (int)(Int16)name_index;
+                    if(index == -1){
+                        var  handles = WebDriver.WindowHandles;
+                        var  handle = handles[handles.Count - 1];
+                        this.WaitNoException(() => WebDriver.SwitchTo().Window(handle), timeoutms);
+                    }else{
+                        this.WaitNoException(() => WebDriver.SwitchTo().Window(WebDriver.WindowHandles[index]), timeoutms);
+                    }
+                }
+            } catch (Exception ex) {
+                if (ex is NoSuchWindowException || ex is TimeoutException) {
+                    if(raise)
+                        throw new Exception("Window not found: " + name_index);
+                    return null;
+                }
+                throw;
+            }
             return this;
         }
 
         /// <summary>Switches focus to the specified frame, by index, name or WebElement.</summary>
         /// <param name="index_name_element">The name, id, or WebElement of the frame to switch.</param>
         /// <param name="timeoutms">Optional timeout</param>
+        /// <param name="raise">Optional - Raise an exception after the timeout when true</param>
         /// <returns>Current web driver</returns>
-        public WebDriver switchToFrame(object index_name_element, int timeoutms = 0) {
-            if (index_name_element is string)
-                this.WaitNoException(() => WebDriver.SwitchTo().Frame(index_name_element as string), timeoutms);
-            else if (index_name_element is WebElement)
-                this.WaitNoException(() => WebDriver.SwitchTo().Frame(((WebElement)index_name_element)._webElement), timeoutms);
-            else if (index_name_element is int)
-                this.WaitNoException(() => WebDriver.SwitchTo().Frame((int)index_name_element), timeoutms);
-            else
-                throw new Exception("Invalide argument type for index_name_element");
+        public WebDriver switchToFrame(object index_name_element, int timeoutms = 0, bool raise = true) {
+            try{
+                if (index_name_element is string)
+                    this.WaitNoException(() => WebDriver.SwitchTo().Frame(index_name_element as string), timeoutms);
+                else if (index_name_element is WebElement)
+                    this.WaitNoException(() => WebDriver.SwitchTo().Frame(((WebElement)index_name_element)._webElement), timeoutms);
+                else if (index_name_element is Int16)
+                    this.WaitNoException(() => WebDriver.SwitchTo().Frame((int)(Int16)index_name_element), timeoutms);
+                else
+                    throw new Exception("Invalide argument type for index_name_element");
+            } catch (Exception ex) {
+                if (ex is NoSuchFrameException || ex is TimeoutException) {
+                    if(raise)
+                        throw new Exception("Frame not found: " + index_name_element);
+                    return null;
+                }
+                throw;
+            }
             return this;
         }
 
