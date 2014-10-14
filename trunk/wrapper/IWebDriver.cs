@@ -59,7 +59,7 @@ namespace SeleniumWrapper {
         void stop();
 
         [Description("Opens an URL in the test frame. This accepts both relative and absolute URLs.")]
-        void open(String url);
+        WebDriver open(String url, bool raise = true);
 
         [Description("Wait the specified time in millisecond before executing the next command")]
         void wait(int timems);
@@ -191,7 +191,7 @@ namespace SeleniumWrapper {
         void maximizeWindow();
 
         [Description("Load a new web page in the current browser window.")]
-        void get(String url);
+        WebDriver get(String url, bool raise = true);
 
         [Description("Sends a sequence of keystrokes to the browser.")]
         void sendKeys(string keysOrModifier, string keys = null);
@@ -215,7 +215,7 @@ namespace SeleniumWrapper {
         string WindowHandle { get; }
 
         [Description("Returns the handles of all windows within the current session.")]
-        string[] WindowHandles { get; }
+        object WindowHandles { get; }
 
         [Description("Returns the element with focus, or BODY if nothing has focus.")]
         WebElement ActiveElement { get; }
