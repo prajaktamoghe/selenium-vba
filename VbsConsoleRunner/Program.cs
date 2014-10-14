@@ -29,9 +29,9 @@ namespace vbsc {
             options.ParseOption("params", @"^params=.*|p=.*$", new string[0], "params,p=value1,value2,... : ", "Lists of params to run each script with (Tag = \"@param\").");
             options.ParseOption("threads", @"^threads=.*|t=.*$", 1, "threads,t=n : ", "Number of script to execute in parallel.");
 
-            options.AddExample(@"sscript noexit args=firefox,chrome ""c:\scripts\*.vbs\"" ""c:\scripts\*.vbs\""");
-            options.AddExample(@"sscript o=""c:\scripts\result-{DATETIME}.log"" ""c:\scripts\*.vbs""");
-            options.AddExample(@"sscript t=4 ""c:\scripts\*.vbs""");
+            options.AddExample(@"vbsc noexit args=firefox,chrome ""c:\scripts\*.vbs\"" ""c:\scripts\*.vbs\""");
+            options.AddExample(@"vbsc o=""c:\scripts\result-{DATETIME}.log"" ""c:\scripts\*.vbs""");
+            options.AddExample(@"vbsc t=4 ""c:\scripts\*.vbs""");
 
             if (options.Files.Length > 0) {
                 var dir = Path.GetDirectoryName(options.Files[0]);
