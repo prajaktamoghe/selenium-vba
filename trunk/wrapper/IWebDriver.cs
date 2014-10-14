@@ -59,7 +59,10 @@ namespace SeleniumWrapper {
         void stop();
 
         [Description("Opens an URL in the test frame. This accepts both relative and absolute URLs.")]
-        WebDriver open(String url, bool raise = true);
+        bool open(String url, int timeoutms = -1, bool raise = true);
+
+        [Description("Load a new web page in the current browser window. This accepts both relative and absolute URLs.")]
+        bool get(String url, int timeoutms = -1, bool raise = true);
 
         [Description("Wait the specified time in millisecond before executing the next command")]
         void wait(int timems);
@@ -80,7 +83,7 @@ namespace SeleniumWrapper {
         Image getScreenshot(int delayms = 0);
 
         [Description("Execute JavaScrip on the page")]
-        Object executeScript(String script, object arguments = null);
+        Object executeScript(String script, object arguments = null, int timeoutms = -1, bool raise = true);
 
         [Description("Execute JavaScrip on the page until it doesn't throw an error")]
         Object waitForScriptSuccees(String script, object arguments = null, int timeoutms = 5000);
@@ -189,9 +192,6 @@ namespace SeleniumWrapper {
 
         [Description("Maximizes the current window if it is not already maximized")]
         void maximizeWindow();
-
-        [Description("Load a new web page in the current browser window.")]
-        WebDriver get(String url, bool raise = true);
 
         [Description("Sends a sequence of keystrokes to the browser.")]
         void sendKeys(string keysOrModifier, string keys = null);

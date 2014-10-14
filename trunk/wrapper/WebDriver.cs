@@ -269,9 +269,11 @@ namespace SeleniumWrapper {
 
         /// <summary>"Opens an URL in the test frame. This accepts both relative and absolute URLs."</summary>
         /// <param name="url">URL</param>
+        /// <param name="timeoutms">Optional timeout in milliseconds</param>
         /// <param name="raise">Optional - Raise an exception after the timeout when true</param>
-        public WebDriver open(String url, bool raise = true) {
-            return get(url, raise);
+        /// <returns>Return true if the url was openned within the timeout, false otherwise</returns>
+        public bool open(String url, int timeoutms = -1, bool raise = true) {
+            return get(url, timeoutms, raise);
         }
 
         /// <summary>Wait the specified time in millisecond before executing the next command</summary>
@@ -396,8 +398,12 @@ namespace SeleniumWrapper {
 
         /// <summary>Loads a web page in the current browser session.</summary>
         /// <param name="url">URL</param>
+        /// <param name="timeoutms">Optional timeout in milliseconds</param>
         /// <param name="raise">Optional - Raise an exception after the timeout when true</param>
-        public WebDriver get(String url, bool raise = true) {
+        /// <returns>Return true if the url was openned within the timeout, false otherwise</returns>
+        public bool get(String url, int timeoutms = -1, bool raise = true) {
+            if (timeoutms > 0)
+                WebDriver.Manage().Timeouts().SetPageLoadTimeout(TimeSpan.FromMilliseconds(timeoutms));
             try {
                 if(!url.StartsWith("javascript:")){
                     var protocolIdx = url.IndexOf("://");
@@ -409,10 +415,10 @@ namespace SeleniumWrapper {
                     }
                 }
                 InvokeVoid(() => WebDriver.Navigate().GoToUrl(url));
-                return this;
+                return true;
             } catch {
                 if (raise) throw;
-                return null;
+                return false;
             }
         }
 
@@ -461,6 +467,8 @@ namespace SeleniumWrapper {
         /// <summary>Execute JavaScrip on the page</summary>
         /// <param name="script">Javascript code</param>
         /// <param name="arguments">Arguments to pass to the script</param>
+        /// <param name="timeoutms">Optional timeout in milliseconds</param>
+        /// <param name="raise">Optional - Raise an exception after the timeout when true</param>
         /// <returns>Returns the value returned by the script</returns>
         /// <example>
         /// 
@@ -469,10 +477,17 @@ namespace SeleniumWrapper {
         /// Debug.Print executeScript("document.title = arguments[0]; return document.title;", "My New Title")
         /// </code>
         /// </example>
-        public Object executeScript(String script, object arguments = null) {
-            var unboxed_args = UnboxArguments(arguments);
-            var result = ((OpenQA.Selenium.IJavaScriptExecutor)WebDriver).ExecuteScript(script,unboxed_args);
-            return BoxArguments(result);
+        public Object executeScript(String script, object arguments = null, int timeoutms = -1, bool raise = true) {
+            if (timeoutms > 0)
+                WebDriver.Manage().Timeouts().SetScriptTimeout(TimeSpan.FromMilliseconds(timeoutms));
+            try {
+                var unboxed_args = UnboxArguments(arguments);
+                var result = ((OpenQA.Selenium.IJavaScriptExecutor)WebDriver).ExecuteScript(script, unboxed_args);
+                return BoxArguments(result);
+            } catch {
+                if (raise) throw;
+                return null;
+            }
         }
 
         public Object waitForScriptSuccees(String script, object arguments = null, int timeoutms = 5000) {
@@ -846,7 +861,7 @@ namespace SeleniumWrapper {
 
         /// <summary>Switches focus to the specified window.</summary>
         /// <param name="name_index">The name of the window to switch to or index(-1 for the last one).</param>
-        /// <param name="timeoutms">Optional timeout</param>
+        /// <param name="timeoutms">Optional timeout in milliseconds</param>
         /// <param name="raise">Optional - Raise an exception after the timeout when true</param>
         /// <returns>Current web driver</returns>
         public WebDriver switchToWindow(object name_index, int timeoutms = 0, bool raise = true) {
@@ -876,7 +891,7 @@ namespace SeleniumWrapper {
 
         /// <summary>Switches focus to the specified frame, by index, name or WebElement.</summary>
         /// <param name="index_name_element">The name, id, or WebElement of the frame to switch.</param>
-        /// <param name="timeoutms">Optional timeout</param>
+        /// <param name="timeoutms">Optional timeout in milliseconds</param>
         /// <param name="raise">Optional - Raise an exception after the timeout when true</param>
         /// <returns>Current web driver</returns>
         public WebDriver switchToFrame(object index_name_element, int timeoutms = 0, bool raise = true) {
@@ -901,7 +916,7 @@ namespace SeleniumWrapper {
         }
 
         /// <summary>Switches focus to an alert on the page.</summary>
-        /// <param name="timeoutms">Optional timeout</param>
+        /// <param name="timeoutms">Optional timeout in milliseconds</param>
         /// <returns>Focused alert</returns>
         public Alert switchToAlert(int timeoutms = 0) {
             try {
