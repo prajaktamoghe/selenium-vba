@@ -19,7 +19,7 @@ namespace SeleniumWrapper
         WebElement clear();
 
         [Description("Clicks the element.")]
-        void click();
+        void click(string keys = null);
 
         [Description("Clicks at the element offset.")]
         void clickByOffset(int offset_x, int offset_y);
