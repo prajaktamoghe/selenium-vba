@@ -195,6 +195,8 @@ namespace SeleniumWrapper {
                 _webDriver.Quit();
             } catch { }
             _timerhotkey.Stop();
+            _webDriverBacked = null;
+            _webDriver = null;
         }
 
         /// <summary>Set a specific profile for the firefox webdriver</summary>
@@ -219,8 +221,8 @@ namespace SeleniumWrapper {
         }
 
         /// <summary>Set a specific preference for the firefox webdriver</summary>
-        /// <param name="key">Préférence key</param>
-        /// <param name="value">Préférence value</param>
+        /// <param name="key">Preference key</param>
+        /// <param name="value">Preference value</param>
         public void setPreference(string key, object value) {
             if (_preferences == null) _preferences = new Dictionary<string, object>();
             _preferences.Add(key, value);
@@ -265,8 +267,9 @@ namespace SeleniumWrapper {
 
         /// <summary>"Opens an URL in the test frame. This accepts both relative and absolute URLs."</summary>
         /// <param name="url">URL</param>
-        public void open(String url) {
-            get(url);
+        /// <param name="raise">Optional - Raise an exception after the timeout when true</param>
+        public WebDriver open(String url, bool raise = true) {
+            return get(url, raise);
         }
 
         /// <summary>Wait the specified time in millisecond before executing the next command</summary>
@@ -340,12 +343,12 @@ namespace SeleniumWrapper {
 
         /// <summary>Undo the effect of calling chooseCancelOnNextConfirmation. Note that Selenium's overridden window.confirm() function will normally automatically return true, as if the user had manually clicked OK, so you shouldn't need to use this command unless for some reason you need to change your mind prior to the next confirmation. After any confirmation, Selenium will resume using the default behavior for future confirmations, automatically returning true (OK) unless/until you explicitly call chooseCancelOnNextConfirmation for each confirmation. Take note - every time a confirmation comes up, you must consume it with a corresponding getConfirmation, or else the next selenium operation will fail. </summary>
         public void chooseOkOnNextConfirmation() {
-            InvokeWd(() => WebDriver.SwitchTo().Alert().Dismiss());
+            InvokeVoid(() => WebDriver.SwitchTo().Alert().Dismiss());
         }
 
         /// <summary>By default, Selenium's overridden window.confirm() function will return true, as if the user had manually clicked OK; after running this command, the next call to confirm() will return false, as if the user had clicked Cancel. Selenium will then resume using the default behavior for future confirmations, automatically returning true (OK) unless/until you explicitly call this command for each confirmation.  Take note - every time a confirmation comes up, you must consume it with a corresponding getConfirmation, or else the next selenium operation will fail.</summary>
         public void chooseCancelOnNextConfirmation() {
-            InvokeWd(() => WebDriver.SwitchTo().Alert().Accept());
+            InvokeVoid(() => WebDriver.SwitchTo().Alert().Accept());
         }
 
         /// <summary>Resize currently selected window to take up the entire screen </summary>
@@ -391,16 +394,24 @@ namespace SeleniumWrapper {
 
         /// <summary>Loads a web page in the current browser session.</summary>
         /// <param name="url">URL</param>
-        public void get(String url) {
-            if (url.Contains("://")) {
-                var endDomain = url.IndexOf('/', url.IndexOf('/') + 2);
-                if (endDomain != -1)
-                    _baseUrl = url.Substring(0, endDomain);
-                else
-                    _baseUrl = url;
-            } else
-                url = _baseUrl + '/' + url.TrimStart('/');
-            InvokeWd(() => WebDriver.Navigate().GoToUrl(url));
+        /// <param name="raise">Optional - Raise an exception after the timeout when true</param>
+        public WebDriver get(String url, bool raise = true) {
+            try {
+                if(!url.StartsWith("javascript:")){
+                    var protocolIdx = url.IndexOf("://");
+                    if (protocolIdx != -1) {
+                        var endDomainIdx = url.IndexOf('/', protocolIdx + 3);
+                        _baseUrl = endDomainIdx != -1 ? url.Substring(0, endDomainIdx) : url;
+                    } else {
+                        url = _baseUrl + '/' + url.TrimStart('/');
+                    }
+                }
+                InvokeVoid(() => WebDriver.Navigate().GoToUrl(url));
+                return this;
+            } catch {
+                if (raise) throw;
+                return null;
+            }
         }
 
         /// <summary>Gets the source of the page last loaded by the browser.</summary>
@@ -434,13 +445,8 @@ namespace SeleniumWrapper {
         }
 
         /// <summary>Returns the handles of all windows within the current session.</summary>
-        public string[] WindowHandles {
-            get {
-                ReadOnlyCollection<string> collection = WebDriver.WindowHandles;
-                string[] handles = new string[collection.Count];
-                collection.CopyTo(handles, 0);
-                return handles;
-            }
+        public object WindowHandles {
+            get { return ToObjectArray(WebDriver.WindowHandles); }
         }
 
         /// <summary>Returns the element with focus, or BODY if nothing has focus.</summary>
@@ -559,11 +565,11 @@ namespace SeleniumWrapper {
                 return dictionary;
             }
             if (value is ICollection) {
-                var arrayList = new object[(value as ICollection).Count];
-                int i = 0;
-                foreach (object ele in (value as ICollection))
-                    arrayList[i++] = BoxArguments(ele);
-                return arrayList;
+                var arrTgt = new object[(value as ICollection).Count];
+                var i = 0;
+                foreach(var valscr in value as ICollection)
+                    arrTgt[i++] = BoxArguments(valscr);
+                return arrTgt;
             }
             if (value is long)
                 return (int)(long)value;
@@ -574,7 +580,7 @@ namespace SeleniumWrapper {
         /// <param name="by">Methode</param>
         /// <param name="timeoutms">Optional timeout</param>
         /// <param name="raise">Optional - Raise an exception after the timeout when true</param>
-        /// <returns>WebElement</returns>
+        /// <returns>WebElement or null</returns>
         public WebElement findElement(By by, int timeoutms = 0, bool raise = true) {
             if (by._by == null) throw new NullReferenceException("The locating mechanism is null!");
             return findElement(by._by, timeoutms, raise);
@@ -584,7 +590,7 @@ namespace SeleniumWrapper {
         /// <param name="name">The name of the element to find.</param>
         /// <param name="timeoutms">Optional timeout</param>
         /// <param name="raise">Optional - Raise an exception after the timeout when true</param>
-        /// <returns>WebElement</returns>
+        /// <returns>WebElement or null</returns>
         public WebElement findElementByName(String name, int timeoutms = 0, bool raise = true) {
             return this.findElement(OpenQA.Selenium.By.Name(name), timeoutms, raise);
         }
@@ -593,7 +599,7 @@ namespace SeleniumWrapper {
         /// <param name="xpath">The xpath locator of the element to find.</param>
         /// <param name="timeoutms">Optional timeout</param>
         /// <param name="raise">Optional - Raise an exception after the timeout when true</param>
-        /// <returns>WebElement</returns>
+        /// <returns>WebElement or null</returns>
         public WebElement findElementByXPath(String xpath, int timeoutms = 0, bool raise = true) {
             return this.findElement(OpenQA.Selenium.By.XPath(xpath), timeoutms, raise);
         }
@@ -602,7 +608,7 @@ namespace SeleniumWrapper {
         /// <param name="id">The id of the element to be found.</param>
         /// <param name="timeoutms">Optional timeout</param>
         /// <param name="raise">Optional - Raise an exception after the timeout when true</param>
-        /// <returns>WebElement</returns>
+        /// <returns>WebElement or null</returns>
         public WebElement findElementById(String id, int timeoutms = 0, bool raise = true) {
             return this.findElement(OpenQA.Selenium.By.Id(id), timeoutms, raise);
         }
@@ -611,7 +617,7 @@ namespace SeleniumWrapper {
         /// <param name="classname">The class name of the element to find.</param>
         /// <param name="timeoutms">Optional timeout</param>
         /// <param name="raise">Optional - Raise an exception after the timeout when true</param>
-        /// <returns>WebElement</returns>
+        /// <returns>WebElement or null</returns>
         public WebElement findElementByClassName(String classname, int timeoutms = 0, bool raise = true) {
             return this.findElement(OpenQA.Selenium.By.ClassName(classname), timeoutms, raise);
         }
@@ -620,7 +626,7 @@ namespace SeleniumWrapper {
         /// <param name="cssselector">The css selector to use when finding elements.</param>
         /// <param name="timeoutms">Optional timeout</param>
         /// <param name="raise">Optional - Raise an exception after the timeout when true</param>
-        /// <returns>WebElement</returns>
+        /// <returns>WebElement or null</returns>
         public WebElement findElementByCssSelector(String cssselector, int timeoutms = 0, bool raise = true) {
             return this.findElement(OpenQA.Selenium.By.CssSelector(cssselector), timeoutms, raise);
         }
@@ -629,7 +635,7 @@ namespace SeleniumWrapper {
         /// <param name="linktext">The text of the element to be found.</param>
         /// <param name="timeoutms">Optional timeout</param>
         /// <param name="raise">Optional - Raise an exception after the timeout when true</param>
-        /// <returns>WebElement</returns>
+        /// <returns>WebElement or null</returns>
         public WebElement findElementByLinkText(String linktext, int timeoutms = 0, bool raise = true) {
             return this.findElement(OpenQA.Selenium.By.LinkText(linktext), timeoutms, raise);
         }
@@ -638,7 +644,7 @@ namespace SeleniumWrapper {
         /// <param name="partiallinktext">The text of the element to partially match on.</param>
         /// <param name="timeoutms">Optional timeout</param>
         /// <param name="raise">Optional - Raise an exception after the timeout when true</param>
-        /// <returns>WebElement</returns>
+        /// <returns>WebElement or null</returns>
         public WebElement findElementByPartialLinkText(String partiallinktext, int timeoutms = 0, bool raise = true) {
             return this.findElement(OpenQA.Selenium.By.PartialLinkText(partiallinktext), timeoutms, raise);
         }
@@ -647,7 +653,7 @@ namespace SeleniumWrapper {
         /// <param name="tagname">The tag name of the element to find.</param>
         /// <param name="timeoutms">Optional timeout</param>
         /// <param name="raise">Optional - Raise an exception after the timeout when true</param>
-        /// <returns>WebElement</returns>
+        /// <returns>WebElement or null</returns>
         public WebElement findElementByTagName(String tagname, int timeoutms = 0, bool raise = true) {
             return this.findElement(OpenQA.Selenium.By.TagName(tagname), timeoutms, raise);
         }
@@ -660,12 +666,12 @@ namespace SeleniumWrapper {
             if (locator is By)
                 return findElement(((By)locator)._by, timeoutms, false) != null;
             else if (locator is string)
-                return (Boolean)InvokeWd(() => WebDriverBacked.IsElementPresent((string)locator));
+                return (Boolean)InvokeReturn(() => WebDriverBacked.IsElementPresent((string)locator));
             else
                 throw new ArgumentException("Locator has to be a 'String' or a 'By' object!");
         }
 
-        private WebElement findElement(OpenQA.Selenium.By by, int timeoutms, bool raise) {
+        private WebElement findElement([MarshalAs(UnmanagedType.IUnknown)]OpenQA.Selenium.By by, int timeoutms, bool raise) {
             try {
                 object ret;
                 if (timeoutms == 0)
@@ -896,17 +902,15 @@ namespace SeleniumWrapper {
         /// <param name="timeoutms">Optional timeout</param>
         /// <returns>Focused alert</returns>
         public Alert switchToAlert(int timeoutms = 0) {
-            Object alert;
-            if (timeoutms > 0) {
-                alert = this.WaitNoException(WebDriver.SwitchTo().Alert, timeoutms);
-            } else {
-                try {
-                    alert = WebDriver.SwitchTo().Alert();
-                } catch (Exception) {
+            try {
+                if (timeoutms == 0)
+                    return new Alert(this, WebDriver.SwitchTo().Alert());
+                return new Alert(this, this.WaitNoException(WebDriver.SwitchTo().Alert, timeoutms));
+            } catch (Exception ex) {
+                if (ex is TimeoutException || ex is NoAlertPresentException)
                     throw new Exception("Alert not found!");
-                }
+                throw;
             }
-            return new Alert(this, (OpenQA.Selenium.IAlert)alert);
         }
 
         /// <summary>Selects either the first frame on the page or the main document when a page contains iFrames.</summary>
@@ -931,11 +935,11 @@ namespace SeleniumWrapper {
             return table;
         }
 
-        public string[] getBrokenLinks() {
+        public Object getBrokenLinks() {
             return getBrokenElement("a", "href");
         }
 
-        public string[] getBrokenImages() {
+        public Object getBrokenImages() {
             return getBrokenElement("img", "src");
         }
 

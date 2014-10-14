@@ -13,6 +13,7 @@ using OpenQA.Selenium.IE;
 using OpenQA.Selenium.PhantomJS;
 using OpenQA.Selenium.Safari;
 using OpenQA.Selenium.Remote;
+using System.Collections;
 
 namespace SeleniumWrapper {
 
@@ -22,8 +23,8 @@ namespace SeleniumWrapper {
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
         internal delegate void OnWaitCallBack();
 
-        public delegate T ActionResult<T>();
-        public delegate void ActionVoid();
+        public delegate void DelegateVoid();
+        public delegate T DelegateRet<T>();
 
         protected static WebDriverCore _webDriverCoreStatic;
 
@@ -101,6 +102,7 @@ namespace SeleniumWrapper {
             set {
                 _webDriverCoreStatic = this;
                 _webDriver = value;
+                _webDriverBacked = null;
             }
         }
 
@@ -142,7 +144,7 @@ namespace SeleniumWrapper {
             return "Method " + lMethodname + " failed!";
         }
 
-        protected void InvokeWd(ActionVoid action) {
+        protected void InvokeVoid(DelegateVoid action) {
             _error = null;
             _thread = new System.Threading.Thread((System.Threading.ThreadStart)delegate {
                 try {
@@ -162,7 +164,7 @@ namespace SeleniumWrapper {
             if (_error != null) throw new ApplicationException(GetErrorPrefix(action.Method.Name) + "\n" + _error);
         }
 
-        protected T InvokeWd<T>(ActionResult<T> action) {
+        protected T InvokeReturn<T>(DelegateRet<T> action) {
             T result = default(T);
             _error = null;
             _thread = new System.Threading.Thread((System.Threading.ThreadStart)delegate {
@@ -185,7 +187,7 @@ namespace SeleniumWrapper {
             return result;
         }
 
-        protected void InvokeWdWaitFor<T>(ActionResult<T> action, T expected, bool match) {
+        protected void InvokeWaitFor<T>(DelegateRet<T> action, T expected, bool match) {
             T result = default(T);
             _error = null;
             _thread = new System.Threading.Thread((System.Threading.ThreadStart)delegate {
@@ -219,13 +221,32 @@ namespace SeleniumWrapper {
             }
         }
 
-        protected void InvokeWdAssert<T>(ActionResult<T> action, T expected, bool match) {
-            T result = InvokeWd(action);
+        protected Func<Object, Decimal> ToDecimal = Convert.ToDecimal;
+        protected Func<Object, Double> ToDouble = Convert.ToDouble;
+
+        protected object[] ToObjectArray(ICollection values) {
+            var array = new object[values.Count];
+            var i = 0;
+            foreach (var val in values)
+                array[i++] = val;
+            return array;
+        }
+
+        protected string[] ToStringArray(ICollection values) {
+            var array = new string[values.Count];
+            var i = 0;
+            foreach (var val in values)
+                array[i++] = val != null ? val.ToString() : "null";
+            return array;
+        }
+
+        protected void InvokeAssert<T>(DelegateRet<T> action, T expected, bool match) {
+            T result = InvokeReturn(action);
             if (match ^ Utils.ObjectEquals(result, expected)) throw new ApplicationException(GetErrorPrefix(action.Method.Name) + "\nexpected" + (match ? "=" : "!=") + "<" + expected.ToString() + ">\nresult=<" + result.ToString() + "> ");
         }
 
-        protected String InvokeWdVerify<T>(ActionResult<T> action, T expected, bool match) {
-            T result = InvokeWd(action);
+        protected String InvokeVerify<T>(DelegateRet<T> action, T expected, bool match) {
+            T result = InvokeReturn(action);
             if (match ^ Utils.ObjectEquals(result, expected)) {
                 return "KO, " + GetErrorPrefix(action.Method.Name) + " expected" + (match ? "=" : "!=") + "<" + expected.ToString() + "> result=<" + result.ToString() + "> ";
             } else {
@@ -233,8 +254,8 @@ namespace SeleniumWrapper {
             }
         }
 
-        protected void InvokeWdAndWait(ActionVoid action) {
-            InvokeWd(action);
+        protected void InvokeAndWait(DelegateVoid action) {
+            InvokeVoid(action);
             WebDriverBacked.WaitForPageToLoad(_timeout.ToString());
         }
 
@@ -242,7 +263,7 @@ namespace SeleniumWrapper {
         /// <param name="function"></param>
         /// <param name="timeoutms"></param>
         /// <returns></returns>
-        internal T WaitNotNullOrTrue<T>(ActionResult<T> function, int timeoutms) {
+        internal T WaitNotNullOrTrue<T>(DelegateRet<T> function, int timeoutms) {
             var endTime = DateTime.Now.AddMilliseconds(timeoutms == -1 ? this._timeout : timeoutms);
             while (true) {
                 var result = function();
