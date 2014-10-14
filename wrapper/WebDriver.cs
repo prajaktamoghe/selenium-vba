@@ -108,10 +108,12 @@ namespace SeleniumWrapper {
                 case "phantomjs": case "pjs":
                     var pjsService = PhantomJSDriverService.CreateDefaultService(dir);
                     pjsService.SuppressInitialDiagnosticInformation = true;
+                    pjsService.IgnoreSslErrors = true;
                     pjsService.HideCommandPromptWindow = this._hideCommandPromptWindow;
                     if(base._proxy != null)
                         pjsService.Proxy = base._proxy.HttpProxy;
-                    pjsService.AddArguments(base._arguments);
+                    if(base._arguments != null)
+                        pjsService.AddArguments(base._arguments);
                     WebDriver = new OpenQA.Selenium.PhantomJS.PhantomJSDriver(pjsService, getPhantomJSOptions());
                     break;
                 case "internetexplorer": case "iexplore": case "ie":
