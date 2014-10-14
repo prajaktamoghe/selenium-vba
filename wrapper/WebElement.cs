@@ -161,8 +161,12 @@ namespace SeleniumWrapper {
         }
 
         /// <summary>Clicks the element.</summary>
-        public void click() {
-            _webElement.Click();
+        /// <param name="keys">Optional - Keys to press</param>
+        public void click(string keys = null) {
+            if(keys == null)
+                _webElement.Click();
+            else
+                new OpenQA.Selenium.Interactions.Actions(_webDriver).KeyDown(keys).Click(_webElement).KeyUp(keys).Build().Perform();
         }
 
         /// <summary>Clicks at the element offset.</summary>
@@ -386,7 +390,7 @@ namespace SeleniumWrapper {
         /// <param name="by">Methode</param>
         /// <param name="timeoutms">Optional timeout</param>
         /// <param name="raise">Optional - Raise an exception after the timeout when true</param>
-        /// <returns>WebElement</returns>
+        /// <returns>WebElement or null</returns>
         public WebElement findElement(By by, int timeoutms = 0, bool raise = true) {
             if (by._by == null) throw new NullReferenceException("The locating mechanism is null!");
             return this.findElement(by._by, timeoutms, raise);
@@ -396,7 +400,7 @@ namespace SeleniumWrapper {
         /// <param name="name">Name</param>
         /// <param name="timeoutms">Optional timeout in millisecond</param>
         /// <param name="raise">Optional - Raise an exception after the timeout when true</param>
-        /// <returns>WebElement</returns>
+        /// <returns>WebElement or null</returns>
         public WebElement findElementByName(String name, int timeoutms = 0, bool raise = true) {
             return this.findElement(OpenQA.Selenium.By.Name(name), timeoutms, raise);
         }
@@ -405,7 +409,7 @@ namespace SeleniumWrapper {
         /// <param name="xpath">XPath</param>
         /// <param name="timeoutms">Optional timeout in millisecond</param>
         /// <param name="raise">Optional - Raise an exception after the timeout when true</param>
-        /// <returns>WebElement</returns>
+        /// <returns>WebElement or null</returns>
         public WebElement findElementByXPath(String xpath, int timeoutms = 0, bool raise = true) {
             return this.findElement(OpenQA.Selenium.By.XPath(xpath), timeoutms, raise);
         }
@@ -414,7 +418,7 @@ namespace SeleniumWrapper {
         /// <param name="id">Id</param>
         /// <param name="timeoutms">Optional timeout in millisecond</param>
         /// <param name="raise">Optional - Raise an exception after the timeout when true</param>
-        /// <returns>WebElement</returns>
+        /// <returns>WebElement or null</returns>
         public WebElement findElementById(String id, int timeoutms = 0, bool raise = true) {
             return this.findElement(OpenQA.Selenium.By.Id(id), timeoutms, raise);
         }
@@ -423,7 +427,7 @@ namespace SeleniumWrapper {
         /// <param name="classname">Classname</param>
         /// <param name="timeoutms">Optional timeout in millisecond</param>
         /// <param name="raise">Optional - Raise an exception after the timeout when true</param>
-        /// <returns>WebElement</returns>
+        /// <returns>WebElement or null</returns>
         public WebElement findElementByClassName(String classname, int timeoutms = 0, bool raise = true) {
             return this.findElement(OpenQA.Selenium.By.ClassName(classname), timeoutms, raise);
         }
@@ -432,7 +436,7 @@ namespace SeleniumWrapper {
         /// <param name="cssselector">CSS seletor</param>
         /// <param name="timeoutms">Optional timeout in millisecond</param>
         /// <param name="raise">Optional - Raise an exception after the timeout when true</param>
-        /// <returns>WebElement</returns>
+        /// <returns>WebElement or null</returns>
         public WebElement findElementByCssSelector(String cssselector, int timeoutms = 0, bool raise = true) {
             return this.findElement(OpenQA.Selenium.By.CssSelector(cssselector), timeoutms, raise);
         }
@@ -441,7 +445,7 @@ namespace SeleniumWrapper {
         /// <param name="linktext">Link text</param>
         /// <param name="timeoutms">Optional timeout in millisecond</param>
         /// <param name="raise">Optional - Raise an exception after the timeout when true</param>
-        /// <returns>WebElement</returns>
+        /// <returns>WebElement or null</returns>
         public WebElement findElementByLinkText(String linktext, int timeoutms = 0, bool raise = true) {
             return this.findElement(OpenQA.Selenium.By.LinkText(linktext), timeoutms, raise);
         }
@@ -450,7 +454,7 @@ namespace SeleniumWrapper {
         /// <param name="partiallinktext">Partial link text</param>
         /// <param name="timeoutms">Optional timeout in millisecond</param>
         /// <param name="raise">Optional - Raise an exception after the timeout when true</param>
-        /// <returns>WebElement</returns>
+        /// <returns>WebElement or null</returns>
         public WebElement findElementByPartialLinkText(String partiallinktext, int timeoutms = 0, bool raise = true) {
             return this.findElement(OpenQA.Selenium.By.PartialLinkText(partiallinktext), timeoutms, raise);
         }
@@ -459,7 +463,7 @@ namespace SeleniumWrapper {
         /// <param name="tagname">Tag name</param>
         /// <param name="timeoutms">Optional timeout in millisecond</param>
         /// <param name="raise">Optional - Raise an exception after the timeout when true</param>
-        /// <returns>WebElement</returns>
+        /// <returns>WebElement or null</returns>
         public WebElement findElementByTagName(String tagname, int timeoutms = 0, bool raise = true) {
             return this.findElement(OpenQA.Selenium.By.TagName(tagname), timeoutms, raise);
         }
