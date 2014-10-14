@@ -11,30 +11,29 @@ using System.Xml;
 namespace InterfaceGeneration
 {
     class Program {
+
+        [STAThread]
         static void Main(string[] args) {
-
             Parser parser = new Parser();
-
             parser.Parse();
-
         }
 
         public class Parser{
 
             StringBuilder sbClass = new StringBuilder();    
             StringBuilder sbInterface = new StringBuilder();
-            private bool parseToDecimal=false;    
+            private List<string> argsInt;
+            private List<string> argsMeth;
+            private MethodInfo method;    
             
             public Parser(){
-            
-            
+
             }
 
             public void Parse(){
 
-                StringBuilder sb = new StringBuilder();
-
-                Assembly lAssembly = Assembly.LoadFrom("Selenium.WebDriverBackedSelenium.dll");
+                var sb = new StringBuilder();
+                var lAssembly = Assembly.LoadFrom("Selenium.WebDriverBackedSelenium.dll");
 
                 String[] exclusionList = new String[] { 
                     "ChooseOkOnNextConfirmation", 
@@ -67,121 +66,80 @@ namespace InterfaceGeneration
                     "CreateCookie"
                 };
 
-                System.Reflection.MethodInfo[] lMethods = lAssembly.GetType("Selenium.WebDriverBackedSelenium").GetMethods();
-                string[] lRet = new string[lMethods.Length];
-                for (int i = 0; i < lMethods.Length; i++)
-                {
+                var lMethods = lAssembly.GetType("Selenium.WebDriverBackedSelenium").GetMethods();
+                var lRet = new string[lMethods.Length];
+                for (int i = 0; i < lMethods.Length; i++){
                     if (lMethods[i].DeclaringType.Name == "DefaultSelenium"){
-                        string intMethodsName = lMethods[i].Name;
-                        if ( !Array.Exists(exclusionList, p => lMethods[i].Name.Equals(p)) ){
+                        if (Array.IndexOf(exclusionList, lMethods[i].Name) == -1 ){
                             XmlElement xmlElement = XMLFromMember(lMethods[i]);
                             string comment = Regex.Replace(xmlElement.InnerText.Replace("\\\"", "\"").Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\r\n", " "), @"[ ]{2,}", " ");
                             sbInterface.AppendLine("\t\t[Description(\"" + comment + "\")]");
                             sbClass.AppendLine("\t\t/// <summary>" + comment.Replace('<','"').Replace('>','"').Replace("&","and") + "</summary>");
-                            string argsInt = string.Empty;
-                            string argsMeth = string.Empty;
+                            this.argsInt = new List<string>();
+                            this.argsMeth = new List<string>();
                             System.Reflection.ParameterInfo[] lParameters = lMethods[i].GetParameters();
                             for (int j = 0; j < lParameters.Length; j++){
-                                if (argsInt != string.Empty) { argsInt += ", "; }
-                                if (argsMeth != string.Empty) { argsMeth += ", "; }
                                 if(lParameters[j].Name=="timeout"){
-                                    argsInt += "Object timeoutms";
-                                    argsMeth += "timeoutms.ToString()";
+                                    argsInt.Add("Object timeoutms");
+                                    argsMeth.Add("timeoutms.ToString()");
                                 }else{
-                                    argsInt += lParameters[j].ParameterType.Name + " " + lParameters[j].Name;
-                                    argsMeth += lParameters[j].Name;
+                                    argsInt.Add(lParameters[j].ParameterType.Name + " " + lParameters[j].Name);
+                                    argsMeth.Add(lParameters[j].Name);
                                 }
                             }
                             string retType = lMethods[i].ReturnType.Name.Replace("Void", "void");
                             string expected = "expected";
-                            this.parseToDecimal = false;
-                            if(lMethods[i].ReturnType == typeof(Decimal)){
-                                this.parseToDecimal=true;
-                                expected = "Convert.ToDecimal(" + expected + ")";
-                                retType = "Double";
-                            }
+                            this.method = lMethods[i];
                             if (retType == "void"){
-                                WriteLine( retType + " " + Char.ToLower(lMethods[i].Name[0]) + lMethods[i].Name.Substring(1) + "(" + argsInt + ")",
-                                        "InvokeWd(()=>WebDriverBacked." + lMethods[i].Name + "(" + argsMeth + "))");
-
-                                if (!Array.Exists(noWaitActionsList, p => lMethods[i].Name.StartsWith(p))){
-                                    WriteLine( retType + " " + Char.ToLower(lMethods[i].Name[0]) + lMethods[i].Name.Substring(1) + "AndWait(" + argsInt + ")",
-                                            "InvokeWdAndWait(()=>WebDriverBacked." + lMethods[i].Name + "(" + argsMeth + "))");
-                                }
-
-                            }
-                            else
-                            {
-                                WriteLine( retType + " " + Char.ToLower(lMethods[i].Name[0]) + lMethods[i].Name.Substring(1) + "(" + argsInt + ")",
-                                        " return InvokeWd(()=>WebDriverBacked." + lMethods[i].Name + "(" + argsMeth + "))");
+                                WriteLine(retType, Char.ToLower(lMethods[i].Name[0]) + lMethods[i].Name.Substring(1), "InvokeVoid($$)");
+                                if (!Array.Exists(noWaitActionsList, p => lMethods[i].Name.StartsWith(p)))
+                                    WriteLine(retType, Char.ToLower(lMethods[i].Name[0]) + lMethods[i].Name.Substring(1) + "AndWait", "InvokeAndWait($$)");
+                            }else{
+                                if (lMethods[i].ReturnType.IsArray) {
+                                    expected = "ToStringArray(expected)";
+                                    retType = "Object[]";
+                                    WriteLine("Object", Char.ToLower(lMethods[i].Name[0]) + lMethods[i].Name.Substring(1), "return ToObjectArray(InvokeReturn($$))");
+                                } else if (lMethods[i].ReturnType == typeof(Decimal)) {
+                                    expected = "ToDecimal(expected)";
+                                    retType = "Double";
+                                    WriteLine(retType, Char.ToLower(lMethods[i].Name[0]) + lMethods[i].Name.Substring(1), "return ToDouble(InvokeReturn($$))");
+                                } else
+                                    WriteLine(retType, Char.ToLower(lMethods[i].Name[0]) + lMethods[i].Name.Substring(1), "return InvokeReturn($$)");
 
                                 if (lMethods[i].Name.StartsWith("Get"))
                                 {
-                                    if (argsInt != string.Empty) argsInt += ", ";
-                                    argsInt += retType + " expected";
-                                    WriteLine( "void " + lMethods[i].Name.Replace("Get", "assert") + "(" + argsInt + ")",
-                                            "InvokeWdAssert(()=>WebDriverBacked." + lMethods[i].Name + "(" + argsMeth + ")," + expected + ",true)");
-
-                                    WriteLine( "void " + lMethods[i].Name.Replace("Get", "assertNot") + "(" + argsInt + ")",
-                                            "InvokeWdAssert(()=>WebDriverBacked." + lMethods[i].Name + "(" + argsMeth + ")," + expected + ",false)");
-
-                                    WriteLine( "String " + lMethods[i].Name.Replace("Get", "verify") + "(" + argsInt + ")",
-                                            "return InvokeWdVerify(()=>WebDriverBacked." + lMethods[i].Name + "(" + argsMeth + ")," + expected + ",true)");
-
-                                    WriteLine( "String " + lMethods[i].Name.Replace("Get", "verifyNot") + "(" + argsInt + ")",
-                                            "return InvokeWdVerify(()=>WebDriverBacked." + lMethods[i].Name + "(" + argsMeth + ")," + expected + ",false)");
-
-                                    WriteLine( "void " + lMethods[i].Name.Replace("Get", "waitFor") + "(" + argsInt + ")",
-                                            "InvokeWdWaitFor(()=>WebDriverBacked." + lMethods[i].Name + "(" + argsMeth + ")," + expected + ",true)");
-
-                                    WriteLine( "void " + lMethods[i].Name.Replace("Get", "waitForNot") + "(" + argsInt + ")",
-                                            "InvokeWdWaitFor(()=>WebDriverBacked." + lMethods[i].Name + "(" + argsMeth + ")," + expected + ",false)");
+                                    argsInt.Add( retType + " expected");
+                                    WriteLine("void", lMethods[i].Name.Replace("Get", "assert"), "InvokeAssert($$," + expected + ",true)");
+                                    WriteLine("void", lMethods[i].Name.Replace("Get", "assertNot"), "InvokeAssert($$," + expected + ",false)");
+                                    WriteLine("String", lMethods[i].Name.Replace("Get", "verify"), "return InvokeVerify($$," + expected + ",true)");
+                                    WriteLine("String", lMethods[i].Name.Replace("Get", "verifyNot"), "return InvokeVerify($$," + expected + ",false)");
+                                    WriteLine("void", lMethods[i].Name.Replace("Get", "waitFor"), "InvokeWaitFor($$," + expected + ",true)");
+                                    WriteLine("void", lMethods[i].Name.Replace("Get", "waitForNot"), "InvokeWaitFor($$," + expected + ",false)");
                                 }
-                                else if (lMethods[i].Name.StartsWith("Is"))
-                                {
-                                    WriteLine( "void " + lMethods[i].Name.Replace("Is", "assert") + "(" + argsInt + ")",
-                                            "InvokeWdAssert(()=>WebDriverBacked." + lMethods[i].Name + "(" + argsMeth + "),true,true)");
-
-                                    WriteLine( "String " + lMethods[i].Name.Replace("Is", "verify") + "(" + argsInt + ")",
-                                            "return InvokeWdVerify(()=>WebDriverBacked." + lMethods[i].Name + "(" + argsMeth + "),true,true)");
-
-                                    WriteLine( "void " + lMethods[i].Name.Replace("Is", "waitFor") + "(" + argsInt + ")",
-                                            "InvokeWdWaitFor(()=>WebDriverBacked." + lMethods[i].Name + "(" + argsMeth + "),true,true)");
-
+                                else if (lMethods[i].Name.StartsWith("Is")){
+                                    WriteLine("void", lMethods[i].Name.Replace("Is", "assert"), "InvokeAssert($$,true,true)");
+                                    WriteLine("String", lMethods[i].Name.Replace("Is", "verify"), "return InvokeVerify($$,true,true)");
+                                    WriteLine("void", lMethods[i].Name.Replace("Is", "waitFor"), "InvokeWaitFor($$,true,true)");
                                     if (lMethods[i].Name.EndsWith("Present")){
-                                        WriteLine( "void " + lMethods[i].Name.Replace("Is", "assert").Replace("Present", "NotPresent") + "(" + argsInt + ")",
-                                                "InvokeWdAssert(()=>WebDriverBacked." + lMethods[i].Name + "(" + argsMeth + "),false,true)");
-
-                                        WriteLine( "String " + lMethods[i].Name.Replace("Is", "verify").Replace("Present", "NotPresent") + "(" + argsInt + ")",
-                                                "return InvokeWdVerify(()=>WebDriverBacked." + lMethods[i].Name + "(" + argsMeth + "),false,true)");
-
-                                        WriteLine( "void " + lMethods[i].Name.Replace("Is", "waitFor").Replace("Present", "NotPresent") + "(" + argsInt + ")",
-                                                "InvokeWdWaitFor(()=>WebDriverBacked." + lMethods[i].Name + "(" + argsMeth + "),false,true)");
+                                        WriteLine("void", lMethods[i].Name.Replace("Is", "assert").Replace("Present", "NotPresent"), "InvokeAssert($$,false,true)");
+                                        WriteLine("String", lMethods[i].Name.Replace("Is", "verify").Replace("Present", "NotPresent"), "return InvokeVerify($$,false,true)");
+                                        WriteLine("void", lMethods[i].Name.Replace("Is", "waitFor").Replace("Present", "NotPresent"), "InvokeWaitFor($$,false,true)");
                                     }
                                     else{
-                                        WriteLine( "void " + lMethods[i].Name.Replace("Is", "assertNot") + "(" + argsInt + ")",
-                                                "InvokeWdAssert(()=>WebDriverBacked." + lMethods[i].Name + "(" + argsMeth + "),false,true)");
-
-                                        WriteLine( "String " + lMethods[i].Name.Replace("Is", "verifyNot") + "(" + argsInt + ")",
-                                                "return InvokeWdVerify(()=>WebDriverBacked." + lMethods[i].Name + "(" + argsMeth + "),false,true)");
-
-                                        WriteLine( "void " + lMethods[i].Name.Replace("Is", "waitForNot") + "(" + argsInt + ")",
-                                                "InvokeWdWaitFor(()=>WebDriverBacked." + lMethods[i].Name + "(" + argsMeth + "),false,true)");
+                                        WriteLine("void", lMethods[i].Name.Replace("Is", "assertNot"), "InvokeAssert($$,false,true)");
+                                        WriteLine("String", lMethods[i].Name.Replace("Is", "verifyNot"), "return InvokeVerify($$,false,true)");
+                                        WriteLine("void", lMethods[i].Name.Replace("Is", "waitForNot"), "InvokeWaitFor($$,false,true)");
                                     }
                                 }
                             }
                         }
                     }
                 }
-
                 sbClass.Replace("CSSCount(String", "CssCount(String");
                 sbInterface.Replace("CSSCount(String", "CssCount(String");
 
                 sbClass.Replace("public Boolean isElementPresent", "//public Boolean isElementPresent");
                 sbInterface.Replace("Boolean isElementPresent", "//Boolean isElementPresent");
-
-            //    sbInterface.Replace("\tDecimal ", "\t[return: MarshalAs(UnmanagedType.Currency)]Decimal ");
-            //    sbInterface.Replace("Decimal expected", "[MarshalAs(UnmanagedType.Currency)]Decimal expected");
 
                 TextWriter fclasse = new StreamWriter("..\\..\\..\\wrapper\\WebDriverGen.cs");
                 fclasse.WriteLine("using System;");
@@ -230,14 +188,17 @@ namespace InterfaceGeneration
         */
             }
 
-            public void WriteLine( string methodDeclaration, string methodContent){
+            public void WriteLine(string ret, string method1, string template) {
+                var methodDeclaration = ret + " " + method1 + "(" + string.Join(", ", this.argsInt.ToArray()) + ")";
+                string methodContent = null;
+                if (this.argsMeth.Count > 0)
+                    methodContent = template.Replace("$$", "()=>WebDriverBacked." + this.method.Name + "(" + string.Join(", ", this.argsMeth.ToArray()) + ")");
+                else if (this.method.ReturnType != typeof(void))
+                    methodContent = template.Replace("$$", "WebDriverBacked." + this.method.Name);
+                else
+                    methodContent = template.Replace("$$", "WebDriverBacked." + this.method.Name);
                 sbInterface.AppendLine("\t\t" + methodDeclaration + ";");
-                if (this.parseToDecimal && methodContent.IndexOf("return")>0 )
-                {
-                    sbClass.AppendLine("\t\tpublic " + methodDeclaration + "{" + methodContent.Replace("return ", "return Convert.ToDouble(") + ");}");
-                }else{
-                    sbClass.AppendLine("\t\tpublic " + methodDeclaration + "{" + methodContent + ";}");
-                }
+                sbClass.AppendLine("\t\tpublic " + methodDeclaration + "{" + methodContent + ";}");
             }
 
 

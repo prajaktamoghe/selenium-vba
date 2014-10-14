@@ -3,6 +3,16 @@ Contact : florentbr@gmail.com
 Website : http://code.google.com/p/selenium-vba
 
 
+v1.0.21.0  (2014/10/14)
+===============================================================================
+ * Updated Selenium IDE to 2.8.0
+ * Updated Chrome driver to 2.11
+ * Added the option "raise" on "open" and "get" to skip the exception in case of timeout
+ * Added the keys option on the click command of a web element
+ * Fixed the exception for "for each" used on methods returning an array of strings
+ * Fixed the open and get command to allow a "javascript:..." url
+ * Fixed the failing calls after a second start on a single instance
+
 v1.0.20.0  (2014/09/18)
 ===============================================================================
  * Updated Selenium libraries to 2.43.1
