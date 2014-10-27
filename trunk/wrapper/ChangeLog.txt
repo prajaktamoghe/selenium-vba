@@ -3,6 +3,12 @@ Contact : florentbr@gmail.com
 Website : http://code.google.com/p/selenium-vba
 
 
+v1.0.22.0  (2014/10/27)
+===============================================================================
+ * Updated IEDriverServer to version 2.44.0
+ * Updated Selenium libraries to version 2.44.0
+ * Updated PhantomJS to version 1.9.8
+
 v1.0.21.1  (2014/10/14)
 ===============================================================================
  * Updated Selenium IDE to 2.8.0
