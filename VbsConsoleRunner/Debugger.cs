@@ -3,6 +3,7 @@ using vbsc;
 using System.Text;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Windows.Forms;
 
 namespace vbsc {
 
@@ -25,9 +26,16 @@ namespace vbsc {
                 compiler.WScript.OnEcho += StdInOut.ConsoleOut.WriteLine;
                 while (true) {
                     StdInOut.ConsoleOut.Write(">");
-                    var cmd = StdInOut.ConsoleIn.ReadLine().Replace("print ", "echo ");
-                    if (cmd.Equals("n")) return Cmd.Next;
-                    if (!compiler.AddCode(cmd, true))
+                    var code = new StringBuilder();
+                    while (true) {
+                        var line = StdInOut.ConsoleIn.ReadLine().Replace("print ", "echo ");
+                        if (line.Equals("n")) return Cmd.Next;
+                        if (line == null || line == string.Empty) break;
+                        code.AppendLine(line);
+                        if ((Control.ModifierKeys & Keys.Shift) != 0) break;
+                        StdInOut.ConsoleOut.Write(" ");
+                    }
+                    if (code.Length != 0 && !compiler.AddCode(code.ToString(), true))
                         StdInOut.ConsoleOut.WriteLine(compiler.Error.Message);
                 }
             } finally {
