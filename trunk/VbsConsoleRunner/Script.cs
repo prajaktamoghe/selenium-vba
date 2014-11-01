@@ -115,8 +115,6 @@ namespace vbsc {
             return content.ToString();
         }
 
-
-
         public TraceLine GetTraceLineAt(int line_number) {
             return GetTraceLineAt_recursive(line_number, this, new Integer(line_number));
         }
