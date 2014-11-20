@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
+using System.Linq;
+using System.Text;
 
 namespace SeleniumWrapper {
     [Guid("7CC07D9C-3BBF-450C-B7E6-01D514FE0B1A")]
@@ -114,18 +116,35 @@ namespace SeleniumWrapper {
             return Regex.Replace(input, pattern, replacement);
         }
 
-        public static bool ObjectEquals(Object A, Object B) {
-            if (A == null || A.GetType().IsArray == false)
-                return object.Equals(A, B);
-            if (!B.GetType().IsArray) return false;
-            var a1 = (String[])A;
-            var a2 = (String[])B;
-            if (a1.Length != a2.Length) return false;
-            for (int i = 0; i < a1.Length; i++) {
-                if (!object.Equals(a1[i], a2[i]))
+        public static bool ObjectEquals(Object a, Object b) {
+            if(a is IEnumerable && b is IEnumerable){
+                var enum_b = (b as IEnumerable).GetEnumerator();
+                foreach (var va in a as IEnumerable) {
+                    if (!enum_b.MoveNext() || !object.Equals(va, enum_b.Current))
+                        return false;
+                }
+                if (enum_b.MoveNext())
                     return false;
+                return true;
             }
-            return true;
+            return object.Equals(a, b);
+        }
+
+        internal static string ToStrings(Object value) {
+            if(value == null)
+                return null;
+            if (value is IEnumerable) {
+                var sb = new StringBuilder();
+                sb.Append("[");
+                foreach (var item in value as IEnumerable) {
+                    if (sb.Length != 1)
+                        sb.Append(",");
+                    sb.Append(item);
+                }
+                sb.Append("]");
+                return sb.ToString();
+            }
+            return value.ToString();
         }
 
         /// <summary>Get a substring of the first N characters.</summary>

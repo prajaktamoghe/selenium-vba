@@ -86,7 +86,7 @@ namespace SeleniumWrapper {
         public string Equals(Object expected, Object current, string failmessage = null) {
             if (Utils.ObjectEquals(expected, current))
                 return "OK";
-            return String.IsNullOrEmpty(failmessage) ? "KO, Verify.Equals failed! exp=<" + Utils.Truncate(expected.ToString()) + "> got=<" + Utils.Truncate(current.ToString()) + ">" : failmessage;
+            return String.IsNullOrEmpty(failmessage) ? "KO, Verify.Equals failed! exp=<" + Utils.Truncate(Utils.ToStrings(expected)) + "> got=<" + Utils.Truncate(Utils.ToStrings(current)) + ">" : failmessage;
         }
 
         /// <summary>Test that two objects are not equal and raise an exception if the result is false</summary>
@@ -95,7 +95,7 @@ namespace SeleniumWrapper {
         /// <param name="failmessage">Message to return if the verification fails...</param>
         public string NotEquals(Object expected, Object current, string failmessage = null) {
             if (Utils.ObjectEquals(expected, current))
-                return String.IsNullOrEmpty(failmessage) ? "KO, Verify.NotEquals failed! exp=<" + Utils.Truncate(expected.ToString()) + "> got=<" + Utils.Truncate(current.ToString()) + ">" : failmessage;
+                return String.IsNullOrEmpty(failmessage) ? "KO, Verify.NotEquals failed! exp=<" + Utils.Truncate(Utils.ToStrings(expected)) + "> got=<" + Utils.Truncate(Utils.ToStrings(current)) + ">" : failmessage;
             return "OK";
         }
 
@@ -107,7 +107,7 @@ namespace SeleniumWrapper {
         public string Matches(string text, string pattern, string failmessage = null) {
             if (Regex.IsMatch(text, pattern))
                 return "OK";
-            return String.IsNullOrEmpty(failmessage) ? "KO, Verify.Matches failed! txt=<" + Utils.Truncate(text.ToString()) + "> pat=<" + pattern + ">" : failmessage;
+            return String.IsNullOrEmpty(failmessage) ? "KO, Verify.Matches failed! txt=<" + Utils.Truncate(text) + "> pat=<" + pattern + ">" : failmessage;
         }
 
         /// <summary></summary>
@@ -117,7 +117,7 @@ namespace SeleniumWrapper {
         /// <returns></returns>
         public string NotMatches(string text, string pattern, string failmessage = null) {
             if (Regex.IsMatch(text, pattern))
-                return String.IsNullOrEmpty(failmessage) ? "KO, Verify.NotMatches failed! txt=<" + Utils.Truncate(text.ToString()) + "> pat=<" + pattern + ">" : failmessage;
+                return String.IsNullOrEmpty(failmessage) ? "KO, Verify.NotMatches failed! txt=<" + Utils.Truncate(text) + "> pat=<" + pattern + ">" : failmessage;
             return "OK";
         }
 

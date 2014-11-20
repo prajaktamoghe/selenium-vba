@@ -232,23 +232,38 @@ namespace SeleniumWrapper {
             return array;
         }
 
-        protected string[] ToStringArray(ICollection values) {
-            var array = new string[values.Count];
+        protected string[] ToStringArray(object values) {
+            if (!(values is ICollection))
+                throw new ArgumentException("Invalide data type. Is expecting a array.");
+            var array = new string[(values as ICollection).Count];
             var i = 0;
-            foreach (var val in values)
+            foreach (var val in values as ICollection)
                 array[i++] = val != null ? val.ToString() : "null";
             return array;
         }
 
-        protected void InvokeAssert<T>(DelegateRet<T> action, T expected, bool match) {
+        protected void InvokeAssert<T>(DelegateRet<T> action, object expected, bool match) {
             T result = InvokeReturn(action);
-            if (match ^ Utils.ObjectEquals(result, expected)) throw new ApplicationException(GetErrorPrefix(action.Method.Name) + "\nexpected" + (match ? "=" : "!=") + "<" + expected.ToString() + ">\nresult=<" + result.ToString() + "> ");
+            if (match ^ Utils.ObjectEquals(result, expected))
+                throw new ApplicationException(
+                    string.Format("{0}\nexp{1}<{2}>\ngot=<{3}> ",
+                        GetErrorPrefix(action.Method.Name),
+                        match ? "=" : "!=",
+                        Utils.ToStrings(expected),
+                        Utils.ToStrings(result)
+                    )
+                );
         }
 
-        protected String InvokeVerify<T>(DelegateRet<T> action, T expected, bool match) {
+        protected String InvokeVerify<T>(DelegateRet<T> action, object expected, bool match) {
             T result = InvokeReturn(action);
             if (match ^ Utils.ObjectEquals(result, expected)) {
-                return "KO, " + GetErrorPrefix(action.Method.Name) + " expected" + (match ? "=" : "!=") + "<" + expected.ToString() + "> result=<" + result.ToString() + "> ";
+                return string.Format("KO, {0} exp{1}<{2}> got<{3}> ",
+                    GetErrorPrefix(action.Method.Name),
+                    match ? "=" : "!=",
+                    Utils.ToStrings(expected),
+                    Utils.ToStrings(result)
+                );
             } else {
                 return "OK";
             }

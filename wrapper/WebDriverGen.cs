@@ -365,12 +365,12 @@ namespace SeleniumWrapper
 		public void waitForNotTable(String tableCellAddress, String expected){InvokeWaitFor(()=>WebDriverBacked.GetTable(tableCellAddress),expected,false);}
 		/// <summary>Gets all option labels (visible text) for selected options in the specified select or multi-select element. an element locator identifying a drop-down menuan array of all selected option labels in the specified select drop-down</summary>
 		public Object getSelectedLabels(String selectLocator){return ToObjectArray(InvokeReturn(()=>WebDriverBacked.GetSelectedLabels(selectLocator)));}
-		public void assertSelectedLabels(String selectLocator, Object[] expected){InvokeAssert(()=>WebDriverBacked.GetSelectedLabels(selectLocator),ToStringArray(expected),true);}
-		public void assertNotSelectedLabels(String selectLocator, Object[] expected){InvokeAssert(()=>WebDriverBacked.GetSelectedLabels(selectLocator),ToStringArray(expected),false);}
-		public String verifySelectedLabels(String selectLocator, Object[] expected){return InvokeVerify(()=>WebDriverBacked.GetSelectedLabels(selectLocator),ToStringArray(expected),true);}
-		public String verifyNotSelectedLabels(String selectLocator, Object[] expected){return InvokeVerify(()=>WebDriverBacked.GetSelectedLabels(selectLocator),ToStringArray(expected),false);}
-		public void waitForSelectedLabels(String selectLocator, Object[] expected){InvokeWaitFor(()=>WebDriverBacked.GetSelectedLabels(selectLocator),ToStringArray(expected),true);}
-		public void waitForNotSelectedLabels(String selectLocator, Object[] expected){InvokeWaitFor(()=>WebDriverBacked.GetSelectedLabels(selectLocator),ToStringArray(expected),false);}
+		public void assertSelectedLabels(String selectLocator, Object expected){InvokeAssert(()=>WebDriverBacked.GetSelectedLabels(selectLocator),expected,true);}
+		public void assertNotSelectedLabels(String selectLocator, Object expected){InvokeAssert(()=>WebDriverBacked.GetSelectedLabels(selectLocator),expected,false);}
+		public String verifySelectedLabels(String selectLocator, Object expected){return InvokeVerify(()=>WebDriverBacked.GetSelectedLabels(selectLocator),expected,true);}
+		public String verifyNotSelectedLabels(String selectLocator, Object expected){return InvokeVerify(()=>WebDriverBacked.GetSelectedLabels(selectLocator),expected,false);}
+		public void waitForSelectedLabels(String selectLocator, Object expected){InvokeWaitFor(()=>WebDriverBacked.GetSelectedLabels(selectLocator),expected,true);}
+		public void waitForNotSelectedLabels(String selectLocator, Object expected){InvokeWaitFor(()=>WebDriverBacked.GetSelectedLabels(selectLocator),expected,false);}
 		/// <summary>Gets option label (visible text) for selected option in the specified select element. an element locator identifying a drop-down menuthe selected option label in the specified select drop-down</summary>
 		public String getSelectedLabel(String selectLocator){return InvokeReturn(()=>WebDriverBacked.GetSelectedLabel(selectLocator));}
 		public void assertSelectedLabel(String selectLocator, String expected){InvokeAssert(()=>WebDriverBacked.GetSelectedLabel(selectLocator),expected,true);}
@@ -381,12 +381,12 @@ namespace SeleniumWrapper
 		public void waitForNotSelectedLabel(String selectLocator, String expected){InvokeWaitFor(()=>WebDriverBacked.GetSelectedLabel(selectLocator),expected,false);}
 		/// <summary>Gets all option values (value attributes) for selected options in the specified select or multi-select element. an element locator identifying a drop-down menuan array of all selected option values in the specified select drop-down</summary>
 		public Object getSelectedValues(String selectLocator){return ToObjectArray(InvokeReturn(()=>WebDriverBacked.GetSelectedValues(selectLocator)));}
-		public void assertSelectedValues(String selectLocator, Object[] expected){InvokeAssert(()=>WebDriverBacked.GetSelectedValues(selectLocator),ToStringArray(expected),true);}
-		public void assertNotSelectedValues(String selectLocator, Object[] expected){InvokeAssert(()=>WebDriverBacked.GetSelectedValues(selectLocator),ToStringArray(expected),false);}
-		public String verifySelectedValues(String selectLocator, Object[] expected){return InvokeVerify(()=>WebDriverBacked.GetSelectedValues(selectLocator),ToStringArray(expected),true);}
-		public String verifyNotSelectedValues(String selectLocator, Object[] expected){return InvokeVerify(()=>WebDriverBacked.GetSelectedValues(selectLocator),ToStringArray(expected),false);}
-		public void waitForSelectedValues(String selectLocator, Object[] expected){InvokeWaitFor(()=>WebDriverBacked.GetSelectedValues(selectLocator),ToStringArray(expected),true);}
-		public void waitForNotSelectedValues(String selectLocator, Object[] expected){InvokeWaitFor(()=>WebDriverBacked.GetSelectedValues(selectLocator),ToStringArray(expected),false);}
+		public void assertSelectedValues(String selectLocator, Object expected){InvokeAssert(()=>WebDriverBacked.GetSelectedValues(selectLocator),expected,true);}
+		public void assertNotSelectedValues(String selectLocator, Object expected){InvokeAssert(()=>WebDriverBacked.GetSelectedValues(selectLocator),expected,false);}
+		public String verifySelectedValues(String selectLocator, Object expected){return InvokeVerify(()=>WebDriverBacked.GetSelectedValues(selectLocator),expected,true);}
+		public String verifyNotSelectedValues(String selectLocator, Object expected){return InvokeVerify(()=>WebDriverBacked.GetSelectedValues(selectLocator),expected,false);}
+		public void waitForSelectedValues(String selectLocator, Object expected){InvokeWaitFor(()=>WebDriverBacked.GetSelectedValues(selectLocator),expected,true);}
+		public void waitForNotSelectedValues(String selectLocator, Object expected){InvokeWaitFor(()=>WebDriverBacked.GetSelectedValues(selectLocator),expected,false);}
 		/// <summary>Gets option value (value attribute) for selected option in the specified select element. an element locator identifying a drop-down menuthe selected option value in the specified select drop-down</summary>
 		public String getSelectedValue(String selectLocator){return InvokeReturn(()=>WebDriverBacked.GetSelectedValue(selectLocator));}
 		public void assertSelectedValue(String selectLocator, String expected){InvokeAssert(()=>WebDriverBacked.GetSelectedValue(selectLocator),expected,true);}
@@ -397,12 +397,12 @@ namespace SeleniumWrapper
 		public void waitForNotSelectedValue(String selectLocator, String expected){InvokeWaitFor(()=>WebDriverBacked.GetSelectedValue(selectLocator),expected,false);}
 		/// <summary>Gets all option indexes (option number, starting at 0) for selected options in the specified select or multi-select element. an element locator identifying a drop-down menuan array of all selected option indexes in the specified select drop-down</summary>
 		public Object getSelectedIndexes(String selectLocator){return ToObjectArray(InvokeReturn(()=>WebDriverBacked.GetSelectedIndexes(selectLocator)));}
-		public void assertSelectedIndexes(String selectLocator, Object[] expected){InvokeAssert(()=>WebDriverBacked.GetSelectedIndexes(selectLocator),ToStringArray(expected),true);}
-		public void assertNotSelectedIndexes(String selectLocator, Object[] expected){InvokeAssert(()=>WebDriverBacked.GetSelectedIndexes(selectLocator),ToStringArray(expected),false);}
-		public String verifySelectedIndexes(String selectLocator, Object[] expected){return InvokeVerify(()=>WebDriverBacked.GetSelectedIndexes(selectLocator),ToStringArray(expected),true);}
-		public String verifyNotSelectedIndexes(String selectLocator, Object[] expected){return InvokeVerify(()=>WebDriverBacked.GetSelectedIndexes(selectLocator),ToStringArray(expected),false);}
-		public void waitForSelectedIndexes(String selectLocator, Object[] expected){InvokeWaitFor(()=>WebDriverBacked.GetSelectedIndexes(selectLocator),ToStringArray(expected),true);}
-		public void waitForNotSelectedIndexes(String selectLocator, Object[] expected){InvokeWaitFor(()=>WebDriverBacked.GetSelectedIndexes(selectLocator),ToStringArray(expected),false);}
+		public void assertSelectedIndexes(String selectLocator, Object expected){InvokeAssert(()=>WebDriverBacked.GetSelectedIndexes(selectLocator),expected,true);}
+		public void assertNotSelectedIndexes(String selectLocator, Object expected){InvokeAssert(()=>WebDriverBacked.GetSelectedIndexes(selectLocator),expected,false);}
+		public String verifySelectedIndexes(String selectLocator, Object expected){return InvokeVerify(()=>WebDriverBacked.GetSelectedIndexes(selectLocator),expected,true);}
+		public String verifyNotSelectedIndexes(String selectLocator, Object expected){return InvokeVerify(()=>WebDriverBacked.GetSelectedIndexes(selectLocator),expected,false);}
+		public void waitForSelectedIndexes(String selectLocator, Object expected){InvokeWaitFor(()=>WebDriverBacked.GetSelectedIndexes(selectLocator),expected,true);}
+		public void waitForNotSelectedIndexes(String selectLocator, Object expected){InvokeWaitFor(()=>WebDriverBacked.GetSelectedIndexes(selectLocator),expected,false);}
 		/// <summary>Gets option index (option number, starting at 0) for selected option in the specified select element. an element locator identifying a drop-down menuthe selected option index in the specified select drop-down</summary>
 		public String getSelectedIndex(String selectLocator){return InvokeReturn(()=>WebDriverBacked.GetSelectedIndex(selectLocator));}
 		public void assertSelectedIndex(String selectLocator, String expected){InvokeAssert(()=>WebDriverBacked.GetSelectedIndex(selectLocator),expected,true);}
@@ -413,12 +413,12 @@ namespace SeleniumWrapper
 		public void waitForNotSelectedIndex(String selectLocator, String expected){InvokeWaitFor(()=>WebDriverBacked.GetSelectedIndex(selectLocator),expected,false);}
 		/// <summary>Gets all option element IDs for selected options in the specified select or multi-select element. an element locator identifying a drop-down menuan array of all selected option IDs in the specified select drop-down</summary>
 		public Object getSelectedIds(String selectLocator){return ToObjectArray(InvokeReturn(()=>WebDriverBacked.GetSelectedIds(selectLocator)));}
-		public void assertSelectedIds(String selectLocator, Object[] expected){InvokeAssert(()=>WebDriverBacked.GetSelectedIds(selectLocator),ToStringArray(expected),true);}
-		public void assertNotSelectedIds(String selectLocator, Object[] expected){InvokeAssert(()=>WebDriverBacked.GetSelectedIds(selectLocator),ToStringArray(expected),false);}
-		public String verifySelectedIds(String selectLocator, Object[] expected){return InvokeVerify(()=>WebDriverBacked.GetSelectedIds(selectLocator),ToStringArray(expected),true);}
-		public String verifyNotSelectedIds(String selectLocator, Object[] expected){return InvokeVerify(()=>WebDriverBacked.GetSelectedIds(selectLocator),ToStringArray(expected),false);}
-		public void waitForSelectedIds(String selectLocator, Object[] expected){InvokeWaitFor(()=>WebDriverBacked.GetSelectedIds(selectLocator),ToStringArray(expected),true);}
-		public void waitForNotSelectedIds(String selectLocator, Object[] expected){InvokeWaitFor(()=>WebDriverBacked.GetSelectedIds(selectLocator),ToStringArray(expected),false);}
+		public void assertSelectedIds(String selectLocator, Object expected){InvokeAssert(()=>WebDriverBacked.GetSelectedIds(selectLocator),expected,true);}
+		public void assertNotSelectedIds(String selectLocator, Object expected){InvokeAssert(()=>WebDriverBacked.GetSelectedIds(selectLocator),expected,false);}
+		public String verifySelectedIds(String selectLocator, Object expected){return InvokeVerify(()=>WebDriverBacked.GetSelectedIds(selectLocator),expected,true);}
+		public String verifyNotSelectedIds(String selectLocator, Object expected){return InvokeVerify(()=>WebDriverBacked.GetSelectedIds(selectLocator),expected,false);}
+		public void waitForSelectedIds(String selectLocator, Object expected){InvokeWaitFor(()=>WebDriverBacked.GetSelectedIds(selectLocator),expected,true);}
+		public void waitForNotSelectedIds(String selectLocator, Object expected){InvokeWaitFor(()=>WebDriverBacked.GetSelectedIds(selectLocator),expected,false);}
 		/// <summary>Gets option element ID for selected option in the specified select element. an element locator identifying a drop-down menuthe selected option ID in the specified select drop-down</summary>
 		public String getSelectedId(String selectLocator){return InvokeReturn(()=>WebDriverBacked.GetSelectedId(selectLocator));}
 		public void assertSelectedId(String selectLocator, String expected){InvokeAssert(()=>WebDriverBacked.GetSelectedId(selectLocator),expected,true);}
@@ -437,12 +437,12 @@ namespace SeleniumWrapper
 		public void waitForNotSomethingSelected(String selectLocator){InvokeWaitFor(()=>WebDriverBacked.IsSomethingSelected(selectLocator),false,true);}
 		/// <summary>Gets all option labels in the specified select drop-down. an element locator identifying a drop-down menuan array of all option labels in the specified select drop-down</summary>
 		public Object getSelectOptions(String selectLocator){return ToObjectArray(InvokeReturn(()=>WebDriverBacked.GetSelectOptions(selectLocator)));}
-		public void assertSelectOptions(String selectLocator, Object[] expected){InvokeAssert(()=>WebDriverBacked.GetSelectOptions(selectLocator),ToStringArray(expected),true);}
-		public void assertNotSelectOptions(String selectLocator, Object[] expected){InvokeAssert(()=>WebDriverBacked.GetSelectOptions(selectLocator),ToStringArray(expected),false);}
-		public String verifySelectOptions(String selectLocator, Object[] expected){return InvokeVerify(()=>WebDriverBacked.GetSelectOptions(selectLocator),ToStringArray(expected),true);}
-		public String verifyNotSelectOptions(String selectLocator, Object[] expected){return InvokeVerify(()=>WebDriverBacked.GetSelectOptions(selectLocator),ToStringArray(expected),false);}
-		public void waitForSelectOptions(String selectLocator, Object[] expected){InvokeWaitFor(()=>WebDriverBacked.GetSelectOptions(selectLocator),ToStringArray(expected),true);}
-		public void waitForNotSelectOptions(String selectLocator, Object[] expected){InvokeWaitFor(()=>WebDriverBacked.GetSelectOptions(selectLocator),ToStringArray(expected),false);}
+		public void assertSelectOptions(String selectLocator, Object expected){InvokeAssert(()=>WebDriverBacked.GetSelectOptions(selectLocator),expected,true);}
+		public void assertNotSelectOptions(String selectLocator, Object expected){InvokeAssert(()=>WebDriverBacked.GetSelectOptions(selectLocator),expected,false);}
+		public String verifySelectOptions(String selectLocator, Object expected){return InvokeVerify(()=>WebDriverBacked.GetSelectOptions(selectLocator),expected,true);}
+		public String verifyNotSelectOptions(String selectLocator, Object expected){return InvokeVerify(()=>WebDriverBacked.GetSelectOptions(selectLocator),expected,false);}
+		public void waitForSelectOptions(String selectLocator, Object expected){InvokeWaitFor(()=>WebDriverBacked.GetSelectOptions(selectLocator),expected,true);}
+		public void waitForNotSelectOptions(String selectLocator, Object expected){InvokeWaitFor(()=>WebDriverBacked.GetSelectOptions(selectLocator),expected,false);}
 		/// <summary>Gets the value of an element attribute. The value of the attribute may differ across browsers (this is the case for the \"style\" attribute, for example). an element locator followed by an @ sign and then the name of the attribute, e.g. \"foo@bar\"the value of the specified attribute</summary>
 		public String getAttribute(String attributeLocator){return InvokeReturn(()=>WebDriverBacked.GetAttribute(attributeLocator));}
 		public void assertAttribute(String attributeLocator, String expected){InvokeAssert(()=>WebDriverBacked.GetAttribute(attributeLocator),expected,true);}
@@ -485,36 +485,36 @@ namespace SeleniumWrapper
 		public void waitForNotEditable(String locator){InvokeWaitFor(()=>WebDriverBacked.IsEditable(locator),false,true);}
 		/// <summary>Returns the IDs of all buttons on the page. If a given button has no ID, it will appear as \"\" in this array.the IDs of all buttons on the page</summary>
 		public Object getAllButtons(){return ToObjectArray(InvokeReturn(WebDriverBacked.GetAllButtons));}
-		public void assertAllButtons(Object[] expected){InvokeAssert(WebDriverBacked.GetAllButtons,ToStringArray(expected),true);}
-		public void assertNotAllButtons(Object[] expected){InvokeAssert(WebDriverBacked.GetAllButtons,ToStringArray(expected),false);}
-		public String verifyAllButtons(Object[] expected){return InvokeVerify(WebDriverBacked.GetAllButtons,ToStringArray(expected),true);}
-		public String verifyNotAllButtons(Object[] expected){return InvokeVerify(WebDriverBacked.GetAllButtons,ToStringArray(expected),false);}
-		public void waitForAllButtons(Object[] expected){InvokeWaitFor(WebDriverBacked.GetAllButtons,ToStringArray(expected),true);}
-		public void waitForNotAllButtons(Object[] expected){InvokeWaitFor(WebDriverBacked.GetAllButtons,ToStringArray(expected),false);}
+		public void assertAllButtons(Object expected){InvokeAssert(WebDriverBacked.GetAllButtons,expected,true);}
+		public void assertNotAllButtons(Object expected){InvokeAssert(WebDriverBacked.GetAllButtons,expected,false);}
+		public String verifyAllButtons(Object expected){return InvokeVerify(WebDriverBacked.GetAllButtons,expected,true);}
+		public String verifyNotAllButtons(Object expected){return InvokeVerify(WebDriverBacked.GetAllButtons,expected,false);}
+		public void waitForAllButtons(Object expected){InvokeWaitFor(WebDriverBacked.GetAllButtons,expected,true);}
+		public void waitForNotAllButtons(Object expected){InvokeWaitFor(WebDriverBacked.GetAllButtons,expected,false);}
 		/// <summary>Returns the IDs of all links on the page. If a given link has no ID, it will appear as \"\" in this array.the IDs of all links on the page</summary>
 		public Object getAllLinks(){return ToObjectArray(InvokeReturn(WebDriverBacked.GetAllLinks));}
-		public void assertAllLinks(Object[] expected){InvokeAssert(WebDriverBacked.GetAllLinks,ToStringArray(expected),true);}
-		public void assertNotAllLinks(Object[] expected){InvokeAssert(WebDriverBacked.GetAllLinks,ToStringArray(expected),false);}
-		public String verifyAllLinks(Object[] expected){return InvokeVerify(WebDriverBacked.GetAllLinks,ToStringArray(expected),true);}
-		public String verifyNotAllLinks(Object[] expected){return InvokeVerify(WebDriverBacked.GetAllLinks,ToStringArray(expected),false);}
-		public void waitForAllLinks(Object[] expected){InvokeWaitFor(WebDriverBacked.GetAllLinks,ToStringArray(expected),true);}
-		public void waitForNotAllLinks(Object[] expected){InvokeWaitFor(WebDriverBacked.GetAllLinks,ToStringArray(expected),false);}
+		public void assertAllLinks(Object expected){InvokeAssert(WebDriverBacked.GetAllLinks,expected,true);}
+		public void assertNotAllLinks(Object expected){InvokeAssert(WebDriverBacked.GetAllLinks,expected,false);}
+		public String verifyAllLinks(Object expected){return InvokeVerify(WebDriverBacked.GetAllLinks,expected,true);}
+		public String verifyNotAllLinks(Object expected){return InvokeVerify(WebDriverBacked.GetAllLinks,expected,false);}
+		public void waitForAllLinks(Object expected){InvokeWaitFor(WebDriverBacked.GetAllLinks,expected,true);}
+		public void waitForNotAllLinks(Object expected){InvokeWaitFor(WebDriverBacked.GetAllLinks,expected,false);}
 		/// <summary>Returns the IDs of all input fields on the page. If a given field has no ID, it will appear as \"\" in this array.the IDs of all field on the page</summary>
 		public Object getAllFields(){return ToObjectArray(InvokeReturn(WebDriverBacked.GetAllFields));}
-		public void assertAllFields(Object[] expected){InvokeAssert(WebDriverBacked.GetAllFields,ToStringArray(expected),true);}
-		public void assertNotAllFields(Object[] expected){InvokeAssert(WebDriverBacked.GetAllFields,ToStringArray(expected),false);}
-		public String verifyAllFields(Object[] expected){return InvokeVerify(WebDriverBacked.GetAllFields,ToStringArray(expected),true);}
-		public String verifyNotAllFields(Object[] expected){return InvokeVerify(WebDriverBacked.GetAllFields,ToStringArray(expected),false);}
-		public void waitForAllFields(Object[] expected){InvokeWaitFor(WebDriverBacked.GetAllFields,ToStringArray(expected),true);}
-		public void waitForNotAllFields(Object[] expected){InvokeWaitFor(WebDriverBacked.GetAllFields,ToStringArray(expected),false);}
+		public void assertAllFields(Object expected){InvokeAssert(WebDriverBacked.GetAllFields,expected,true);}
+		public void assertNotAllFields(Object expected){InvokeAssert(WebDriverBacked.GetAllFields,expected,false);}
+		public String verifyAllFields(Object expected){return InvokeVerify(WebDriverBacked.GetAllFields,expected,true);}
+		public String verifyNotAllFields(Object expected){return InvokeVerify(WebDriverBacked.GetAllFields,expected,false);}
+		public void waitForAllFields(Object expected){InvokeWaitFor(WebDriverBacked.GetAllFields,expected,true);}
+		public void waitForNotAllFields(Object expected){InvokeWaitFor(WebDriverBacked.GetAllFields,expected,false);}
 		/// <summary>Returns an array of JavaScript property values from all known windows having one. name of an attribute on the windowsthe set of values of this attribute from all known windows.</summary>
 		public Object getAttributeFromAllWindows(String attributeName){return ToObjectArray(InvokeReturn(()=>WebDriverBacked.GetAttributeFromAllWindows(attributeName)));}
-		public void assertAttributeFromAllWindows(String attributeName, Object[] expected){InvokeAssert(()=>WebDriverBacked.GetAttributeFromAllWindows(attributeName),ToStringArray(expected),true);}
-		public void assertNotAttributeFromAllWindows(String attributeName, Object[] expected){InvokeAssert(()=>WebDriverBacked.GetAttributeFromAllWindows(attributeName),ToStringArray(expected),false);}
-		public String verifyAttributeFromAllWindows(String attributeName, Object[] expected){return InvokeVerify(()=>WebDriverBacked.GetAttributeFromAllWindows(attributeName),ToStringArray(expected),true);}
-		public String verifyNotAttributeFromAllWindows(String attributeName, Object[] expected){return InvokeVerify(()=>WebDriverBacked.GetAttributeFromAllWindows(attributeName),ToStringArray(expected),false);}
-		public void waitForAttributeFromAllWindows(String attributeName, Object[] expected){InvokeWaitFor(()=>WebDriverBacked.GetAttributeFromAllWindows(attributeName),ToStringArray(expected),true);}
-		public void waitForNotAttributeFromAllWindows(String attributeName, Object[] expected){InvokeWaitFor(()=>WebDriverBacked.GetAttributeFromAllWindows(attributeName),ToStringArray(expected),false);}
+		public void assertAttributeFromAllWindows(String attributeName, Object expected){InvokeAssert(()=>WebDriverBacked.GetAttributeFromAllWindows(attributeName),expected,true);}
+		public void assertNotAttributeFromAllWindows(String attributeName, Object expected){InvokeAssert(()=>WebDriverBacked.GetAttributeFromAllWindows(attributeName),expected,false);}
+		public String verifyAttributeFromAllWindows(String attributeName, Object expected){return InvokeVerify(()=>WebDriverBacked.GetAttributeFromAllWindows(attributeName),expected,true);}
+		public String verifyNotAttributeFromAllWindows(String attributeName, Object expected){return InvokeVerify(()=>WebDriverBacked.GetAttributeFromAllWindows(attributeName),expected,false);}
+		public void waitForAttributeFromAllWindows(String attributeName, Object expected){InvokeWaitFor(()=>WebDriverBacked.GetAttributeFromAllWindows(attributeName),expected,true);}
+		public void waitForNotAttributeFromAllWindows(String attributeName, Object expected){InvokeWaitFor(()=>WebDriverBacked.GetAttributeFromAllWindows(attributeName),expected,false);}
 		/// <summary>deprecated - use dragAndDrop instead an element locatoroffset in pixels from the current location to which the element should be moved, e.g., \"+70,-300\"</summary>
 		public void dragdrop(String locator, String movementsString){InvokeVoid(()=>WebDriverBacked.Dragdrop(locator, movementsString));}
 		public void dragdropAndWait(String locator, String movementsString){InvokeAndWait(()=>WebDriverBacked.Dragdrop(locator, movementsString));}
@@ -538,28 +538,28 @@ namespace SeleniumWrapper
 		public void windowFocus(){InvokeVoid(WebDriverBacked.WindowFocus);}
 		/// <summary>Returns the IDs of all windows that the browser knows about in an array. Array of identifiers of all windows that the browser knows about.</summary>
 		public Object getAllWindowIds(){return ToObjectArray(InvokeReturn(WebDriverBacked.GetAllWindowIds));}
-		public void assertAllWindowIds(Object[] expected){InvokeAssert(WebDriverBacked.GetAllWindowIds,ToStringArray(expected),true);}
-		public void assertNotAllWindowIds(Object[] expected){InvokeAssert(WebDriverBacked.GetAllWindowIds,ToStringArray(expected),false);}
-		public String verifyAllWindowIds(Object[] expected){return InvokeVerify(WebDriverBacked.GetAllWindowIds,ToStringArray(expected),true);}
-		public String verifyNotAllWindowIds(Object[] expected){return InvokeVerify(WebDriverBacked.GetAllWindowIds,ToStringArray(expected),false);}
-		public void waitForAllWindowIds(Object[] expected){InvokeWaitFor(WebDriverBacked.GetAllWindowIds,ToStringArray(expected),true);}
-		public void waitForNotAllWindowIds(Object[] expected){InvokeWaitFor(WebDriverBacked.GetAllWindowIds,ToStringArray(expected),false);}
+		public void assertAllWindowIds(Object expected){InvokeAssert(WebDriverBacked.GetAllWindowIds,expected,true);}
+		public void assertNotAllWindowIds(Object expected){InvokeAssert(WebDriverBacked.GetAllWindowIds,expected,false);}
+		public String verifyAllWindowIds(Object expected){return InvokeVerify(WebDriverBacked.GetAllWindowIds,expected,true);}
+		public String verifyNotAllWindowIds(Object expected){return InvokeVerify(WebDriverBacked.GetAllWindowIds,expected,false);}
+		public void waitForAllWindowIds(Object expected){InvokeWaitFor(WebDriverBacked.GetAllWindowIds,expected,true);}
+		public void waitForNotAllWindowIds(Object expected){InvokeWaitFor(WebDriverBacked.GetAllWindowIds,expected,false);}
 		/// <summary>Returns the names of all windows that the browser knows about in an array. Array of names of all windows that the browser knows about.</summary>
 		public Object getAllWindowNames(){return ToObjectArray(InvokeReturn(WebDriverBacked.GetAllWindowNames));}
-		public void assertAllWindowNames(Object[] expected){InvokeAssert(WebDriverBacked.GetAllWindowNames,ToStringArray(expected),true);}
-		public void assertNotAllWindowNames(Object[] expected){InvokeAssert(WebDriverBacked.GetAllWindowNames,ToStringArray(expected),false);}
-		public String verifyAllWindowNames(Object[] expected){return InvokeVerify(WebDriverBacked.GetAllWindowNames,ToStringArray(expected),true);}
-		public String verifyNotAllWindowNames(Object[] expected){return InvokeVerify(WebDriverBacked.GetAllWindowNames,ToStringArray(expected),false);}
-		public void waitForAllWindowNames(Object[] expected){InvokeWaitFor(WebDriverBacked.GetAllWindowNames,ToStringArray(expected),true);}
-		public void waitForNotAllWindowNames(Object[] expected){InvokeWaitFor(WebDriverBacked.GetAllWindowNames,ToStringArray(expected),false);}
+		public void assertAllWindowNames(Object expected){InvokeAssert(WebDriverBacked.GetAllWindowNames,expected,true);}
+		public void assertNotAllWindowNames(Object expected){InvokeAssert(WebDriverBacked.GetAllWindowNames,expected,false);}
+		public String verifyAllWindowNames(Object expected){return InvokeVerify(WebDriverBacked.GetAllWindowNames,expected,true);}
+		public String verifyNotAllWindowNames(Object expected){return InvokeVerify(WebDriverBacked.GetAllWindowNames,expected,false);}
+		public void waitForAllWindowNames(Object expected){InvokeWaitFor(WebDriverBacked.GetAllWindowNames,expected,true);}
+		public void waitForNotAllWindowNames(Object expected){InvokeWaitFor(WebDriverBacked.GetAllWindowNames,expected,false);}
 		/// <summary>Returns the titles of all windows that the browser knows about in an array. Array of titles of all windows that the browser knows about.</summary>
 		public Object getAllWindowTitles(){return ToObjectArray(InvokeReturn(WebDriverBacked.GetAllWindowTitles));}
-		public void assertAllWindowTitles(Object[] expected){InvokeAssert(WebDriverBacked.GetAllWindowTitles,ToStringArray(expected),true);}
-		public void assertNotAllWindowTitles(Object[] expected){InvokeAssert(WebDriverBacked.GetAllWindowTitles,ToStringArray(expected),false);}
-		public String verifyAllWindowTitles(Object[] expected){return InvokeVerify(WebDriverBacked.GetAllWindowTitles,ToStringArray(expected),true);}
-		public String verifyNotAllWindowTitles(Object[] expected){return InvokeVerify(WebDriverBacked.GetAllWindowTitles,ToStringArray(expected),false);}
-		public void waitForAllWindowTitles(Object[] expected){InvokeWaitFor(WebDriverBacked.GetAllWindowTitles,ToStringArray(expected),true);}
-		public void waitForNotAllWindowTitles(Object[] expected){InvokeWaitFor(WebDriverBacked.GetAllWindowTitles,ToStringArray(expected),false);}
+		public void assertAllWindowTitles(Object expected){InvokeAssert(WebDriverBacked.GetAllWindowTitles,expected,true);}
+		public void assertNotAllWindowTitles(Object expected){InvokeAssert(WebDriverBacked.GetAllWindowTitles,expected,false);}
+		public String verifyAllWindowTitles(Object expected){return InvokeVerify(WebDriverBacked.GetAllWindowTitles,expected,true);}
+		public String verifyNotAllWindowTitles(Object expected){return InvokeVerify(WebDriverBacked.GetAllWindowTitles,expected,false);}
+		public void waitForAllWindowTitles(Object expected){InvokeWaitFor(WebDriverBacked.GetAllWindowTitles,expected,true);}
+		public void waitForNotAllWindowTitles(Object expected){InvokeWaitFor(WebDriverBacked.GetAllWindowTitles,expected,false);}
 		/// <summary>Returns the entire HTML source between the opening and closing \"html\" tags. the entire HTML source</summary>
 		public String getHtmlSource(){return InvokeReturn(WebDriverBacked.GetHtmlSource);}
 		public void assertHtmlSource(String expected){InvokeAssert(WebDriverBacked.GetHtmlSource,expected,true);}

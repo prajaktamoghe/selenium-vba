@@ -3,6 +3,14 @@ Contact : florentbr@gmail.com
 Website : http://code.google.com/p/selenium-vba
 
 
+v1.0.23.0  (2014/11/20)
+===============================================================================
+ * Updated Chrome driver to 2.12
+ * Added the multi-line input for the console runner
+ * Added the switchToParentFrame command
+ * [Issue117] Fixed the Assert/Verify commands having an array as input
+ * [Issue118] Skips the installation of the IDE if Firefox is missing
+
 v1.0.22.0  (2014/10/27)
 ===============================================================================
  * Updated IEDriverServer to version 2.44.0

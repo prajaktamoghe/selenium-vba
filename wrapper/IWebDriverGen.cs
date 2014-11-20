@@ -369,12 +369,12 @@ namespace SeleniumWrapper
 		void waitForNotTable(String tableCellAddress, String expected);
 		[Description("Gets all option labels (visible text) for selected options in the specified select or multi-select element. an element locator identifying a drop-down menuan array of all selected option labels in the specified select drop-down")]
 		Object getSelectedLabels(String selectLocator);
-		void assertSelectedLabels(String selectLocator, Object[] expected);
-		void assertNotSelectedLabels(String selectLocator, Object[] expected);
-		String verifySelectedLabels(String selectLocator, Object[] expected);
-		String verifyNotSelectedLabels(String selectLocator, Object[] expected);
-		void waitForSelectedLabels(String selectLocator, Object[] expected);
-		void waitForNotSelectedLabels(String selectLocator, Object[] expected);
+		void assertSelectedLabels(String selectLocator, Object expected);
+		void assertNotSelectedLabels(String selectLocator, Object expected);
+		String verifySelectedLabels(String selectLocator, Object expected);
+		String verifyNotSelectedLabels(String selectLocator, Object expected);
+		void waitForSelectedLabels(String selectLocator, Object expected);
+		void waitForNotSelectedLabels(String selectLocator, Object expected);
 		[Description("Gets option label (visible text) for selected option in the specified select element. an element locator identifying a drop-down menuthe selected option label in the specified select drop-down")]
 		String getSelectedLabel(String selectLocator);
 		void assertSelectedLabel(String selectLocator, String expected);
@@ -385,12 +385,12 @@ namespace SeleniumWrapper
 		void waitForNotSelectedLabel(String selectLocator, String expected);
 		[Description("Gets all option values (value attributes) for selected options in the specified select or multi-select element. an element locator identifying a drop-down menuan array of all selected option values in the specified select drop-down")]
 		Object getSelectedValues(String selectLocator);
-		void assertSelectedValues(String selectLocator, Object[] expected);
-		void assertNotSelectedValues(String selectLocator, Object[] expected);
-		String verifySelectedValues(String selectLocator, Object[] expected);
-		String verifyNotSelectedValues(String selectLocator, Object[] expected);
-		void waitForSelectedValues(String selectLocator, Object[] expected);
-		void waitForNotSelectedValues(String selectLocator, Object[] expected);
+		void assertSelectedValues(String selectLocator, Object expected);
+		void assertNotSelectedValues(String selectLocator, Object expected);
+		String verifySelectedValues(String selectLocator, Object expected);
+		String verifyNotSelectedValues(String selectLocator, Object expected);
+		void waitForSelectedValues(String selectLocator, Object expected);
+		void waitForNotSelectedValues(String selectLocator, Object expected);
 		[Description("Gets option value (value attribute) for selected option in the specified select element. an element locator identifying a drop-down menuthe selected option value in the specified select drop-down")]
 		String getSelectedValue(String selectLocator);
 		void assertSelectedValue(String selectLocator, String expected);
@@ -401,12 +401,12 @@ namespace SeleniumWrapper
 		void waitForNotSelectedValue(String selectLocator, String expected);
 		[Description("Gets all option indexes (option number, starting at 0) for selected options in the specified select or multi-select element. an element locator identifying a drop-down menuan array of all selected option indexes in the specified select drop-down")]
 		Object getSelectedIndexes(String selectLocator);
-		void assertSelectedIndexes(String selectLocator, Object[] expected);
-		void assertNotSelectedIndexes(String selectLocator, Object[] expected);
-		String verifySelectedIndexes(String selectLocator, Object[] expected);
-		String verifyNotSelectedIndexes(String selectLocator, Object[] expected);
-		void waitForSelectedIndexes(String selectLocator, Object[] expected);
-		void waitForNotSelectedIndexes(String selectLocator, Object[] expected);
+		void assertSelectedIndexes(String selectLocator, Object expected);
+		void assertNotSelectedIndexes(String selectLocator, Object expected);
+		String verifySelectedIndexes(String selectLocator, Object expected);
+		String verifyNotSelectedIndexes(String selectLocator, Object expected);
+		void waitForSelectedIndexes(String selectLocator, Object expected);
+		void waitForNotSelectedIndexes(String selectLocator, Object expected);
 		[Description("Gets option index (option number, starting at 0) for selected option in the specified select element. an element locator identifying a drop-down menuthe selected option index in the specified select drop-down")]
 		String getSelectedIndex(String selectLocator);
 		void assertSelectedIndex(String selectLocator, String expected);
@@ -417,12 +417,12 @@ namespace SeleniumWrapper
 		void waitForNotSelectedIndex(String selectLocator, String expected);
 		[Description("Gets all option element IDs for selected options in the specified select or multi-select element. an element locator identifying a drop-down menuan array of all selected option IDs in the specified select drop-down")]
 		Object getSelectedIds(String selectLocator);
-		void assertSelectedIds(String selectLocator, Object[] expected);
-		void assertNotSelectedIds(String selectLocator, Object[] expected);
-		String verifySelectedIds(String selectLocator, Object[] expected);
-		String verifyNotSelectedIds(String selectLocator, Object[] expected);
-		void waitForSelectedIds(String selectLocator, Object[] expected);
-		void waitForNotSelectedIds(String selectLocator, Object[] expected);
+		void assertSelectedIds(String selectLocator, Object expected);
+		void assertNotSelectedIds(String selectLocator, Object expected);
+		String verifySelectedIds(String selectLocator, Object expected);
+		String verifyNotSelectedIds(String selectLocator, Object expected);
+		void waitForSelectedIds(String selectLocator, Object expected);
+		void waitForNotSelectedIds(String selectLocator, Object expected);
 		[Description("Gets option element ID for selected option in the specified select element. an element locator identifying a drop-down menuthe selected option ID in the specified select drop-down")]
 		String getSelectedId(String selectLocator);
 		void assertSelectedId(String selectLocator, String expected);
@@ -441,12 +441,12 @@ namespace SeleniumWrapper
 		void waitForNotSomethingSelected(String selectLocator);
 		[Description("Gets all option labels in the specified select drop-down. an element locator identifying a drop-down menuan array of all option labels in the specified select drop-down")]
 		Object getSelectOptions(String selectLocator);
-		void assertSelectOptions(String selectLocator, Object[] expected);
-		void assertNotSelectOptions(String selectLocator, Object[] expected);
-		String verifySelectOptions(String selectLocator, Object[] expected);
-		String verifyNotSelectOptions(String selectLocator, Object[] expected);
-		void waitForSelectOptions(String selectLocator, Object[] expected);
-		void waitForNotSelectOptions(String selectLocator, Object[] expected);
+		void assertSelectOptions(String selectLocator, Object expected);
+		void assertNotSelectOptions(String selectLocator, Object expected);
+		String verifySelectOptions(String selectLocator, Object expected);
+		String verifyNotSelectOptions(String selectLocator, Object expected);
+		void waitForSelectOptions(String selectLocator, Object expected);
+		void waitForNotSelectOptions(String selectLocator, Object expected);
 		[Description("Gets the value of an element attribute. The value of the attribute may differ across browsers (this is the case for the \"style\" attribute, for example). an element locator followed by an @ sign and then the name of the attribute, e.g. \"foo@bar\"the value of the specified attribute")]
 		String getAttribute(String attributeLocator);
 		void assertAttribute(String attributeLocator, String expected);
@@ -489,36 +489,36 @@ namespace SeleniumWrapper
 		void waitForNotEditable(String locator);
 		[Description("Returns the IDs of all buttons on the page. If a given button has no ID, it will appear as \"\" in this array.the IDs of all buttons on the page")]
 		Object getAllButtons();
-		void assertAllButtons(Object[] expected);
-		void assertNotAllButtons(Object[] expected);
-		String verifyAllButtons(Object[] expected);
-		String verifyNotAllButtons(Object[] expected);
-		void waitForAllButtons(Object[] expected);
-		void waitForNotAllButtons(Object[] expected);
+		void assertAllButtons(Object expected);
+		void assertNotAllButtons(Object expected);
+		String verifyAllButtons(Object expected);
+		String verifyNotAllButtons(Object expected);
+		void waitForAllButtons(Object expected);
+		void waitForNotAllButtons(Object expected);
 		[Description("Returns the IDs of all links on the page. If a given link has no ID, it will appear as \"\" in this array.the IDs of all links on the page")]
 		Object getAllLinks();
-		void assertAllLinks(Object[] expected);
-		void assertNotAllLinks(Object[] expected);
-		String verifyAllLinks(Object[] expected);
-		String verifyNotAllLinks(Object[] expected);
-		void waitForAllLinks(Object[] expected);
-		void waitForNotAllLinks(Object[] expected);
+		void assertAllLinks(Object expected);
+		void assertNotAllLinks(Object expected);
+		String verifyAllLinks(Object expected);
+		String verifyNotAllLinks(Object expected);
+		void waitForAllLinks(Object expected);
+		void waitForNotAllLinks(Object expected);
 		[Description("Returns the IDs of all input fields on the page. If a given field has no ID, it will appear as \"\" in this array.the IDs of all field on the page")]
 		Object getAllFields();
-		void assertAllFields(Object[] expected);
-		void assertNotAllFields(Object[] expected);
-		String verifyAllFields(Object[] expected);
-		String verifyNotAllFields(Object[] expected);
-		void waitForAllFields(Object[] expected);
-		void waitForNotAllFields(Object[] expected);
+		void assertAllFields(Object expected);
+		void assertNotAllFields(Object expected);
+		String verifyAllFields(Object expected);
+		String verifyNotAllFields(Object expected);
+		void waitForAllFields(Object expected);
+		void waitForNotAllFields(Object expected);
 		[Description("Returns an array of JavaScript property values from all known windows having one. name of an attribute on the windowsthe set of values of this attribute from all known windows.")]
 		Object getAttributeFromAllWindows(String attributeName);
-		void assertAttributeFromAllWindows(String attributeName, Object[] expected);
-		void assertNotAttributeFromAllWindows(String attributeName, Object[] expected);
-		String verifyAttributeFromAllWindows(String attributeName, Object[] expected);
-		String verifyNotAttributeFromAllWindows(String attributeName, Object[] expected);
-		void waitForAttributeFromAllWindows(String attributeName, Object[] expected);
-		void waitForNotAttributeFromAllWindows(String attributeName, Object[] expected);
+		void assertAttributeFromAllWindows(String attributeName, Object expected);
+		void assertNotAttributeFromAllWindows(String attributeName, Object expected);
+		String verifyAttributeFromAllWindows(String attributeName, Object expected);
+		String verifyNotAttributeFromAllWindows(String attributeName, Object expected);
+		void waitForAttributeFromAllWindows(String attributeName, Object expected);
+		void waitForNotAttributeFromAllWindows(String attributeName, Object expected);
 		[Description("deprecated - use dragAndDrop instead an element locatoroffset in pixels from the current location to which the element should be moved, e.g., \"+70,-300\"")]
 		void dragdrop(String locator, String movementsString);
 		void dragdropAndWait(String locator, String movementsString);
@@ -542,28 +542,28 @@ namespace SeleniumWrapper
 		void windowFocus();
 		[Description("Returns the IDs of all windows that the browser knows about in an array. Array of identifiers of all windows that the browser knows about.")]
 		Object getAllWindowIds();
-		void assertAllWindowIds(Object[] expected);
-		void assertNotAllWindowIds(Object[] expected);
-		String verifyAllWindowIds(Object[] expected);
-		String verifyNotAllWindowIds(Object[] expected);
-		void waitForAllWindowIds(Object[] expected);
-		void waitForNotAllWindowIds(Object[] expected);
+		void assertAllWindowIds(Object expected);
+		void assertNotAllWindowIds(Object expected);
+		String verifyAllWindowIds(Object expected);
+		String verifyNotAllWindowIds(Object expected);
+		void waitForAllWindowIds(Object expected);
+		void waitForNotAllWindowIds(Object expected);
 		[Description("Returns the names of all windows that the browser knows about in an array. Array of names of all windows that the browser knows about.")]
 		Object getAllWindowNames();
-		void assertAllWindowNames(Object[] expected);
-		void assertNotAllWindowNames(Object[] expected);
-		String verifyAllWindowNames(Object[] expected);
-		String verifyNotAllWindowNames(Object[] expected);
-		void waitForAllWindowNames(Object[] expected);
-		void waitForNotAllWindowNames(Object[] expected);
+		void assertAllWindowNames(Object expected);
+		void assertNotAllWindowNames(Object expected);
+		String verifyAllWindowNames(Object expected);
+		String verifyNotAllWindowNames(Object expected);
+		void waitForAllWindowNames(Object expected);
+		void waitForNotAllWindowNames(Object expected);
 		[Description("Returns the titles of all windows that the browser knows about in an array. Array of titles of all windows that the browser knows about.")]
 		Object getAllWindowTitles();
-		void assertAllWindowTitles(Object[] expected);
-		void assertNotAllWindowTitles(Object[] expected);
-		String verifyAllWindowTitles(Object[] expected);
-		String verifyNotAllWindowTitles(Object[] expected);
-		void waitForAllWindowTitles(Object[] expected);
-		void waitForNotAllWindowTitles(Object[] expected);
+		void assertAllWindowTitles(Object expected);
+		void assertNotAllWindowTitles(Object expected);
+		String verifyAllWindowTitles(Object expected);
+		String verifyNotAllWindowTitles(Object expected);
+		void waitForAllWindowTitles(Object expected);
+		void waitForNotAllWindowTitles(Object expected);
 		[Description("Returns the entire HTML source between the opening and closing \"html\" tags. the entire HTML source")]
 		String getHtmlSource();
 		void assertHtmlSource(String expected);
