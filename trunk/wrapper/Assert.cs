@@ -86,7 +86,7 @@ namespace SeleniumWrapper {
         /// <param name="failmessage"></param>
         public void Equals(Object expected, Object current, string failmessage = null) {
             if (!Utils.ObjectEquals(expected, current))
-                throw new ApplicationException("Assert.Equals failed!\n" + (String.IsNullOrEmpty(failmessage) ? "exp=<" + Utils.Truncate(expected.ToString()) + "> got=<" + Utils.Truncate(current.ToString()) + ">" : failmessage));
+                throw new ApplicationException("Assert.Equals failed!\n" + (String.IsNullOrEmpty(failmessage) ? "exp=<" + Utils.Truncate(Utils.ToStrings(expected)) + "> got=<" + Utils.Truncate(Utils.ToStrings(current)) + ">" : failmessage));
         }
 
         /// <summary>Test that two objects are not equal and raise an exception if the result is false</summary>
@@ -95,7 +95,7 @@ namespace SeleniumWrapper {
         /// <param name="failmessage"></param>
         public void NotEquals(Object expected, Object current, string failmessage = null) {
             if (Utils.ObjectEquals(expected, current))
-                throw new ApplicationException("Assert.NotEquals failed!\n" + (String.IsNullOrEmpty(failmessage) ? "exp=<" + Utils.Truncate(expected.ToString()) + "> got=<" + Utils.Truncate(current.ToString()) + ">" : failmessage));
+                throw new ApplicationException("Assert.NotEquals failed!\n" + (String.IsNullOrEmpty(failmessage) ? "exp=<" + Utils.Truncate(Utils.ToStrings(expected)) + "> got=<" + Utils.Truncate(Utils.ToStrings(current)) + ">" : failmessage));
         }
 
         /// <summary></summary>

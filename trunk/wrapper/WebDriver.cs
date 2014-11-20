@@ -915,6 +915,13 @@ namespace SeleniumWrapper {
             return this;
         }
 
+        /// <summary>Select the parent frame of the currently selected frame.</summary>
+        /// <returns>The WebDriver instance focused on the specified frame.</returns>
+        public WebDriver switchToParentFrame() {
+            WebDriver.SwitchTo().ParentFrame();
+            return this;
+        }
+
         /// <summary>Switches focus to an alert on the page.</summary>
         /// <param name="timeoutms">Optional timeout in milliseconds</param>
         /// <returns>Focused alert</returns>

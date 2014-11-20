@@ -683,7 +683,7 @@ namespace SeleniumWrapper {
         public object[,] getData(int firstRowsToSkip = 0, int lastRowsToSkip = 0) {
             if (_webElement.TagName.ToLower() != "table")
                 throw new Exception("This element is not a table!");
-            var data = (ICollection)((OpenQA.Selenium.IJavaScriptExecutor)_webDriver).ExecuteScript("var r=arguments[0].rows;var a=[r.length];for(var i=0;i<r.length;i++){var c=r[i].cells;var b=[c.length];for(var j=0;j<c.length;j++)b[j]=c[j].textContent;a[i]=b;}return a;", _webElement);
+            var data = (ICollection)((OpenQA.Selenium.IJavaScriptExecutor)_webDriver).ExecuteScript("return (function(a){for(var d=[],b=0,g=a.length;b<g;b++){for(var e=a[b].cells,f=[],c=0,h=e.length;c<h;c++)f.push(e[c].textContent);d.push(f)}return d;})(arguments[0].rows);", _webElement);
             if(data == null) return null;
             int dim1 = data.Count;
             int dim2 = 0;

@@ -96,8 +96,8 @@ namespace InterfaceGeneration
                                     WriteLine(retType, Char.ToLower(lMethods[i].Name[0]) + lMethods[i].Name.Substring(1) + "AndWait", "InvokeAndWait($$)");
                             }else{
                                 if (lMethods[i].ReturnType.IsArray) {
-                                    expected = "ToStringArray(expected)";
-                                    retType = "Object[]";
+                                    expected = "expected";
+                                    retType = "Object";
                                     WriteLine("Object", Char.ToLower(lMethods[i].Name[0]) + lMethods[i].Name.Substring(1), "return ToObjectArray(InvokeReturn($$))");
                                 } else if (lMethods[i].ReturnType == typeof(Decimal)) {
                                     expected = "ToDecimal(expected)";

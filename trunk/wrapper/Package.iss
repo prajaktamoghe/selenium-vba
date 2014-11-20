@@ -120,9 +120,9 @@ Root: HKCR64; Subkey: "Directory\shell\Run VBS\Command"; ValueType: string; Valu
 [Run] 
 Filename: "{dotnet2064}\RegAsm.exe"; Parameters: {#MyDllName}.dll /codebase /tlb:{#MyDllName}.tlb; WorkingDir: {app}; StatusMsg: "Registering {#MyDllName} dll"; Flags: runhidden; Check: IsWin64;
 Filename: "{dotnet2032}\RegAsm.exe"; Parameters: {#MyDllName}.dll /codebase /tlb:{#MyDllName}.tlb; WorkingDir: {app}; StatusMsg: "Registering {#MyDllName} dll"; Flags: runhidden;
-Filename: "{sys}\reg.exe"; Parameters: "add ""HKCR\VBSFile\Shell"" /t REG_SZ /v """" /f /d Run"; WorkingDir: {app}; Flags: shellexec postinstall runhidden; Description: "Set the console runner as default"; Check: IsWin64;
-Filename: "{syswow64}\reg.exe"; Parameters: "add ""HKCR\VBSFile\Shell"" /t REG_SZ /v """" /f /d Run"; WorkingDir: {app}; Flags: shellexec postinstall runhidden; Description: "Set the console runner as default";
-Filename: "{code:GetFirefoxPath|}"; Parameters: "selenium-ide.xpi"; WorkingDir: {app}; Flags: shellexec postinstall; Description: "Install Selenium IDE Addon for Firefox";
+Filename: "{syswow64}\reg.exe"; Parameters: "ADD HKCR\VBSFile\Shell /t REG_SZ /ve /f /d Run"; WorkingDir: {app}; Flags: shellexec postinstall runhidden; Description: "Set the customized VBS console runner as default"; Check: IsWin64;
+Filename: "{sys}\reg.exe"; Parameters: "ADD HKCR\VBSFile\Shell /t REG_SZ /ve /f /d Run"; WorkingDir: {app}; Flags: shellexec postinstall runhidden; Description: "Set the customized VBS console runner as default"; Check: IsWin32;
+Filename: "{code:GetFirefoxPath|}"; Parameters: "selenium-ide.xpi"; WorkingDir: {app}; Flags: shellexec postinstall; Description: "Install Selenium IDE Addon for Firefox"; Check: IsFirefoxPresent
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}"
@@ -130,6 +130,8 @@ Type: filesandordirs; Name: "{app}"
 [UninstallRun]
 Filename: "{dotnet2064}\RegAsm.exe"; Parameters: {#MyDllName}.dll /unregister /tlb:{#MyDllName}.tlb; WorkingDir: {app}; StatusMsg: "Unregistering {#MyDllName} dll"; Flags: runhidden; Check: IsWin64;
 Filename: "{dotnet2032}\RegAsm.exe"; Parameters: {#MyDllName}.dll /unregister /tlb:{#MyDllName}.tlb; WorkingDir: {app}; StatusMsg: "Unregistering {#MyDllName} dll"; Flags: runhidden;
+Filename: "{syswow64}\reg.exe"; Parameters: "DELETE HKCR\VBSFile\Shell /ve /f"; WorkingDir: {app}; StatusMsg: "Remove default runner"; Flags: shellexec runhidden; Check: IsWin64;
+Filename: "{sys}\reg.exe"; Parameters: "DELETE HKCR\VBSFile\Shell /ve /f"; WorkingDir: {app}; StatusMsg: "Remove default runner"; Flags: shellexec runhidden; Check: IsWin32;
 
 [Code]
 var _AppDir: String;
@@ -139,21 +141,26 @@ var _IsExcel32: Boolean;
 var _IsExcel64: Boolean;
 var _IsExcel2003: Boolean;
 var _IsExcel2007orSup: Boolean;
+var _FirefoxPath: String;
 
 //---------------------------------------------------------------------------------------
 // Firefox functions
-//--------------------------------------------------------------------------------------- 
-function GetFirefoxPath(arg : String): string;
-  var version: String; path: String;
+//---------------------------------------------------------------------------------------
+function GetFirefoxPath(arg : String): String;
+  var version: String;
   Begin
-    RegQueryStringValue(HKLM32, 'SOFTWARE\Mozilla\Mozilla Firefox', 'CurrentVersion', version);
-    if RegQueryStringValue(HKLM32, 'SOFTWARE\Mozilla\Mozilla Firefox\' + version + '\Main', 'PathToExe', path) then Begin
-      Result := path;
-    end else begin
-      MsgBox('Firefox path not found.', mbError, MB_OK);
-    end;
+    if _FirefoxPath = '' then begin
+      RegQueryStringValue(HKLM32, 'SOFTWARE\Mozilla\Mozilla Firefox', 'CurrentVersion', version);
+      RegQueryStringValue(HKLM32, 'SOFTWARE\Mozilla\Mozilla Firefox\' + version + '\Main', 'PathToExe', _FirefoxPath)
+    end
+    Result := _FirefoxPath
   end;
-  
+
+function IsFirefoxPresent(): Boolean;
+  begin
+    Result := FileExists(GetFirefoxPath(''));
+  end;
+
 //---------------------------------------------------------------------------------------
 // Excel functions
 //--------------------------------------------------------------------------------------- 
@@ -183,10 +190,10 @@ function GetExcelVersionStr(): String;
     if _Version='' then begin
       if RegKeyExists(HKCR,'Excel.Application\CurVer') then begin
         RegQueryStringValue(HKCR,'Excel.Application\CurVer', '', lVersion);
-      //end else RaiseException( 'Failed to detect Excel version!' );
-		for i := 1 to Length(lVersion) do
-			if (lVersion[i] >= '0') and (lVersion[i] <= '9') then _Version := _Version + lVersion[i];
-	  end
+        //end else RaiseException( 'Failed to detect Excel version!' );
+        for i := 1 to Length(lVersion) do
+          if (lVersion[i] >= '0') and (lVersion[i] <= '9') then _Version := _Version + lVersion[i];
+      end
     end
     Result := _Version;
   end;
@@ -261,7 +268,7 @@ Function UninstallPrevious() : boolean;
     Result:= RegQueryStringValue(HKLM32, ExpandConstant('SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{#MyAppName}_is1'), 'UnInstallString', sUnInstallString);
     if Not Result And IsWin64 then Result:= RegQueryStringValue(HKLM64, ExpandConstant('SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{#MyAppName}_is1'), 'UnInstallString', sUnInstallString);
     If Result Then Begin
-        Exec( RemoveQuotes(sUnInstallString), '/SILENT', '', SW_SHOW, ewWaitUntilTerminated, iResultCode) ;
+        Exec(RemoveQuotes(sUnInstallString), '/SILENT', '', SW_SHOW, ewWaitUntilTerminated, iResultCode) ;
         Sleep(1000);
     End;
   End;
@@ -274,7 +281,7 @@ Function TestInstallation(): boolean;
       sLibVersion := CreateOleObject(ExpandConstant('{#MyAppName}.Assembly'));
       sLibVersion.GetVersion();
     except
-      RaiseException( 'Instalation tests failed ! '#13'Error : ' + GetExceptionMessage );
+      RaiseException('Instalation tests failed ! '#13'Error : ' + GetExceptionMessage);
     end;
   End;
 
@@ -288,7 +295,7 @@ Function IsOnUse(): boolean;
     file_dll := ExpandConstant('{app}\{#MyDllName}.dll' );
     if FileExists( file_tlb ) and FileExists( file_dll ) then begin
        while not result and not( RenameFile( file_tlb, file_tlb ) and RenameFile( file_dll, file_dll )  )do
-           result := IDCANCEL = MsgBox(ExpandConstant('Uninstallation of {#MyAppLongName} is not possible as a program is currently using it.'#13'Close all Office applications and try again.'), mbError, MB_RETRYCANCEL);
+           result := IDCANCEL = MsgBox(ExpandConstant('Failed to uninstall {#MyAppLongName} as a program is currently using it.'#13'Close all Office applications and try again.'), mbError, MB_RETRYCANCEL);
     end;
   End;
 

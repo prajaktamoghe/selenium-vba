@@ -175,6 +175,9 @@ namespace SeleniumWrapper {
         [Description("Switches focus to the specified frame, by index, name or WebElement.")]
         WebDriver switchToFrame(object index_name_element, int timeoutms = 0, bool raise = true);
 
+        [Description("Select the parent frame of the currently selected frame.")]
+        WebDriver switchToParentFrame();
+        
         [Description("Switches focus to an alert on the page.")]
         Alert switchToAlert(int timeoutms = 0);
 
